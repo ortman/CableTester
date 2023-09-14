@@ -1,0 +1,15 @@
+uses
+	CtrlLib;
+
+file
+	CableTester.h,
+	main.cpp,
+	Cable.h,
+	Cable.cpp,
+	Viewer.h,
+	Viewer.cpp,
+	CableTester.lay;
+
+mainconfig
+	"" = "GUI";
+

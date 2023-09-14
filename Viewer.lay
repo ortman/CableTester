@@ -1,0 +1,4 @@
+LAYOUT(Viewer, 400, 200)
+	ITEM(Upp::Button, dv___0, SetLabel(t_("asdf")).LeftPosZ(16, 56).TopPosZ(20, 15))
+END_LAYOUT
+

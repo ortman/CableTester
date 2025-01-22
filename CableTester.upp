@@ -3,11 +3,13 @@ uses
 
 file
 	CableTester.h,
+	Parser.hpp,
 	main.cpp,
-	Cable.h,
-	Cable.cpp,
-	Viewer.h,
-	Viewer.cpp,
+	Wire.hpp,
+	Connector.hpp,
+	MainCable.hpp,
+	Cable.hpp,
+	Viewer.hpp,
 	CableTester.lay;
 
 mainconfig

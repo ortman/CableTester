@@ -1,0 +1,89 @@
+#ifndef _WIRE_HPP_
+#define _WIRE_HPP_
+
+#include "Connector.hpp"
+
+#include <CtrlLib/CtrlLib.h>
+using namespace Upp;
+
+class Wire {
+	friend class Cable;
+	Color color;
+	Connector *leftConnector;
+	int leftConnectorPin;
+	Connector *rightConnector;
+	int rightConnectorPin;
+	
+private:
+	int getPt( int n1 , int n2 , float perc ) {
+	  int diff = n2 - n1;
+	  return n1 + (int)round(diff * perc);
+	}
+	
+	void DrawBezier(DrawingDraw& imgDraw, int32_t x1, int32_t y1, int32_t x4, int32_t y2, Color color, int32_t width=1) {
+		int xa,ya,xb,yb,xc,yc,xm,ym,xn,yn,x,y;
+		int x23 = (x4+x1)/2;
+		int lastX, lastY;
+		for (float i = 0.f ; i < 1.001f ; i += 0.1f) {
+	    xa = getPt( x1 , x23, i );
+	    ya = getPt( y1 , y1 , i );
+	    xb = getPt( x23, x23, i );
+	    yb = getPt( y1 , y2 , i );
+	    xc = getPt( x23, x4 , i );
+	    yc = getPt( y2 , y2 , i );
+	
+	    xm = getPt( xa , xb , i );
+	    ym = getPt( ya , yb , i );
+	    xn = getPt( xb , xc , i );
+	    yn = getPt( yb , yc , i );
+	
+	    x = getPt( xm , xn , i );
+	    y = getPt( ym , yn , i );
+			if (i>0) {
+				imgDraw.DrawLine(lastX,lastY, x,y, width, color);
+			}
+		  //w.DrawPixel( x , y , color );
+			lastX = x;
+			lastY = y;
+		}
+	}
+	
+public:
+	Wire(Color color, Connector *leftConnector = NULL, int leftConnectorPin = 0,
+			Connector *rightConnector = NULL, int rightConnectorPin = 0) :
+				color(color), leftConnector(leftConnector), leftConnectorPin(leftConnectorPin),
+				rightConnector(rightConnector), rightConnectorPin(rightConnectorPin) {
+	}
+	
+	Wire(int32_t hexColor, Connector *leftConnector = NULL, int leftConnectorPin = 0,
+			Connector *rightConnector = NULL, int rightConnectorPin = 0) :
+				leftConnector(leftConnector), leftConnectorPin(leftConnectorPin),
+				rightConnector(rightConnector), rightConnectorPin(rightConnectorPin) {
+		color = Color::Special((hexColor & 0x0000ff) << 16 | (hexColor & 0x00ff00) | (hexColor & 0xff0000) >> 16);
+	}
+			
+	Wire(Wire &w) {
+		color = w.color;
+		leftConnector = w.leftConnector;
+		leftConnectorPin = w.leftConnectorPin;
+		rightConnector = w.rightConnector;
+		rightConnectorPin = w.rightConnectorPin;
+	}
+	
+	void Draw(DrawingDraw& imgDraw) {
+		if (leftConnector && rightConnector) {
+			Point left = leftConnector->GetPinPosition(leftConnectorPin);
+			Point right = rightConnector->GetPinPosition(rightConnectorPin);
+			DrawBezier(imgDraw,left.x, left.y, right.x-100, right.y, color, 4);
+			imgDraw.DrawLine(right.x-100, right.y, right.x, right.y, 4, color);
+		}
+	}
+	
+	String ToString() const {
+		String str = "Wire{";
+		str << leftConnector << "-" << rightConnector << ":" << leftConnectorPin << "-" << rightConnectorPin << "#" << color << "}";
+		return str;
+	};
+};
+
+#endif

@@ -2,7 +2,7 @@
 #define _CableTester_CableTester_h
 
 #include <CtrlLib/CtrlLib.h>
-#include "Viewer.h"
+#include "Viewer.hpp"
 
 using namespace Upp;
 
@@ -11,9 +11,8 @@ using namespace Upp;
 
 class CableTester : public WithCableTesterLayout<TopWindow> {
 private:
-	Viewer viewer;
-	ColumnList list;
-	void LoadFile(String fileName);
+	void LoadFile(String filePath, String name = "");
+	MainCable* currentCable = NULL;
 public:
 	CableTester();
 };

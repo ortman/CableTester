@@ -5,12 +5,12 @@ CableTester::CableTester() {
 	CtrlLayout(*this, "CableManager");
 	Sizeable().Zoomable();
 	
-	list.ItemHeight(30);
+	list.ItemHeight(25);
 	
 	Vector<String> cableFiles = FindAllPaths("D:/UPP/MyApps/CableTester/Cabels", "*.cbl");
 	String name;
 	for (String cableFile : cableFiles) {
-		name = GetFileName(cableFile);
+		name = "  " + GetFileName(cableFile);
 		name.TrimLast(4);
 		list.Add(cableFile, name, true);
 	}
@@ -38,7 +38,6 @@ CableTester::CableTester() {
 
 void CableTester::LoadFile(String filePath, String name) {
 	
-	//currentCable->ClearConnectors();
 	currentCable = Parser::LoadFromFile(filePath, name);
 	currentCable->SortLeft();
 	//RLOG(*currentCable);

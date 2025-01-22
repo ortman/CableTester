@@ -30,7 +30,7 @@ public:
 		for (Wire *wire : wires) {
 			if (wire->leftConnector == connector && pinStart < connector->GetPinCount()) {
 				int p=0;
-				for (;p<pinStart; ++p) {
+				for (; p<pinStart; ++p) {
 					if (connector->pins[p] == wire->leftConnectorPin) break;
 				}
 				if (p == pinStart) connector->pins.Set(pinStart++, wire->leftConnectorPin);
@@ -78,16 +78,16 @@ public:
 				Point(340, maxYRight)
 			};
 			imgDraw.DrawPolygon(points, LtGray, 1, Gray);
-			imgDraw.DrawTextA(points[0].x+2, points[0].y+7, name, Arial(10), Black);
+			imgDraw.DrawText(points[0].x+2, points[0].y+7, name, Arial(10), Black);
 			return points;
 		} else if (result.GetCount() == 4) {
-			result[0] = {result[0].x-2, result[0].y-10};
-			result[1] = {result[1].x+2, result[1].y-10};
+			result[0] = {result[0].x-2, result[0].y-15};
+			result[1] = {result[1].x+2, result[1].y-15};
 			result[2] = {result[2].x+2, result[2].y+2};
 			result[3] = {result[3].x-2, result[3].y+2};
 			imgDraw.DrawPolyline(result, 2, Gray);
 			imgDraw.DrawLine(result[3], result[0], 2, Gray);
-			imgDraw.DrawTextA(result[0].x+2, result[0].y-5, name, Arial(12), Black);
+			imgDraw.DrawText(result[0].x+2, result[0].y, name, Arial(12), Black);
 		}
 		return result;
 	}
@@ -127,7 +127,5 @@ public:
 		return str;
 	};
 };
-
-//VectorMap<int, Connector*> Cable::connectors;
 
 #endif

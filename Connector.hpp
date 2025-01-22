@@ -68,19 +68,23 @@ public:
 			} else {
 				imgDraw.DrawLine(x, yPin, xRect, yPin, 2, Green);
 			}
-			imgDraw.DrawTextA(x+(isLeft ? 25 : 15), yPin-7, AsString(pins[i]), Arial(10), Blue);
+			imgDraw.DrawText(x+(isLeft ? 25 : 15), yPin-7, AsString(pins[i]), Arial(10), Blue);
 		}
 		FontInfo fi = Arial(10).Info();
 		int maxCnt = (heightRect-20) / fi.GetAveWidth();
-		int nameSize, textX = x+(isLeft ? 15 : 45);
+		int nameSize, textX = x+(isLeft ? 14 : 45);
 		Vector<String> names = Split(name, "\\n");
 		for (String name : names) {
 			nameSize = name.GetLength();
 			if (nameSize > maxCnt) {
 				nameSize = maxCnt;
 			}
-			imgDraw.DrawTextA(textX,y+5,-900,name,Arial(10),Blue,nameSize,NULL);
-			textX -= fi.GetHeight();
+			imgDraw.DrawText(textX, y+5, -900, name, Arial(10), Blue, nameSize, NULL);
+			if (isLeft) {
+				textX += (int)(fi.GetHeight() / 1.6);
+			} else {
+				textX -= (int)(fi.GetHeight() / 1.6);
+			}
 		}
 	}
 	

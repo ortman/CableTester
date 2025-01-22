@@ -8,8 +8,7 @@ private:
 	VectorMap<int, Connector*> connectors;
 	Cable* cable;
 public:
-	MainCable(String name) {
-	}
+	MainCable(String name) {}
 	
 	void SetCable(Cable* c) {cable = c;}
 	
@@ -27,6 +26,17 @@ public:
 			if (c->IsLeft()) {
 				int pinStart = 0;
 				cable->SortLeft(c, pinStart);
+				if (pinStart < c->GetPinCount()) {
+					int j;
+					for (int p = 1; p <= c->GetPinCount(); ++p) {
+						for (j = 0; j < pinStart; ++j) {
+							if (c->pins[j] == p) break;
+						}
+						if (j == pinStart) {
+							c->pins[pinStart++] = p;
+						}
+					}
+				}
 			}
 		}
 	};

@@ -71,10 +71,6 @@ private:
 	}
 	
 	static bool parseCmdConnections(FileIn &f, Cable &cable, Connector *cLeft, Connector *cRight, int level) {
-		//Connector *cLeft = cable.GetConnector(idLeft);
-		//Connector *cRight = cable.GetConnector(idRight);
-		//if (idLeft  != 0 && cLeft  == NULL) return false;
-		//if (idRight != 0 && cRight == NULL) return false;
 		const char *str;
 		String line;
 		bool overflow = false;

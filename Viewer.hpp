@@ -11,6 +11,7 @@ private:
 	ImageDraw *dImg = NULL;
 	Image objImg;
 	Size dSize;
+	MainCable *cable = NULL;
 	
 public:
 	Viewer() {
@@ -33,17 +34,26 @@ public:
 		//w.DrawRect(sz, White);
 		if (dImg) w.DrawImage(GetSize(), *dImg);
 		//if (objImg) w.DrawImage(GetSize(), objImg);
+		
+		double sX = (double)dSize.cx / (double)sz.cx;
+		double sY = (double)dSize.cy / (double)sz.cy;
+		if (sX < 1.6 || sX > 2.4 || sY < 1.6 || sY > 2.4) {
+			Show(cable);
+		}
 	}
 	
 	void Show(MainCable *cable) {
 		if (dImg) delete dImg;
-		Size sz = GetSize();
-		dSize = {sz.cx*2, sz.cy*2};
-		dImg = new ImageDraw(dSize);
-		dImg->DrawRect(dSize, White);
-		ImageDraw objID(dSize);
-		cable->Draw(*dImg, objID, dSize);
-		objImg = objID;
+		this->cable = cable;
+		if (cable != NULL) {
+			Size sz = GetSize();
+			dSize = {sz.cx*2, sz.cy*2};
+			dImg = new ImageDraw(dSize);
+			dImg->DrawRect(dSize, White);
+			ImageDraw objID(dSize);
+			cable->Draw(*dImg, objID, dSize);
+			objImg = objID;
+		}
 		Refresh();
 	}
 	

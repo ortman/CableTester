@@ -126,7 +126,7 @@ private:
 		while (result && !(line = getLine(f)).IsEqual(CMD_EOF) && _level >= level) {
 			if (line.StartsWith(CMD_COVER) || line.StartsWith(CMD_WISP)) {
 				int startName = line.StartsWith(CMD_COVER) ? 6 : 5;
-				Color color = CableNode::DarkColor(cable.GetColor(), 0.9);
+				Color color = CableNode::DarkColor(cable.GetColor(), 0.8);
 				if (line[startName] == '#') {
 					int hexColor;
 					str = ScanInt<char, byte, uint32, int, 16>(hexColor, line.Begin() + startName + 1, overflow);
@@ -169,7 +169,7 @@ private:
 					};
 				}
 				nextLine();
-				result = parseCmdConnections(f, cable, mc.GetConnector(idLeft), mc.GetConnector(idRight), _level+1);
+				result = parseCmdConnections(f, cable, mc.GetConnector(idLeft), mc.GetConnector(idRight), _level + 1);
 			} else {
 				RLOG("Unknown command: " << line);
 				nextLine();

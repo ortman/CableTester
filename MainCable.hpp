@@ -62,6 +62,7 @@ public:
 		}
 		int pinHeight = size.cy / max(leftPinCount, rightPinCount);
 		Connector::textFont.Height(pinHeight * 2 / 3);
+		Cable::pinHeight = pinHeight;
 		Wire::pen = pinHeight / 6;
 		if (leftPinCount > rightPinCount) {
 			topLeft  = pinHeight;

@@ -15,6 +15,8 @@ private:
 	Color color;
 	
 public:
+	static int pinHeight;
+	
 	Cable(String name, Color color) : name(name), color(color) {}
 	
 	void Add(Cable *cable) {cables.Add(cable);}
@@ -79,7 +81,7 @@ public:
 			}
 		}
 		if (!coverRect.IsEmpty()) {
-			coverRect.top -= 25;
+			coverRect.top -= max(20, pinHeight / 2);
 			coverRect.Inflate(5, 5);
 		}
 		if (wires.GetCount()) {
@@ -94,7 +96,7 @@ public:
 			}
 			int right = iSize.cx - iSize.cx / 6 - 30;
 			int left = right - iSize.cx / 5;
-			Rect wiresRect = {left, top - 10, right, bottom + 10};
+			Rect wiresRect = {left, top - pinHeight / 6, right, bottom + pinHeight / 6};
 			if (coverRect.IsEmpty()) {
 				coverRect = wiresRect;
 			} else {
@@ -116,7 +118,8 @@ public:
 			Point(coverRect.right, coverRect.bottom),
 			Point(coverRect.left, coverRect.bottom),
 		}, color, 1, DarkColor(color));
-		imgDraw.DrawText(coverRect.left + 2, coverRect.top +  (cables.GetCount() ? 0 : 10), name, Arial(20), Black);
+		int fontSize = max(20, pinHeight * 2 / 5);
+		imgDraw.DrawText(coverRect.left + 4, coverRect.top +  (cables.GetCount() ? 0 : (int)round((pinHeight - fontSize * 0.95) / 2.)), name, Arial(fontSize), Black);
 		for (Cable* c : cables) {
 			c->DrawCovers(imgDraw, objImg, iSize);
 		}
@@ -165,5 +168,7 @@ public:
 		return color;
 	}
 };
+
+int Cable::pinHeight = 10;
 
 #endif

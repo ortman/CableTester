@@ -72,15 +72,23 @@ public:
 		rightConnectorPin = w.rightConnectorPin;
 	}
 	
-	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, int coverWidth) {
+	void Draw(ImageDraw& imgDraw, int coverWidth, int pen, const Color& color) {
 		if (leftConnector && rightConnector) {
 			Point left = leftConnector->GetPinPosition(leftConnectorPin);
 			Point right = rightConnector->GetPinPosition(rightConnectorPin);
 			DrawBezier(imgDraw, left.x, left.y, right.x - coverWidth, right.y, color, pen);
 			imgDraw.DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen, color);
+		}
+	}
+	
+	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, int coverWidth) {
+		if (leftConnector && rightConnector) {
+			Draw(imgDraw, coverWidth, pen, color);
+			Point left = leftConnector->GetPinPosition(leftConnectorPin);
+			Point right = rightConnector->GetPinPosition(rightConnectorPin);
 			Color id = ViewerSelector::GetId(this);
-			DrawBezier(objImg, left.x, left.y, right.x - coverWidth, right.y, id, pen*2);
-			objImg.DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen*2, id);
+			DrawBezier(objImg, left.x, left.y, right.x - coverWidth, right.y, id, pen * 2);
+			objImg.DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen * 2, id);
 		}
 	}
 	
@@ -93,6 +101,8 @@ public:
 	virtual String GetTip() {
 		return ColorToHtml(color);
 	}
+	
+	Color& GetColor() {return color;}
 };
 
 int Wire::pen = 4;

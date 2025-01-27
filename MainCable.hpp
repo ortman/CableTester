@@ -84,7 +84,6 @@ public:
 	}
 	
 	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, Size &iSize) {
-		CalculateConnectorsPosition(iSize);
 		for (Connector* c : connectors) {
 			c->Draw(imgDraw, objImg, iSize);
 		}

@@ -6,12 +6,21 @@
 
 using namespace Upp;
 
-class Viewer : public ParentCtrl {
+class Viewer : public Ctrl {
 private:
 	ImageDraw *dImg = NULL;
 	Image objImg;
 	Size dSize;
 	MainCable *cable = NULL;
+	Wire *selectedWire = NULL;
+	
+	Color GetId(const Point &p) {
+		Size sz = GetSize();
+		int x = (int)(p.x * dSize.cx / sz.cx);
+		int y = (int)(p.y * dSize.cy / sz.cy);
+		if (x < dSize.cx && y < dSize.cy) return objImg[y][x];
+		return Black;
+	}
 	
 public:
 	Viewer() {
@@ -44,13 +53,20 @@ public:
 	
 	void Show(MainCable *cable) {
 		if (dImg) delete dImg;
-		this->cable = cable;
+		if (this->cable != cable) {
+			selectedWire = NULL;
+			this->cable = cable;
+		}
 		if (cable != NULL) {
 			Size sz = GetSize();
 			dSize = {sz.cx*2, sz.cy*2};
 			dImg = new ImageDraw(dSize);
 			dImg->DrawRect(dSize, White);
 			ImageDraw objID(dSize);
+			cable->CalculateConnectorsPosition(dSize);
+			if (selectedWire) {
+				selectedWire->Draw(*dImg, dSize.cx / 5, (int)round(Wire::pen * 1.5), Black);
+			}
 			cable->Draw(*dImg, objID, dSize);
 			objImg = objID;
 		}
@@ -63,8 +79,7 @@ public:
 	}
 	
 	void MouseMove(Point p, dword keyflags) {
-		Size sz = GetSize();
-		Color id = objImg[(int)(p.y * dSize.cy / sz.cy)][(int)(p.x * dSize.cx / sz.cx)];
+		Color id = GetId(p);
 		CableNode* obj = ViewerSelector::Get(id);
 		if (obj) {
 			Tip(obj->GetTip());
@@ -73,10 +88,23 @@ public:
 		}
 	}
 	
+	virtual void LeftDown(Point p, dword keyflags) {
+		Color id = GetId(p);
+		CableNode* obj = ViewerSelector::Get(id);
+		if (obj) {
+			Wire* w = dynamic_cast<Wire*>(obj);
+			if (w) {
+				selectedWire = w;
+				Show(cable);
+			}
+		} else if (selectedWire) {
+				selectedWire = NULL;
+				Show(cable);
+		}
+	}
+	
 	virtual Image CursorImage (Point p, dword) {
-		Size sz = GetSize();
-		Color id = objImg[(int)(p.y * dSize.cy / sz.cy)][(int)(p.x * dSize.cx / sz.cx)];
-		return id.GetRaw()? Image::Hand(): Image::Arrow();
+		return GetId(p).GetRaw()? Image::Hand(): Image::Arrow();
 	}
 };
 

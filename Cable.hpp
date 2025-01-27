@@ -94,7 +94,7 @@ public:
 			}
 			int right = iSize.cx - iSize.cx / 6 - 30;
 			int left = right - iSize.cx / 5;
-			Rect wiresRect = {left, top - 30, right, bottom + 10};
+			Rect wiresRect = {left, top - 10, right, bottom + 10};
 			if (coverRect.IsEmpty()) {
 				coverRect = wiresRect;
 			} else {
@@ -116,7 +116,7 @@ public:
 			Point(coverRect.right, coverRect.bottom),
 			Point(coverRect.left, coverRect.bottom),
 		}, color, 1, DarkColor(color));
-		imgDraw.DrawText(coverRect.left + 2, coverRect.top, name, Arial(20), Black);
+		imgDraw.DrawText(coverRect.left + 2, coverRect.top +  (cables.GetCount() ? 0 : 10), name, Arial(20), Black);
 		for (Cable* c : cables) {
 			c->DrawCovers(imgDraw, objImg, iSize);
 		}

@@ -1,4 +1,4 @@
-LAYOUT(CableTesterLayout, 648, 420)
+LAYOUT(CableTesterLayout, 648, 414)
 	ITEM(Upp::ColumnList, list, LeftPosZ(0, 192).VSizePosZ(0, 0))
 	ITEM(Viewer, viewer, HSizePosZ(192, 0).VSizePosZ(0, 32))
 	ITEM(Upp::Button, bCancel, SetLabel(t_("Cancel")).RightPosZ(0, 88).BottomPosZ(0, 32))

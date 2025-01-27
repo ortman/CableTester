@@ -1,18 +1,21 @@
-#ifndef _CableTester_Cabel_h_
-#define _CableTester_Cabel_h_
+#ifndef _CABLE_HPP_
+#define _CABLE_HPP_
 
 #include "Wire.hpp"
+#include "CableNode.hpp"
 #include <CtrlLib/CtrlLib.h>
 using namespace Upp;
 
-class Cable {
+class Cable : public CableNode {
 private:
 	String name;
 	Vector<Cable*> cables;
 	Vector<Wire*> wires;
+	Rect coverRect;
+	Color color;
 	
 public:
-	Cable(String name) : name(name) {}
+	Cable(String name, Color color) : name(name), color(color) {}
 	
 	void Add(Cable *cable) {cables.Add(cable);}
 	
@@ -21,6 +24,30 @@ public:
 	Vector<Cable*>&GetCables() {return cables;};
 	
 	Vector<Wire*>&GetWires() {return wires;};
+	
+	void SortRight(Connector* connector) {
+		for (Cable *cable : cables) {
+			cable->SortRight(connector);
+		}
+		int min, minIdx, cnt = wires.GetCount();
+		Wire *w;
+		for (int i=0; i<cnt; ++i) {
+			w = wires[i];
+			if (w->rightConnector == connector) {
+				min = w->rightConnectorPin;
+				for (int n=i+1; n<cnt; ++n) {
+					if (w->rightConnector == wires[n]->rightConnector && wires[n]->rightConnectorPin < min) {
+						min = wires[n]->rightConnectorPin;
+						minIdx = n;
+					}
+				}
+				if (min < w->rightConnectorPin) {
+					wires[i] = wires[minIdx];
+					wires[minIdx] = w;
+				}
+			}
+		}
+	}
 	
 	void SortLeft(Connector* connector, int &pinStart) {
 		for (Cable *cable : cables) {
@@ -38,66 +65,69 @@ public:
 		}
 	}
 	
-	Vector<Point> DrawCovers(DrawingDraw& imgDraw) {
-		Vector<Point> result, cablePoints;
+	Rect& CalcCoverRect(Size &iSize) {
+		Rect rect;
+		coverRect.Clear();
 		for (Cable* c : cables) {
-			cablePoints = c->DrawCovers(imgDraw);
-			if (result.GetCount() == 4) {
-				if (cablePoints[0].y < result[0].y) {
-					result[0] = cablePoints[0];
-					result[1] = cablePoints[1];
+			rect = c->CalcCoverRect(iSize);
+			if (!rect.IsEmpty()) {
+				if (coverRect.IsEmpty()) {
+					coverRect = rect;
+				} else {
+					coverRect.Union(rect);
 				}
-				if (cablePoints[2].y > result[2].y) {
-					result[2] = cablePoints[2];
-					result[3] = cablePoints[3];
-				}
-			} else if (cablePoints.GetCount() == 4) {
-				result = {
-					cablePoints[0],
-					cablePoints[1],
-					cablePoints[2],
-					cablePoints[3]
-				};
 			}
 		}
-		if (wires.GetCount() > 0) {
+		if (!coverRect.IsEmpty()) {
+			coverRect.top -= 25;
+			coverRect.Inflate(5, 5);
+		}
+		if (wires.GetCount()) {
 			Point pos;
-			Size sz = imgDraw.GetSize();
-			int minYRight = sz.cy, maxYRight = 0;
+			int top = iSize.cy, bottom = 0;
 			for (Wire* w : wires) {
 				if (w->rightConnector != NULL) {
 					pos = w->rightConnector->GetPinPosition(w->rightConnectorPin);
-					if (pos.y < minYRight) minYRight = pos.y-5;
-					if (pos.y > maxYRight) maxYRight = pos.y+5;
+					if (pos.y < top) top = pos.y;
+					if (pos.y > bottom) bottom = pos.y;
 				}
 			}
-			Vector<Point> points = {
-				Point(340, minYRight),
-				Point(430, minYRight),
-				Point(430, maxYRight),
-				Point(340, maxYRight)
-			};
-			imgDraw.DrawPolygon(points, LtGray, 1, Gray);
-			imgDraw.DrawText(points[0].x+2, points[0].y+7, name, Arial(10), Black);
-			return points;
-		} else if (result.GetCount() == 4) {
-			result[0] = {result[0].x-2, result[0].y-15};
-			result[1] = {result[1].x+2, result[1].y-15};
-			result[2] = {result[2].x+2, result[2].y+2};
-			result[3] = {result[3].x-2, result[3].y+2};
-			imgDraw.DrawPolyline(result, 2, Gray);
-			imgDraw.DrawLine(result[3], result[0], 2, Gray);
-			imgDraw.DrawText(result[0].x+2, result[0].y, name, Arial(12), Black);
+			int right = iSize.cx - iSize.cx / 6 - 30;
+			int left = right - iSize.cx / 5;
+			Rect wiresRect = {left, top - 30, right, bottom + 10};
+			if (coverRect.IsEmpty()) {
+				coverRect = wiresRect;
+			} else {
+				coverRect.Union(wiresRect);
+			}
 		}
-		return result;
+		return coverRect;
 	}
 	
-	void Draw(DrawingDraw& imgDraw) {
+	Rect& GetCoverRect() {
+		return coverRect;
+	}
+	
+	void DrawCovers(ImageDraw& imgDraw, ImageDraw& objImg, Size &iSize) {
+		objImg.DrawRect(coverRect, ViewerSelector::GetId(this));
+		imgDraw.DrawPolygon({
+			Point(coverRect.left, coverRect.top),
+			Point(coverRect.right, coverRect.top),
+			Point(coverRect.right, coverRect.bottom),
+			Point(coverRect.left, coverRect.bottom),
+		}, color, 1, DarkColor(color));
+		imgDraw.DrawText(coverRect.left + 2, coverRect.top, name, Arial(20), Black);
 		for (Cable* c : cables) {
-			c->Draw(imgDraw);
+			c->DrawCovers(imgDraw, objImg, iSize);
+		}
+	}
+	
+	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, int coverWidth) {
+		for (Cable* c : cables) {
+			c->Draw(imgDraw, objImg, coverWidth);
 		}
 		for (Wire* w : wires) {
-			w->Draw(imgDraw);
+			w->Draw(imgDraw, objImg, coverWidth);
 		}
 	}
 	
@@ -126,6 +156,14 @@ public:
 		str << "]}";
 		return str;
 	};
+	
+	virtual String GetTip() {
+		return name;
+	}
+	
+	Color GetColor() {
+		return color;
+	}
 };
 
 #endif

@@ -23,26 +23,17 @@ CableTester::CableTester() {
 	
 	bSave.WhenPush = [=] {
 		if (currentCable != NULL) {
-			PNGEncoder png;
-			DrawingDraw dd(500, 480);
-			Size sz = dd.GetSize();
-			dd.DrawRect(0, 0, sz.cx, sz.cy, White);
-			currentCable->Draw(dd);
-			ImageDraw iw(sz);
-			iw.DrawDrawing(0, 0, dd);
-			Image m = iw;
-		  png.SaveFile(GetExeDirFile(list.GetValue(list.GetCursor()).ToString() + ".png"), m);
+		  viewer.SaveImage(GetExeDirFile(list.GetValue(list.GetCursor()).ToString() + ".png"));
 		}
 	};
 }
 
 void CableTester::LoadFile(String filePath, String name) {
-	
+	ViewerSelector::Clear();
 	currentCable = Parser::LoadFromFile(filePath, name);
-	currentCable->SortLeft();
+	currentCable->Sort();
 	//RLOG(*currentCable);
 	viewer.Show(currentCable);
-	return;
 }
 
 GUI_APP_MAIN {

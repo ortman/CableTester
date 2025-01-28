@@ -6,6 +6,7 @@ file
 	Parser.hpp,
 	main.cpp,
 	Wire.hpp,
+	CableTesterDesktop.t,
 	ViewerSelector.hpp,
 	Connector.hpp,
 	MainCable.hpp,

@@ -2,12 +2,12 @@
 #include "Parser.hpp"
 
 CableTester::CableTester() {
-	CtrlLayout(*this, "CableManager");
+	CtrlLayout(*this, t_("Cable tester"));
 	Sizeable().Zoomable();
 	
 	list.ItemHeight(25);
 	
-	Vector<String> cableFiles = FindAllPaths("C:/PROJECTS/UPP/MyApps/CableTesterDesktop/Cabels", "*.cbl");
+	Vector<String> cableFiles = FindAllPaths(GetExeDirFile("Cables"), "*.cbl");
 	String name;
 	for (String cableFile : cableFiles) {
 		name = "  " + GetFileName(cableFile);
@@ -37,6 +37,9 @@ void CableTester::LoadFile(String filePath, String name) {
 }
 
 GUI_APP_MAIN {
-	StdLogSetup(LOG_FILE, "log.log");
+	StdLogSetup(LOG_COUT|LOG_FILE);
+	int lang = GetSystemLNG();
+	lang = SetLNGCharset(lang, CHARSET_UTF8);
+	SetLanguage(lang);
 	CableTester().Run();
 }

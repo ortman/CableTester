@@ -2,7 +2,7 @@ uses
 	CtrlLib;
 
 file
-	CableTester.h,
+	CableTesterDesktop.h,
 	Parser.hpp,
 	main.cpp,
 	Wire.hpp,
@@ -10,7 +10,7 @@ file
 	MainCable.hpp,
 	Cable.hpp,
 	Viewer.hpp,
-	CableTester.lay;
+	CableTesterDesktop.lay;
 
 mainconfig
 	"" = "GUI";

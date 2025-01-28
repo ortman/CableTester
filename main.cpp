@@ -1,4 +1,4 @@
-#include "CableTester.h"
+#include "CableTesterDesktop.h"
 #include "Parser.hpp"
 
 CableTester::CableTester() {
@@ -7,7 +7,7 @@ CableTester::CableTester() {
 	
 	list.ItemHeight(25);
 	
-	Vector<String> cableFiles = FindAllPaths("D:/UPP/MyApps/CableTester/Cabels", "*.cbl");
+	Vector<String> cableFiles = FindAllPaths("C:/PROJECTS/UPP/MyApps/CableTesterDesktop/Cabels", "*.cbl");
 	String name;
 	for (String cableFile : cableFiles) {
 		name = "  " + GetFileName(cableFile);

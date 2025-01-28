@@ -1,5 +1,5 @@
-#ifndef _CableTester_CableTester_h
-#define _CableTester_CableTester_h
+#ifndef _CABLE_TESTER_HPP_
+#define _CABLE_TESTER_HPP_
 
 #include <CtrlLib/CtrlLib.h>
 #include "Viewer.hpp"

@@ -6,7 +6,7 @@
 #include <CtrlLib/CtrlLib.h>
 using namespace Upp;
 
-class Wire {
+class Wire : public CableNode {
 	friend class Cable;
 	Color color;
 	Connector *leftConnector;
@@ -20,11 +20,11 @@ private:
 	  return n1 + (int)round(diff * perc);
 	}
 	
-	void DrawBezier(DrawingDraw& imgDraw, int32_t x1, int32_t y1, int32_t x4, int32_t y2, Color color, int32_t width=1) {
+	void DrawBezier(ImageDraw& imgDraw, int32_t x1, int32_t y1, int32_t x4, int32_t y2, Color color, int32_t width=1) {
 		int xa,ya,xb,yb,xc,yc,xm,ym,xn,yn,x,y;
 		int x23 = (x4+x1)/2;
 		int lastX, lastY;
-		for (float i = 0.f ; i < 1.001f ; i += 0.1f) {
+		for (float i = 0.f ; i < 1.001f ; i += 0.02f) {
 	    xa = getPt( x1 , x23, i );
 	    ya = getPt( y1 , y1 , i );
 	    xb = getPt( x23, x23, i );
@@ -49,6 +49,8 @@ private:
 	}
 	
 public:
+	static int pen;
+	
 	Wire(Color color, Connector *leftConnector = NULL, int leftConnectorPin = 0,
 			Connector *rightConnector = NULL, int rightConnectorPin = 0) :
 				color(color), leftConnector(leftConnector), leftConnectorPin(leftConnectorPin),
@@ -70,12 +72,23 @@ public:
 		rightConnectorPin = w.rightConnectorPin;
 	}
 	
-	void Draw(DrawingDraw& imgDraw) {
+	void Draw(ImageDraw& imgDraw, int coverWidth, int pen, const Color& color) {
 		if (leftConnector && rightConnector) {
 			Point left = leftConnector->GetPinPosition(leftConnectorPin);
 			Point right = rightConnector->GetPinPosition(rightConnectorPin);
-			DrawBezier(imgDraw,left.x, left.y, right.x-100, right.y, color, 4);
-			imgDraw.DrawLine(right.x-100, right.y, right.x, right.y, 4, color);
+			DrawBezier(imgDraw, left.x, left.y, right.x - coverWidth, right.y, color, pen);
+			imgDraw.DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen, color);
+		}
+	}
+	
+	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, int coverWidth) {
+		if (leftConnector && rightConnector) {
+			Draw(imgDraw, coverWidth, pen, color);
+			Point left = leftConnector->GetPinPosition(leftConnectorPin);
+			Point right = rightConnector->GetPinPosition(rightConnectorPin);
+			Color id = ViewerSelector::GetId(this);
+			DrawBezier(objImg, left.x, left.y, right.x - coverWidth, right.y, id, pen * 2);
+			objImg.DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen * 2, id);
 		}
 	}
 	
@@ -84,6 +97,14 @@ public:
 		str << leftConnector << "-" << rightConnector << ":" << leftConnectorPin << "-" << rightConnectorPin << "#" << color << "}";
 		return str;
 	};
+	
+	virtual String GetTip() {
+		return ColorToHtml(color);
+	}
+	
+	Color& GetColor() {return color;}
 };
+
+int Wire::pen = 4;
 
 #endif

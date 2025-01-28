@@ -1,5 +1,5 @@
-#ifndef _CableTester_Parser_h_
-#define _CableTester_Parser_h_
+#ifndef _PARSER_HPP_
+#define _PARSER_HPP_
 
 #include "MainCable.hpp"
 
@@ -63,7 +63,10 @@ private:
 			str = ScanInt<char, byte, uint32, int, 10>(pinCount, str+1, overflow);
 			if (str == 0 || overflow) break;
 			if (*str != ')') break;
-			c = new Connector(str+1, pinCount, isLeft);
+			name = String(str+1);
+			name.Replace("\\n", "\n");
+			c = new Connector(name, pinCount, isLeft);
+			ViewerSelector::Add(c);
 			cable.AddConnector(id, c);
 			nextLine();
 		}
@@ -71,6 +74,7 @@ private:
 	}
 	
 	static bool parseCmdConnections(FileIn &f, Cable &cable, Connector *cLeft, Connector *cRight, int level) {
+		if (cLeft != NULL && cRight != NULL && cLeft->IsLeft() == cRight->IsLeft()) return false;
 		const char *str;
 		String line;
 		bool overflow = false;
@@ -100,7 +104,12 @@ private:
 			if (*str != '#') return false;
 			str = ScanInt<char, byte, uint32, int, 16>(color, str+1, overflow);
 			if (str == 0 || overflow) return false;
-			wire = new Wire(color, cLeft, pinLeft, cRight, pinRight);
+			if ((cLeft != NULL && cLeft->IsRight()) || (cRight != NULL && cRight->IsLeft())) {
+				wire = new Wire(color, cRight, pinRight, cLeft, pinLeft);
+			} else {
+				wire = new Wire(color, cLeft, pinLeft, cRight, pinRight);
+			}
+			ViewerSelector::Add(wire);
 			cable.Add(wire);
 			nextLine();
 		}
@@ -116,8 +125,21 @@ private:
 		bool overflow = false;
 		while (result && !(line = getLine(f)).IsEqual(CMD_EOF) && _level >= level) {
 			if (line.StartsWith(CMD_COVER) || line.StartsWith(CMD_WISP)) {
-				name = line.Mid(line.StartsWith(CMD_COVER) ? 7 : 6);
-				Cable *c = new Cable(name);
+				int startName = line.StartsWith(CMD_COVER) ? 6 : 5;
+				Color color = CableNode::DarkColor(cable.GetColor(), 0.8);
+				if (line[startName] == '#') {
+					int hexColor;
+					str = ScanInt<char, byte, uint32, int, 16>(hexColor, line.Begin() + startName + 1, overflow);
+					if (str == 0 || overflow) {
+						result = false;
+						break;
+					};
+					color = Color::Special((hexColor & 0x0000ff) << 16 | (hexColor & 0x00ff00) | (hexColor & 0xff0000) >> 16);
+					startName += 7;
+				}
+				name = line.Mid(startName + 1);
+				Cable *c = new Cable(name, color);
+				ViewerSelector::Add(c);
 				cable.Add(c);
 				nextLine();
 				result = parseCable(f, mc, *c, _level+1);
@@ -147,7 +169,7 @@ private:
 					};
 				}
 				nextLine();
-				result = parseCmdConnections(f, cable, mc.GetConnector(idLeft), mc.GetConnector(idRight), _level+1);
+				result = parseCmdConnections(f, cable, mc.GetConnector(idLeft), mc.GetConnector(idRight), _level + 1);
 			} else {
 				RLOG("Unknown command: " << line);
 				nextLine();
@@ -180,7 +202,7 @@ public:
 			} else if (cmd.StartsWith(CMD_RIGHT)) {
 				result = parseLeftRight(f, *cable, false);
 			} else {
-				Cable* c = new Cable(name);
+				Cable* c = new Cable(name, White);
 				result = parseCable(f, *cable, *c, _level);
 				cable->SetCable(c);
 			}

@@ -1,29 +1,36 @@
 #ifndef _CONNECTOR_HPP_
 #define _CONNECTOR_HPP_
 
+#include "ViewerSelector.hpp"
+#include "CableNode.hpp"
+
 #include <CtrlLib/CtrlLib.h>
 using namespace Upp;
 
-class Connector {
+class Connector : public CableNode {
 private:
 	int32_t pinCount;
-	int32_t x;
-	int32_t y;
+	Point position;
+	Size pinSize = {50, 15};
 	bool isLeft;
 	String name;
+	static int borderWidth;
+	static Color borderColor;
+	static Color textColor;
 public:
 	Vector<int> pins;
+	static Font textFont;
 	
-	Connector(const char *name, int32_t pinCount, int32_t x, int32_t y, bool isLeft)
-			:pinCount(pinCount), x(x), y(y), isLeft(isLeft), name(name), pins(pinCount) {
-		for (int i=0; i<pinCount; ++i) {
+	Connector(const String &name, int32_t pinCount, Point& position, bool isLeft)
+			:pinCount(pinCount), position(position), isLeft(isLeft), name(name), pins(pinCount) {
+		for (int i = 0; i < pinCount; ++i) {
 			pins[i] = i+1;
 		}
 	}
 	
-	Connector(const char *name, int32_t pinCount, bool isLeft)
-			:pinCount(pinCount), x(0), y(0), isLeft(isLeft), name(name), pins(pinCount) {
-		for (int i=0; i<pinCount; ++i) {
+	Connector(const String &name, int32_t pinCount, bool isLeft)
+			:pinCount(pinCount), position(0, 0), isLeft(isLeft), name(name), pins(pinCount) {
+		for (int i = 0; i < pinCount; ++i) {
 			pins[i] = i+1;
 		}
 	}
@@ -31,8 +38,7 @@ public:
 	Connector(Connector&& c) : pins(c.pinCount) {
 		name = c.name;
 		pinCount = c.pinCount;
-		x = c.x;
-		y = c.y;
+		position = c.position;
 		isLeft = c.isLeft;
 		for (int i=0; i<pinCount; ++i) {
 			pins[i] = c.pins[i];
@@ -42,84 +48,94 @@ public:
 	void operator=(Connector&& c) {
 		name = c.name;
 		pinCount = c.pinCount;
-		x = c.x;
-		y = c.y;
+		position = c.position;
 		isLeft = c.isLeft;
 	}
 	
 	int32_t GetHeight() {
-		return pinCount*15 + 15 - 1;
+		return pinCount * pinSize.cy + pinSize.cy - 1;
 	}
 	
-	void Draw(DrawingDraw& imgDraw) {
+	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, Size &iSize) {
 		int32_t heightRect = GetHeight();
-		int32_t widthRect = 50 - 11;
-		int32_t yRect = y, xRect = (isLeft ? 1 : 10) + x;
+		int32_t widthRect = pinSize.cx - 11;
+		int32_t yRect = position.y, xRect = (isLeft ? 1 : 10) + position.x;
 		Point rect[] = {
 			{xRect, yRect}, {xRect + widthRect, yRect}, {xRect+widthRect, yRect + heightRect}, {xRect, yRect + heightRect}, {xRect, yRect}
 		};
-		String s;
-		imgDraw.DrawPolyline(rect, 5, 2, Green);
+		String pinText;
+		imgDraw.DrawPolyline(rect, 5, borderWidth, borderColor);
+		Color id = ViewerSelector::GetId(this);
+		objImg.DrawPolygon(rect, 5, id);
 		int32_t yPin;
+		FontInfo fi = textFont.Info();
 		for (int i=0; i<pinCount; ++i) {
-			yPin = y + 15 + i*15;
+			yPin = position.y + pinSize.cy + i * pinSize.cy;
+			pinText = AsString(pins[i]);
 			if (isLeft) {
-				imgDraw.DrawLine(x+widthRect+1, yPin, x+50, yPin, 2, Green);
+				imgDraw.DrawLine(position.x + widthRect + 1, yPin, position.x + pinSize.cx, yPin, borderWidth, borderColor);
+				imgDraw.DrawText(position.x + widthRect - GetTextSize(pinText, textFont).cx - 10, yPin - fi.GetHeight() / 2, pinText, textFont, textColor);
 			} else {
-				imgDraw.DrawLine(x, yPin, xRect, yPin, 2, Green);
+				imgDraw.DrawLine(position.x, yPin, xRect, yPin, borderWidth, borderColor);
+				imgDraw.DrawText(position.x + 20, yPin - fi.GetHeight() / 2, pinText, textFont, textColor);
 			}
-			imgDraw.DrawText(x+(isLeft ? 25 : 15), yPin-7, AsString(pins[i]), Arial(10), Blue);
 		}
-		FontInfo fi = Arial(10).Info();
-		int maxCnt = (heightRect-20) / fi.GetAveWidth();
-		int nameSize, textX = x+(isLeft ? 14 : 45);
-		Vector<String> names = Split(name, "\\n");
+		int maxCnt = (heightRect - 20) / fi.GetAveWidth();
+		int nameSize, textX = position.x + widthRect - (isLeft ? fi.GetHeight() : 0);
+		if (isLeft) {
+			textX -= 10 + (int)round(fi.GetWidth('0') * ((pinCount < 10) ? 0.5 : ((pinCount < 100) ? 1.5 : 2.5)));
+		}
+		Vector<String> names = Split(name, "\n");
 		for (String name : names) {
 			nameSize = name.GetLength();
 			if (nameSize > maxCnt) {
 				nameSize = maxCnt;
+				name = name.Left(nameSize);
 			}
-			imgDraw.DrawText(textX, y+5, -900, name, Arial(10), Blue, nameSize, NULL);
-			if (isLeft) {
-				textX += (int)(fi.GetHeight() / 1.6);
-			} else {
-				textX -= (int)(fi.GetHeight() / 1.6);
-			}
+			imgDraw.DrawText(textX, position.y + 5, -900, name, textFont, textColor);
+			textX += (int)(fi.GetHeight() / (isLeft ? 1.4 : -1.4));
 		}
 	}
 	
-	int32_t GetX() {return x;};
+	Point& Position() {return position;};
 	
-	void SetX(int32_t x) {this->x = x;};
-	
-	int32_t GetY() {return y;};
-	
-	void SetY(int32_t y) {this->y = y;};
-	
+	Size& PinSize() {return pinSize;};
+		
 	bool IsLeft() {return isLeft;};
+	
+	bool IsRight() {return !isLeft;};
 	
 	Point GetPinPosition(int32_t pin) {
 		int pinPos = 0;
 		for (int i = 0; i < pinCount; ++i) {
 			if (pins[i] == pin) {
-				pinPos = i+1;
+				pinPos = i + 1;
 				break;
 			}
 		}
 		if (isLeft) {
-			return {x + 50, y + 15*pinPos};
+			return {position.x + pinSize.cx, position.y + pinSize.cy * pinPos};
 		} else {
-			return {x, y + 15*pinPos};
+			return {position.x, position.y + pinSize.cy * pinPos};
 		}
 	}
 	
 	String ToString() const {
 		String str = "Connector{pinCount:";
-		str << pinCount << ", isLeft=" << isLeft << ", x=" << x << ", y=" << y << ", name=\"" << name << "\"}";
+		str << pinCount << ", isLeft=" << isLeft << ", x=" << position.x << ", y=" << position.y << ", name=\"" << name << "\"}";
 		return str;
 	};
 	
 	int GetPinCount() {return pinCount;};
+	
+	virtual String GetTip() {
+		return name;
+	}
 };
+
+int Connector::borderWidth = 2;
+Color Connector::borderColor = Green;
+Color Connector::textColor = Blue;
+Font Connector::textFont = Arial(10);
 
 #endif

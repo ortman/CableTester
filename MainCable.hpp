@@ -21,7 +21,10 @@ public:
 		return connectors.Get(id);
 	}
 	
-	void SortLeft() {
+	void Sort() {
+		for (Connector *c : connectors) {
+			if (c->IsRight()) cable->SortRight(c);
+		}
 		for (Connector *c : connectors) {
 			if (c->IsLeft()) {
 				int pinStart = 0;
@@ -42,45 +45,53 @@ public:
 	};
 	
 	void CalculateConnectorsPosition(Size size) {
-		int32_t topLeft, leftAllSize = 0;
-		int32_t topRight, rightAllSize = 0;
+		int32_t topLeft = 0;
+		int32_t topRight = 0;
+		int pinWidth = size.cx / 6;
+		int leftPinCount = 1;
+		int rightPinCount = 1;
 		for (Connector* c : connectors) {
+			c->PinSize().cx = pinWidth;
 			if (c->IsLeft()) {
-				leftAllSize += c->GetHeight() + 10;
-				c->SetX(10);
+				c->Position().x = 10;
+				leftPinCount += c->GetPinCount() + 2;
 			} else {
-				c->SetX(440);
-				rightAllSize += c->GetHeight() + 10;
+				c->Position().x = size.cx - pinWidth - 10;
+				rightPinCount += c->GetPinCount() + 2;
 			}
 		}
-		if (leftAllSize > 0) leftAllSize -= 10;
-		if (rightAllSize > 0) rightAllSize -= 10;
-		if (leftAllSize > rightAllSize) {
-			topLeft  = 10;
-			topRight = (leftAllSize - rightAllSize)/2 + 10;
+		int pinHeight = size.cy / max(leftPinCount, rightPinCount);
+		Connector::textFont.Height(pinHeight * 2 / 3);
+		Cable::pinHeight = pinHeight;
+		Wire::pen = pinHeight / 6;
+		if (leftPinCount > rightPinCount) {
+			topLeft  = pinHeight;
+			topRight = (leftPinCount - rightPinCount) * pinHeight / 2 + pinHeight;
 		} else {
-			topLeft  = (rightAllSize - leftAllSize)/2 + 10;
-			topRight = 10;
+			topLeft  = (rightPinCount - leftPinCount) * pinHeight / 2 + pinHeight;
+			topRight = pinHeight;
 		}
 		for (Connector* c : connectors) {
+			c->PinSize().cy = pinHeight;
 			if (c->IsLeft()) {
-				c->SetY(topLeft);
-				topLeft += c->GetHeight() + 10;
+				c->Position().y = topLeft;
+				topLeft += c->GetHeight() + pinHeight;
 			} else {
-				c->SetY(topRight);
-				topRight += c->GetHeight() + 10;
+				c->Position().y = topRight;
+				topRight += c->GetHeight() + pinHeight;
 			}
 		}
 	}
 	
-	void Draw(DrawingDraw& imgDraw) {
+	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, Size &iSize) {
 		for (Connector* c : connectors) {
-			c->Draw(imgDraw);
+			c->Draw(imgDraw, objImg, iSize);
 		}
 		for (Cable* c : cable->GetCables()) {
-			c->DrawCovers(imgDraw);
+			c->CalcCoverRect(iSize);
+			c->DrawCovers(imgDraw, objImg, iSize);
 		}
-		cable->Draw(imgDraw);
+		cable->Draw(imgDraw, objImg, iSize.cx / 5);
 	}
 };
 

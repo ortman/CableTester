@@ -6,9 +6,11 @@ file
 	Parser.hpp,
 	main.cpp,
 	Wire.hpp,
+	ViewerSelector.hpp,
 	Connector.hpp,
 	MainCable.hpp,
 	Cable.hpp,
+	CableNode.hpp,
 	Viewer.hpp,
 	CableTesterDesktop.lay;
 

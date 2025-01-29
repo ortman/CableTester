@@ -28,6 +28,8 @@ CableTester::CableTester() {
 		  viewer.SaveImage(GetExeDirFile(list.GetValue(list.GetCursor()).ToString() + ".png"));
 		}
 	};
+	
+	cWireColor.SetData(LtGreen());
 }
 
 void CableTester::LoadFile(String filePath, String name) {

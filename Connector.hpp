@@ -58,7 +58,7 @@ public:
 	
 	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, Size &iSize) {
 		int32_t heightRect = GetHeight();
-		int32_t widthRect = pinSize.cx - pinSize.cy / 4;
+		int32_t widthRect = pinSize.cx - pinSize.cy / 3;
 		int32_t yRect = position.y, xRect = (isLeft ? 0 : pinSize.cy / 4) + position.x;
 		Point rect[] = {
 			{xRect, yRect}, {xRect + widthRect, yRect}, {xRect+widthRect, yRect + heightRect}, {xRect, yRect + heightRect}, {xRect, yRect}
@@ -83,7 +83,7 @@ public:
 				imgDraw.DrawText(position.x + pinSize.cy / 4 + 10, yPin - fi.GetHeight() / 2, pinText, textFont, textColor);
 			}
 			imgDraw.DrawLine(pinXL, yPin, pinXR, yPin, borderWidth, borderColor);
-			objImg.DrawRect(pinXL, yPin - 10, pinXR - pinXL, 20, Color::FromRaw(id.GetRaw() + ((pins[i]) << 16)));
+			objImg.DrawRect(pinXL, yPin - pinSize.cy/4, pinXR - pinXL, pinSize.cy/2, Color::FromRaw(id.GetRaw() + ((pins[i]) << 16)));
 		}
 		int maxCnt = (heightRect - 20) / fi.GetAveWidth();
 		int nameSize, textX = position.x + widthRect - (isLeft ? fi.GetHeight() : 0);

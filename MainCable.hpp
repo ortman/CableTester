@@ -11,6 +11,7 @@ public:
 	MainCable(String name) {}
 	
 	void SetCable(Cable* c) {cable = c;}
+	Cable* GetCable() {return cable;}
 	
 	void AddConnector(int id, Connector* c) {connectors.Add(id, c);}
 	

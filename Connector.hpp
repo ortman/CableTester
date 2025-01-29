@@ -58,8 +58,8 @@ public:
 	
 	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, Size &iSize) {
 		int32_t heightRect = GetHeight();
-		int32_t widthRect = pinSize.cx - 11;
-		int32_t yRect = position.y, xRect = (isLeft ? 1 : 10) + position.x;
+		int32_t widthRect = pinSize.cx - pinSize.cy / 4;
+		int32_t yRect = position.y, xRect = (isLeft ? 0 : pinSize.cy / 4) + position.x;
 		Point rect[] = {
 			{xRect, yRect}, {xRect + widthRect, yRect}, {xRect+widthRect, yRect + heightRect}, {xRect, yRect + heightRect}, {xRect, yRect}
 		};
@@ -69,16 +69,21 @@ public:
 		objImg.DrawPolygon(rect, 5, id);
 		int32_t yPin;
 		FontInfo fi = textFont.Info();
-		for (int i=0; i<pinCount; ++i) {
+		int pinXL, pinXR;
+		for (int i = 0; i < pinCount; ++i) {
 			yPin = position.y + pinSize.cy + i * pinSize.cy;
-			pinText = AsString(pins[i]);
+			pinText = IntStr(pins[i]);
 			if (isLeft) {
-				imgDraw.DrawLine(position.x + widthRect + 1, yPin, position.x + pinSize.cx, yPin, borderWidth, borderColor);
+				pinXL = position.x + widthRect + 1;
+				pinXR = position.x + pinSize.cx;
 				imgDraw.DrawText(position.x + widthRect - GetTextSize(pinText, textFont).cx - 10, yPin - fi.GetHeight() / 2, pinText, textFont, textColor);
 			} else {
-				imgDraw.DrawLine(position.x, yPin, xRect, yPin, borderWidth, borderColor);
-				imgDraw.DrawText(position.x + 20, yPin - fi.GetHeight() / 2, pinText, textFont, textColor);
+				pinXL = position.x;
+				pinXR = xRect;
+				imgDraw.DrawText(position.x + pinSize.cy / 4 + 10, yPin - fi.GetHeight() / 2, pinText, textFont, textColor);
 			}
+			imgDraw.DrawLine(pinXL, yPin, pinXR, yPin, borderWidth, borderColor);
+			objImg.DrawRect(pinXL, yPin - 10, pinXR - pinXL, 20, Color::FromRaw(id.GetRaw() + ((pins[i]) << 16)));
 		}
 		int maxCnt = (heightRect - 20) / fi.GetAveWidth();
 		int nameSize, textX = position.x + widthRect - (isLeft ? fi.GetHeight() : 0);

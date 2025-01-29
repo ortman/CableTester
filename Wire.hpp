@@ -7,7 +7,6 @@
 using namespace Upp;
 
 class Wire : public CableNode {
-	friend class Cable;
 	Color color;
 	Connector *leftConnector;
 	int leftConnectorPin;
@@ -18,6 +17,34 @@ private:
 	int getPt( int n1 , int n2 , float perc ) {
 	  int diff = n2 - n1;
 	  return n1 + (int)round(diff * perc);
+	}
+	
+	void DrawBezier(Draw& draw, int32_t x1, int32_t y1, int32_t x4, int32_t y2, Color color, int32_t width=1) {
+		int xa,ya,xb,yb,xc,yc,xm,ym,xn,yn,x,y;
+		int x23 = (x4+x1)/2;
+		int lastX, lastY;
+		for (float i = 0.f ; i < 1.001f ; i += 0.02f) {
+	    xa = getPt( x1 , x23, i );
+	    ya = getPt( y1 , y1 , i );
+	    xb = getPt( x23, x23, i );
+	    yb = getPt( y1 , y2 , i );
+	    xc = getPt( x23, x4 , i );
+	    yc = getPt( y2 , y2 , i );
+	
+	    xm = getPt( xa , xb , i );
+	    ym = getPt( ya , yb , i );
+	    xn = getPt( xb , xc , i );
+	    yn = getPt( yb , yc , i );
+	
+	    x = getPt( xm , xn , i );
+	    y = getPt( ym , yn , i );
+			if (i>0) {
+				draw.DrawLine(lastX,lastY, x,y, width, color);
+			}
+		  //w.DrawPixel( x , y , color );
+			lastX = x;
+			lastY = y;
+		}
 	}
 	
 	void DrawBezier(ImageDraw& imgDraw, int32_t x1, int32_t y1, int32_t x4, int32_t y2, Color color, int32_t width=1) {
@@ -70,6 +97,34 @@ public:
 		leftConnectorPin = w.leftConnectorPin;
 		rightConnector = w.rightConnector;
 		rightConnectorPin = w.rightConnectorPin;
+	}
+	
+	int GetLeftConnectorPin() {return leftConnectorPin;}
+	
+	int GetRightConnectorPin() {return rightConnectorPin;}
+	
+	Connector* GetLeftConnector() {return leftConnector;}
+	
+	void SetLeftConnector(Connector* c, int pin) {
+		leftConnector = c;
+		leftConnectorPin = pin;
+	}
+	
+	Connector* GetRightConnector() {return rightConnector;}
+	
+	void SetRightConnector(Connector* c, int pin) {
+		rightConnector = c;
+		rightConnectorPin = pin;
+	}
+
+	void Draw(Draw& w, Sizef scale, Point p) {
+		if (leftConnector) {
+			Point left = leftConnector->GetPinPosition(leftConnectorPin);
+			DrawBezier(w, (int)round((double)left.x / scale.cx), (int)round((double)left.y / scale.cy), p.x, p.y, color, (int)round((double)pen / scale.cx));
+		} else if (rightConnector) {
+			Point right = rightConnector->GetPinPosition(rightConnectorPin);
+			DrawBezier(w, p.x, p.y, (int)round((double)right.x / scale.cx), (int)round((double)right.y / scale.cy), color, (int)round((double)pen / scale.cx));
+		}
 	}
 	
 	void Draw(ImageDraw& imgDraw, int coverWidth, int pen, const Color& color) {

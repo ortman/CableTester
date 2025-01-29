@@ -26,7 +26,7 @@ public:
 	}
 	
 	static CableNode* Get(Color id) {
-		return mapID.Get(id, NULL);
+		return mapID.Get(Color::FromRaw(id.GetRaw() & 0xffff), NULL);
 	}
 	
 	static Color GetId(CableNode* obj) {

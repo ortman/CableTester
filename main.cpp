@@ -21,6 +21,8 @@ CableTester::CableTester() {
 		}
 	};
 	
+	bCancel.Disable();
+	bSave.Disable();
 	bSave.WhenPush = [=] {
 		if (currentCable != NULL) {
 		  viewer.SaveImage(GetExeDirFile(list.GetValue(list.GetCursor()).ToString() + ".png"));
@@ -37,6 +39,6 @@ void CableTester::LoadFile(String filePath, String name) {
 }
 
 GUI_APP_MAIN {
-	StdLogSetup(LOG_FILE, "log.log");
+	StdLogSetup(LOG_FILE, "CableTester.log");
 	CableTester().Run();
 }

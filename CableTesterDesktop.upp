@@ -2,17 +2,18 @@ uses
 	CtrlLib;
 
 file
-	CableTester.h,
+	CableTesterDesktop.h,
 	Parser.hpp,
 	main.cpp,
 	Wire.hpp,
+	CableTesterDesktop.t,
 	ViewerSelector.hpp,
 	Connector.hpp,
 	MainCable.hpp,
 	Cable.hpp,
 	CableNode.hpp,
 	Viewer.hpp,
-	CableTester.lay;
+	CableTesterDesktop.lay;
 
 mainconfig
 	"" = "GUI";

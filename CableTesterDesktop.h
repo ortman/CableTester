@@ -6,7 +6,7 @@
 
 using namespace Upp;
 
-#define LAYOUTFILE <CableTester/CableTester.lay>
+#define LAYOUTFILE <CableTesterDesktop/CableTesterDesktop.lay>
 #include <CtrlCore/lay.h>
 
 class CableTester : public WithCableTesterLayout<TopWindow> {

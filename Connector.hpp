@@ -56,7 +56,7 @@ public:
 		return pinCount * pinSize.cy + pinSize.cy - 1;
 	}
 	
-	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, Size &iSize) {
+	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, Size &iSize) {
 		int32_t heightRect = GetHeight();
 		int32_t widthRect = pinSize.cx - pinSize.cy / 3;
 		int32_t yRect = position.y, xRect = (isLeft ? 0 : pinSize.cy / 4) + position.x;
@@ -66,7 +66,7 @@ public:
 		String pinText;
 		imgDraw.DrawPolyline(rect, 5, borderWidth, borderColor);
 		Color id = ViewerSelector::GetId(this);
-		objImg.DrawPolygon(rect, 5, id);
+		if (objImg) objImg->DrawPolygon(rect, 5, id);
 		int32_t yPin;
 		FontInfo fi = textFont.Info();
 		int pinXL, pinXR;
@@ -83,7 +83,7 @@ public:
 				imgDraw.DrawText(position.x + pinSize.cy / 4 + 10, yPin - fi.GetHeight() / 2, pinText, textFont, textColor);
 			}
 			imgDraw.DrawLine(pinXL, yPin, pinXR, yPin, borderWidth, borderColor);
-			objImg.DrawRect(pinXL, yPin - pinSize.cy/4, pinXR - pinXL, pinSize.cy/2, Color::FromRaw(id.GetRaw() + ((pins[i]) << 16)));
+			if (objImg) objImg->DrawRect(pinXL, yPin - pinSize.cy/4, pinXR - pinXL, pinSize.cy/2, Color::FromRaw(id.GetRaw() + ((pins[i]) << 16)));
 		}
 		int maxCnt = (heightRect - 20) / fi.GetAveWidth();
 		int nameSize, textX = position.x + widthRect - (isLeft ? fi.GetHeight() : 0);

@@ -22,10 +22,10 @@ CableTester::CableTester() {
 	};
 	
 	bCancel.Disable();
-	bSave.Disable();
+	//bSave.Disable();
 	bSave.WhenPush = [=] {
 		if (currentCable != NULL) {
-		  viewer.SaveImage(GetExeDirFile(list.GetValue(list.GetCursor()).ToString() + ".png"));
+		  viewer.SaveImage(GetExeDirFile(list.GetValue(list.GetCursor()).ToString().Mid(2) + ".png"));
 		}
 	};
 	

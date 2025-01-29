@@ -84,7 +84,7 @@ public:
 		}
 	}
 	
-	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, Size &iSize) {
+	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, Size &iSize) {
 		for (Cable* c : cable->GetCables()) {
 			c->CalcCoverRect(iSize);
 			c->DrawCovers(imgDraw, objImg, iSize);

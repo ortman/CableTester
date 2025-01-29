@@ -126,7 +126,7 @@ public:
 			for (Wire* w : selectedWire) {
 				w->Draw(*dImg, dSize.cx / 5, (int)round(Wire::pen * 1.5), Black);
 			}
-			cable->Draw(*dImg, objID, dSize);
+			cable->Draw(*dImg, &objID, dSize);
 			objImg = objID;
 		}
 		Refresh();
@@ -134,7 +134,13 @@ public:
 	
 	void SaveImage(const String& str) {
 		PNGEncoder png;
-	  png.SaveFile(str, *dImg);
+		Size nextionImageSize = {480*2, 760*2};
+		ImageDraw nextionImg(nextionImageSize);
+		nextionImg.DrawRect(nextionImageSize, White);
+		cable->CalculateConnectorsPosition(nextionImageSize);
+		cable->Draw(nextionImg, NULL, nextionImageSize);
+		png.SaveFile(str, nextionImg);
+		Show(cable);
 	}
 	
 	virtual void LeftDown(Point p, dword keyflags) {

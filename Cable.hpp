@@ -110,9 +110,9 @@ public:
 		return coverRect;
 	}
 	
-	void DrawCovers(ImageDraw& imgDraw, ImageDraw& objImg, Size &iSize) {
+	void DrawCovers(ImageDraw& imgDraw, ImageDraw* objImg, Size &iSize) {
 		if (!coverRect.IsEmpty()) {
-			objImg.DrawRect(coverRect, ViewerSelector::GetId(this));
+			if (objImg) objImg->DrawRect(coverRect, ViewerSelector::GetId(this));
 			imgDraw.DrawPolygon({
 				Point(coverRect.left, coverRect.top),
 				Point(coverRect.right, coverRect.top),
@@ -127,7 +127,7 @@ public:
 		}
 	}
 	
-	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, int coverWidth) {
+	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, int coverWidth) {
 		for (Cable* c : cables) {
 			c->Draw(imgDraw, objImg, coverWidth);
 		}

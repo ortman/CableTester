@@ -136,14 +136,16 @@ public:
 		}
 	}
 	
-	void Draw(ImageDraw& imgDraw, ImageDraw& objImg, int coverWidth) {
+	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, int coverWidth) {
 		if (leftConnector && rightConnector) {
 			Draw(imgDraw, coverWidth, pen, color);
-			Point left = leftConnector->GetPinPosition(leftConnectorPin);
-			Point right = rightConnector->GetPinPosition(rightConnectorPin);
-			Color id = ViewerSelector::GetId(this);
-			DrawBezier(objImg, left.x, left.y, right.x - coverWidth, right.y, id, pen * 2);
-			objImg.DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen * 2, id);
+			if (objImg) {
+				Point left = leftConnector->GetPinPosition(leftConnectorPin);
+				Point right = rightConnector->GetPinPosition(rightConnectorPin);
+				Color id = ViewerSelector::GetId(this);
+				DrawBezier(*objImg, left.x, left.y, right.x - coverWidth, right.y, id, pen * 2);
+				objImg->DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen * 2, id);
+			}
 		}
 	}
 	

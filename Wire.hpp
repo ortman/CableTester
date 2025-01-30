@@ -133,18 +133,12 @@ public:
 		}
 	}
 	
-	void Draw(ImageDraw& imgDraw, int coverWidth, int pen, const Color& color) {
+	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, int coverWidth, int pen, const Color& color) {
 		if (leftConnector && rightConnector) {
 			Point left = leftConnector->GetPinPosition(leftConnectorPin);
 			Point right = rightConnector->GetPinPosition(rightConnectorPin);
 			DrawBezier(imgDraw, left.x, left.y, right.x - coverWidth, right.y, color, pen);
 			imgDraw.DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen, color);
-		}
-	}
-	
-	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, int coverWidth) {
-		if (leftConnector && rightConnector) {
-			Draw(imgDraw, coverWidth, pen, color);
 			if (objImg) {
 				Point left = leftConnector->GetPinPosition(leftConnectorPin);
 				Point right = rightConnector->GetPinPosition(rightConnectorPin);
@@ -153,6 +147,10 @@ public:
 				objImg->DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen * 2, id);
 			}
 		}
+	}
+	
+	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, int coverWidth) {
+		Draw(imgDraw, objImg, coverWidth, pen, color);
 	}
 	
 	String ToString() const {

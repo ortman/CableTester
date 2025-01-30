@@ -137,8 +137,14 @@ public:
 		if (leftConnector && rightConnector) {
 			Point left = leftConnector->GetPinPosition(leftConnectorPin);
 			Point right = rightConnector->GetPinPosition(rightConnectorPin);
+			if (rightConnector->IsRight()) {
+				imgDraw.DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen, color);
+			}
+			if (leftConnector->IsRight()) {
+				imgDraw.DrawLine(left.x - coverWidth, left.y, left.x, left.y, pen, color);
+				left.x -= coverWidth;
+			}
 			DrawBezier(imgDraw, left.x, left.y, right.x - coverWidth, right.y, color, pen);
-			imgDraw.DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen, color);
 			if (objImg) {
 				Point left = leftConnector->GetPinPosition(leftConnectorPin);
 				Point right = rightConnector->GetPinPosition(rightConnectorPin);

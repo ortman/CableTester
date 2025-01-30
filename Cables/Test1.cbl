@@ -1,0 +1,41 @@
+#LEFT
+	1(25)DB25M\nMain
+	2(9)DB9M\nRS484
+#RIGHT
+	3(4)MF3.0 1x04M\nMotor X
+	4(4)MF3.0 1x04M\nMotor Y
+	5(4)MF3.0 1x04M\nMotor Z
+	6(5)PH-5FC\nSensors
+#CABLE Cover 8mm
+	#CABLE Cable 9 wires
+		#CONNECTIONS 1-3
+			1-2#6495ed
+			2-1#483d8b
+			10-3#808080
+			11-4#8b4513
+		#CONNECTIONS 1-4
+			4-2#ffd700
+			3-1#b22222
+			8-3#daa520
+			22-4#006400
+	#CABLE Cable 6 wires
+		#CONNECTIONS 1-5
+			15-1#b22222
+			5-2#222222
+			9-3#006400
+			23-4#daa520
+		#CONNECTIONS 1-5
+			15-1#daa520
+			14-2#8b4513
+			1-3#6495ed
+#CABLE Cover 8mm
+	#CABLE Cable 6 wisp
+		#CONNECTIONS 2-6
+			4-1#8b4513
+			5-2#b22222
+			3-3#daa520
+			1-4#222222
+			9-5#006400
+#CONNECTIONS 1-2
+	21-7#ffd700
+	20-8#ffd700

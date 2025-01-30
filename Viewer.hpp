@@ -205,6 +205,7 @@ public:
 						}
 						if (cable) {
 							cable->GetCable()->Add(createWire);
+							ViewerSelector::Add(createWire);
 							createWire = NULL;
 						}
 					}

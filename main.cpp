@@ -29,7 +29,10 @@ CableTester::CableTester() {
 		}
 	};
 	
-	cWireColor.SetData(LtGreen());
+	cWireColor.SetData(viewer.GetCreateWireColor());
+	cWireColor.WhenAction = [=] {
+		viewer.SetCreateWireColor(cWireColor.GetData());
+	};
 }
 
 void CableTester::LoadFile(String filePath, String name) {

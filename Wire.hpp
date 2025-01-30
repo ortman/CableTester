@@ -41,7 +41,6 @@ private:
 			if (i>0) {
 				draw.DrawLine(lastX,lastY, x,y, width, color);
 			}
-		  //w.DrawPixel( x , y , color );
 			lastX = x;
 			lastY = y;
 		}
@@ -69,7 +68,6 @@ private:
 			if (i>0) {
 				imgDraw.DrawLine(lastX,lastY, x,y, width, color);
 			}
-		  //w.DrawPixel( x , y , color );
 			lastX = x;
 			lastY = y;
 		}
@@ -117,13 +115,21 @@ public:
 		rightConnectorPin = pin;
 	}
 
-	void Draw(Draw& w, Sizef scale, Point p) {
+	void Draw(Draw& w, Sizef scale, Point p, int coverStartX) {
+		int penScale = (int)round((double)pen / scale.cx);
 		if (leftConnector) {
 			Point left = leftConnector->GetPinPosition(leftConnectorPin);
-			DrawBezier(w, (int)round((double)left.x / scale.cx), (int)round((double)left.y / scale.cy), p.x, p.y, color, (int)round((double)pen / scale.cx));
+			DrawBezier(w, (int)round((double)left.x / scale.cx), (int)round((double)left.y / scale.cy), min(coverStartX, p.x), p.y, color, penScale);
+			if (p.x > coverStartX) {
+				w.DrawLine(coverStartX, p.y, p.x, p.y, penScale, color);
+			}
 		} else if (rightConnector) {
 			Point right = rightConnector->GetPinPosition(rightConnectorPin);
-			DrawBezier(w, p.x, p.y, (int)round((double)right.x / scale.cx), (int)round((double)right.y / scale.cy), color, (int)round((double)pen / scale.cx));
+			int yRight = (int)round((double)right.y / scale.cy);
+			w.DrawLine(max(coverStartX, p.x), yRight, (int)round((double)right.x / scale.cx), yRight, penScale, color);
+			if (p.x < coverStartX) {
+				DrawBezier(w, p.x, p.y, coverStartX, yRight, color, penScale);
+			}
 		}
 	}
 	

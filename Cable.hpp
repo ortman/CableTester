@@ -68,7 +68,7 @@ public:
 		}
 	}
 	
-	Rect& CalcCoverRect(Size &iSize) {
+	Rect& CalcCoverRect(const Size &iSize) {
 		Rect rect;
 		coverRect.Clear();
 		for (Cable* c : cables) {
@@ -111,7 +111,7 @@ public:
 		return coverRect;
 	}
 	
-	void DrawCovers(ImageDraw& imgDraw, ImageDraw* objImg, Size &iSize) {
+	void DrawCovers(ImageDraw& imgDraw, ImageDraw* objImg, const Size &iSize) {
 		if (!coverRect.IsEmpty()) {
 			if (objImg) objImg->DrawRect(coverRect, ViewerSelector::GetId(this));
 			imgDraw.DrawPolygon({

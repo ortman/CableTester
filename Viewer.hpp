@@ -15,6 +15,7 @@ private:
 	Index<Wire*> selectedWire;
 	
 	Wire* createWire = NULL;
+	Color createWireColor = LtGreen;
 	Point createPoint;
 	
 	Color GetId(const Point &p) {
@@ -93,6 +94,14 @@ public:
 		return NAN;
 	}
 	
+	void SetCreateWireColor(const Color& c) {
+		createWireColor = c;
+	}
+	
+	Color& GetCreateWireColor() {
+		return createWireColor;
+	}
+	
 	virtual void Paint(Draw& w) {
 		Size sz = GetSize();
 		//w.DrawRect(sz, White);
@@ -102,8 +111,10 @@ public:
 		double sX = (double)dSize.cx / (double)sz.cx;
 		double sY = (double)dSize.cy / (double)sz.cy;
 		
+		int cowerWith = sz.cx / 5;
+		int pinWidth = sz.cx / 6;
 		if (createWire) {
-			createWire->Draw(w, {sX, sY}, createPoint);
+			createWire->Draw(w, {sX, sY}, createPoint, sz.cx - pinWidth - 10 - cowerWith);
 		}
 		if (sX < 1.6 || sX > 2.4 || sY < 1.6 || sY > 2.4) {
 			Show(cable);
@@ -166,9 +177,9 @@ public:
 				if (pin) {
 					createPoint = p;
 					if (cr->IsLeft()) {
-						createWire = new Wire(LtGreen, cr, pin, NULL, 0);
+						createWire = new Wire(createWireColor, cr, pin, NULL, 0);
 					} else {
-						createWire = new Wire(LtGreen, NULL, 0, cr, pin);
+						createWire = new Wire(createWireColor, NULL, 0, cr, pin);
 					}
 				} else {
 					SelectConnector(cr, cable->GetCable(), !isSelectConnector(cr, cable->GetCable()));

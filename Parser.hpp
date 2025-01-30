@@ -73,7 +73,7 @@ private:
 	}
 	
 	static bool parseCmdConnections(FileIn &f, Cable &cable, Connector *cLeft, Connector *cRight, int level) {
-		if (cLeft != NULL && cRight != NULL && cLeft->IsLeft() == cRight->IsLeft()) return false;
+		if (cLeft == NULL && cRight == NULL) return false;
 		const char *str;
 		String line;
 		bool overflow = false;

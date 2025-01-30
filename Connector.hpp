@@ -86,9 +86,11 @@ public:
 			if (objImg) objImg->DrawRect(pinXL, yPin - pinSize.cy/4, pinXR - pinXL, pinSize.cy/2, Color::FromRaw(id.GetRaw() + ((pins[i]) << 16)));
 		}
 		int maxCnt = (heightRect - 20) / fi.GetAveWidth();
-		int nameSize, textX = position.x + widthRect - (isLeft ? fi.GetHeight() : 0);
+		int nameSize, textX;
 		if (isLeft) {
-			textX -= 10 + (int)round(fi.GetWidth('0') * ((pinCount < 10) ? 0.5 : ((pinCount < 100) ? 1.5 : 2.5)));
+			textX = position.x + widthRect - fi.GetHeight() - (int)round(fi.GetWidth('0') * ((pinCount < 10) ? 1. : ((pinCount < 100) ? 2. : 3.)));
+		} else {
+			textX = position.x + pinSize.cx - 5;
 		}
 		Vector<String> names = Split(name, "\n");
 		for (String name : names) {

@@ -16,6 +16,7 @@ private:
 	
 public:
 	static int pinHeight;
+	static Font textFont;
 	
 	Cable(String name, Color color) : name(name), color(color) {}
 	
@@ -119,8 +120,7 @@ public:
 				Point(coverRect.right, coverRect.bottom),
 				Point(coverRect.left, coverRect.bottom),
 			}, color, 1, DarkColor(color));
-			int fontSize = max(20, pinHeight * 2 / 5);
-			imgDraw.DrawText(coverRect.left + 4, coverRect.top +  (cables.GetCount() ? 0 : (int)round((pinHeight - fontSize * 0.95) / 2.)), name, Arial(fontSize), Black);
+			imgDraw.DrawText(coverRect.left + 4, coverRect.top +  (cables.GetCount() ? 0 : (int)round((pinHeight - textFont.GetHeight() * 0.95) / 2.)), name, textFont, Black);
 			for (Cable* c : cables) {
 				c->DrawCovers(imgDraw, objImg, iSize);
 			}
@@ -172,5 +172,6 @@ public:
 };
 
 int Cable::pinHeight = 10;
+Font Cable::textFont = Arial(20);
 
 #endif

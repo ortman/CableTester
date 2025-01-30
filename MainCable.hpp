@@ -62,9 +62,6 @@ public:
 			}
 		}
 		int pinHeight = size.cy / max(leftPinCount, rightPinCount);
-		Connector::textFont.Height(pinHeight * 2 / 3);
-		Cable::pinHeight = pinHeight;
-		Wire::pen = pinHeight / 6;
 		if (leftPinCount > rightPinCount) {
 			topLeft  = pinHeight;
 			topRight = (leftPinCount - rightPinCount) * pinHeight / 2 + pinHeight;
@@ -82,6 +79,10 @@ public:
 				topRight += c->GetHeight() + pinHeight;
 			}
 		}
+		Connector::textFont.Height(min(pinHeight * 2 / 3, pinWidth / 4));
+		Cable::textFont.Height(max(20, min(pinWidth / 5, pinHeight * 2 / 5)));
+		Cable::pinHeight = pinHeight;
+		Wire::pen = pinHeight / 6;
 	}
 	
 	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, Size &iSize) {

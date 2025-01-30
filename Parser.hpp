@@ -7,8 +7,7 @@
 #define CMD_COMMENT			"##"
 #define CMD_LEFT				"#LEFT"
 #define CMD_RIGHT				"#RIGHT"
-#define CMD_COVER				"#COVER"
-#define CMD_WISP				"#WISP"
+#define CMD_CABLE				"#CABLE"
 #define CMD_CONNECTIONS	"#CONNECTIONS"
 
 class Parser {
@@ -124,8 +123,8 @@ private:
 		int idLeft, idRight;
 		bool overflow = false;
 		while (result && !(line = getLine(f)).IsEqual(CMD_EOF) && _level >= level) {
-			if (line.StartsWith(CMD_COVER) || line.StartsWith(CMD_WISP)) {
-				int startName = line.StartsWith(CMD_COVER) ? 6 : 5;
+			if (line.StartsWith(CMD_CABLE)) {
+				int startName = 6;
 				Color color = CableNode::DarkColor(cable.GetColor(), 0.8);
 				if (line[startName] == '#') {
 					int hexColor;

@@ -9,6 +9,9 @@ using namespace Upp;
 #define LAYOUTFILE <CableTesterDesktop/CableTesterDesktop.lay>
 #include <CtrlCore/lay.h>
 
+#define TFILE <CableTesterDesktop/CableTesterDesktop.t>
+#include <Core/t.h>
+
 class CableTester : public WithCableTesterLayout<TopWindow> {
 private:
 	void LoadFile(String filePath, String name = "");

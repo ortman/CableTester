@@ -135,7 +135,7 @@ public:
 			ImageDraw objID(dSize);
 			cable->CalculateConnectorsPosition(dSize);
 			for (Wire* w : selectedWire) {
-				w->Draw(*dImg, NULL, dSize.cx / 5, (int)round(Wire::pen * 1.5), Black);
+				w->Draw(*dImg, dSize.cx / 5, (int)round(Wire::pen * 1.5), Black);
 			}
 			cable->Draw(*dImg, &objID, dSize);
 			objImg = objID;

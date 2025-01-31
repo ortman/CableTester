@@ -132,7 +132,8 @@ public:
 			c->Draw(imgDraw, objImg, coverWidth);
 		}
 		for (Wire* w : wires) {
-			w->Draw(imgDraw, objImg, coverWidth);
+			w->Draw(imgDraw, coverWidth);
+			if (objImg) w->Draw(*objImg, coverWidth, Wire::pen * 2, ViewerSelector::GetId(w));
 		}
 	}
 	

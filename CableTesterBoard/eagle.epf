@@ -1,0 +1,26 @@
+[Eagle]
+Version="09 06 02"
+Platform="Windows"
+Globals="Globals"
+Desktop="Desktop"
+
+[Globals]
+AutoSaveProject=1
+UsedLibraryUrn="urn:adsk.eagle:library:31907151"
+UsedLibraryUrn="urn:adsk.eagle:library:31813248"
+UsedLibraryUrn="urn:adsk.eagle:library:31816446"
+UsedLibraryUrn="urn:adsk.eagle:library:32430420"
+UsedLibraryUrn="urn:adsk.eagle:library:31941680"
+UsedLibraryUrn="urn:adsk.eagle:library:32430390"
+UsedLibraryUrn="urn:adsk.eagle:library:32430345"
+UsedLibraryUrn="urn:adsk.eagle:library:32430436"
+UsedLibraryUrn="urn:adsk.eagle:library:31811842"
+UsedLibraryUrn="urn:adsk.eagle:library:39867176"
+
+[Win_1]
+Type="Control Panel"
+Number=0
+
+[Desktop]
+Screen="3840 1080"
+Window="Win_1"

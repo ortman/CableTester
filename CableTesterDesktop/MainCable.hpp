@@ -95,6 +95,28 @@ public:
 			c->Draw(imgDraw, objImg, iSize);
 		}
 	}
+	
+	void RemoveWire(Wire* w) {
+		cable->RemoveWire(w, true);
+	}
+		
+	void RemoveConnector(Connector* c, bool removeAll) {
+		cable->RemoveWires(c);
+		if (removeAll) {
+			int cnt = connectors.GetCount();
+			for (int i = 0; i < cnt; ++i) {
+				if (connectors[i] == c) {
+					connectors.Remove(i);
+					break;
+				}
+			}
+		}
+	}
+	
+	void RemoveCable(Cable* c, bool removeAll) {
+		if (c == cable) return;
+		cable->RemoveCable(c, removeAll);
+	}
 };
 
 #endif

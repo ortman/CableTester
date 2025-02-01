@@ -1,6 +1,10 @@
 #ifndef _VIEWER_HPP_
 #define _VIEWER_HPP_
 
+#define CTD_REMOVE_ALL		1
+#define CTD_REMOVE_WIRES	0
+#define CTD_REMOVE_CANCEL	-1
+
 #include <CtrlLib/CtrlLib.h>
 #include "MainCable.hpp"
 
@@ -204,29 +208,41 @@ public:
 		return Image::Hand();
 	}
 	
-	void RemoveCable(Cable* c) {
-//		Vector<Wire*>& wires = c->GetWires();
-//		for (int i = wires.GetCount() - 1; i >= 0; --i) {
-//			if (selectedWire.Find(wires[i]) >= 0) {
-//				wires.Remove(i);
-//			}
-//		}
-		for (Cable *cc : c->GetCables()) {
-			RemoveCable(cc);
-		}
-	}
-	
 	void RemoveSels() {
+		Wire *w;
+		Cable *c;
+		Connector *cr;
+		int answCables = -10;
+		int answConnectors = -10;
 		for (CableNode* node : sels) {
-			
+			if ((w = dynamic_cast<Wire*>(node))) {
+				cable->RemoveWire(w);
+				delete w;
+			}	else if ((c = dynamic_cast<Cable*>(node))) {
+				if (answCables == -10) {
+					answCables = Prompt(BEEP_NONE, Ctrl::GetAppName(), CtrlImg::question(),
+							t_("What objects to remove from selected cables?"),
+							t_("Cables and wires"), t_("Only wires"), t_("Cancel"));
+				}
+				if (answCables != CTD_REMOVE_CANCEL) cable->RemoveCable(c, answCables == CTD_REMOVE_ALL);
+				if (answCables == CTD_REMOVE_ALL) delete c;
+			} else if ((cr = dynamic_cast<Connector*>(node))) {
+				if (answConnectors == -10) {
+					answConnectors = Prompt(BEEP_NONE, Ctrl::GetAppName(), CtrlImg::question(),
+							t_("What objects to remove from selected connectors?"),
+							t_("Connectors and wires"), t_("Only wires"), t_("Cancel"));
+				}
+				cable->RemoveConnector(cr, answConnectors == CTD_REMOVE_ALL);
+				if (answConnectors == CTD_REMOVE_ALL) delete cr;
+			}
 		}
+		sels.Clear();
 	}
 	
 	virtual bool HotKey(dword key) {
 		switch (key) {
 			case K_DELETE:
 				RemoveSels();
-				sels.Clear();
 				Show(cable);
 				return true;
 		}

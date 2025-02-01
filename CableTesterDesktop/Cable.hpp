@@ -170,6 +170,48 @@ public:
 	Color GetColor() {
 		return color;
 	}
+	
+	void RemoveWire(Wire* w, bool recursive) {
+		int cnt = wires.GetCount();
+		for (int i = 0; i < cnt; ++i) {
+			if (wires[i] == w) {
+				wires.Remove(i);
+				break;
+			}
+		}
+		if (recursive) {
+			for (Cable* c : cables) {
+				c->RemoveWire(w, recursive);
+			}
+		}
+	}
+	
+	void RemoveWires(Connector *cr) {
+		for (int i = wires.GetCount() - 1; i >= 0; --i) {
+			if (wires[i]->GetLeftConnector() == cr || wires[i]->GetRightConnector() == cr) {
+				wires.Remove(i);
+			}
+		}
+		for (Cable* c : cables) {
+			c->RemoveWires(cr);
+		}
+	}
+	
+	bool RemoveCable(Cable* c, bool removeAll) {
+		int cnt = cables.GetCount();
+		for (int i = 0; i < cnt; ++i) {
+			cables[i]->RemoveCable(c, removeAll);
+			if (removeAll && cables[i] == c) {
+				cables.Remove(i);
+				break;
+			}
+		}
+		if (this == c) {
+			for (Wire* w : wires) delete w;
+			wires.Clear();
+		}
+		return false;
+	}
 };
 
 int Cable::pinHeight = 10;

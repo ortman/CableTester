@@ -87,8 +87,8 @@ public:
 	
 	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, Size &iSize) {
 		for (Cable* c : cable->GetCables()) {
-			c->CalcCoverRect(iSize);
-			c->DrawCovers(imgDraw, objImg, iSize);
+			c->CalcCableRect(iSize);
+			c->DrawCable(imgDraw, objImg, iSize);
 		}
 		cable->Draw(imgDraw, objImg, iSize.cx / 5);
 		for (Connector* c : connectors) {

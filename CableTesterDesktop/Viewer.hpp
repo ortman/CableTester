@@ -79,7 +79,7 @@ public:
 		Cable* cbl;
 		for (CableNode* node : sels) {
 			if ((cbl = dynamic_cast<Cable*>(node))) {
-				Rect r = cbl->GetCoverRect();
+				Rect r = cbl->GetCableRect();
 				r.Inflate(5);
 				dImg->DrawRect(r, Black);
 			} else if ((con = dynamic_cast<Connector*>(node))) {

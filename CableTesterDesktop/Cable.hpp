@@ -11,7 +11,7 @@ private:
 	String name;
 	Vector<Cable*> cables;
 	Vector<Wire*> wires;
-	Rect coverRect;
+	Rect cableRect;
 	Color color;
 	
 public:
@@ -68,25 +68,38 @@ public:
 		}
 	}
 	
-	Rect& CalcCoverRect(const Size &iSize) {
+	Rect& CalcCableRect(const Size &iSize) {
 		Rect rect;
-		coverRect.Clear();
+		int right = iSize.cx - iSize.cx / 6 - 30;
+		int left = right - iSize.cx / 5;
+		int top = 0;
+		cableRect.Clear();
 		for (Cable* c : cables) {
-			rect = c->CalcCoverRect(iSize);
+			rect = c->CalcCableRect(iSize);
 			if (!rect.IsEmpty()) {
-				if (coverRect.IsEmpty()) {
-					coverRect = rect;
+				if (rect.bottom > top) top = rect.bottom + pinHeight / 6;
+				if (cableRect.IsEmpty()) {
+					cableRect = rect;
 				} else {
-					coverRect.Union(rect);
+					cableRect.Union(rect);
 				}
 			}
 		}
-		if (!coverRect.IsEmpty()) {
-			coverRect.top -= max(20, pinHeight / 2);
-			coverRect.Inflate(5, 5);
+		for (Cable* c : cables) {
+			Rect& r = c->GetCableRect();
+			if (r.IsEmpty()) {
+				r = {left, top, right, top + pinHeight};
+				top += pinHeight / 6 + pinHeight;
+				cableRect.Union(r);
+			}
+		}
+		if (!cableRect.IsEmpty()) {
+			cableRect.top -= max(20, pinHeight / 2);
+			cableRect.Inflate(5, 5);
 		}
 		if (wires.GetCount()) {
 			Point pos;
+			top = iSize.cy;
 			int top = iSize.cy, bottom = 0;
 			for (Wire* w : wires) {
 				if (w->GetRightConnector() != NULL) {
@@ -95,35 +108,31 @@ public:
 					if (pos.y > bottom) bottom = pos.y;
 				}
 			}
-			int right = iSize.cx - iSize.cx / 6 - 30;
-			int left = right - iSize.cx / 5;
 			Rect wiresRect = {left, top - pinHeight / 6, right, bottom + pinHeight / 6};
-			if (coverRect.IsEmpty()) {
-				coverRect = wiresRect;
+			if (cableRect.IsEmpty()) {
+				cableRect = wiresRect;
 			} else {
-				coverRect.Union(wiresRect);
+				cableRect.Union(wiresRect);
 			}
 		}
-		return coverRect;
+		return cableRect;
 	}
 	
-	Rect& GetCoverRect() {
-		return coverRect;
+	Rect& GetCableRect() {
+		return cableRect;
 	}
 	
-	void DrawCovers(ImageDraw& imgDraw, ImageDraw* objImg, const Size &iSize) {
-		if (!coverRect.IsEmpty()) {
-			if (objImg) objImg->DrawRect(coverRect, ViewerSelector::GetId(this));
-			imgDraw.DrawPolygon({
-				Point(coverRect.left, coverRect.top),
-				Point(coverRect.right, coverRect.top),
-				Point(coverRect.right, coverRect.bottom),
-				Point(coverRect.left, coverRect.bottom),
-			}, color, 1, DarkColor(color));
-			imgDraw.DrawText(coverRect.left + 4, coverRect.top +  (cables.GetCount() ? 0 : (int)round((pinHeight - textFont.GetHeight() * 0.95) / 2.)), name, textFont, Black);
-			for (Cable* c : cables) {
-				c->DrawCovers(imgDraw, objImg, iSize);
-			}
+	void DrawCable(ImageDraw& imgDraw, ImageDraw* objImg, const Size &iSize) {
+		if (objImg) objImg->DrawRect(cableRect, ViewerSelector::GetId(this));
+		imgDraw.DrawPolygon({
+			Point(cableRect.left, cableRect.top),
+			Point(cableRect.right, cableRect.top),
+			Point(cableRect.right, cableRect.bottom),
+			Point(cableRect.left, cableRect.bottom),
+		}, color, 1, DarkColor(color));
+		imgDraw.DrawText(cableRect.left + 4, cableRect.top +  (cables.GetCount() ? 0 : (int)round((pinHeight - textFont.GetHeight() * 0.95) / 2.)), name, textFont, Black);
+		for (Cable* c : cables) {
+			c->DrawCable(imgDraw, objImg, iSize);
 		}
 	}
 	

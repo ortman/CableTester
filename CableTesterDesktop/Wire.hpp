@@ -19,7 +19,8 @@ private:
 	  return n1 + (int)round(diff * perc);
 	}
 	
-	void DrawBezier(Draw& draw, int32_t x1, int32_t y1, int32_t x4, int32_t y2, Color color, int32_t width=1) {
+	template<typename TDraw>
+	void DrawBezier(TDraw& draw, int32_t x1, int32_t y1, int32_t x4, int32_t y2, Color color, int32_t width) {
 		int xa,ya,xb,yb,xc,yc,xm,ym,xn,yn,x,y;
 		int x23 = (x4+x1)/2;
 		int lastX, lastY;
@@ -38,35 +39,8 @@ private:
 	
 	    x = getPt( xm , xn , i );
 	    y = getPt( ym , yn , i );
-			if (i>0) {
+			if (i > 0) {
 				draw.DrawLine(lastX,lastY, x,y, width, color);
-			}
-			lastX = x;
-			lastY = y;
-		}
-	}
-	
-	void DrawBezier(ImageDraw& imgDraw, int32_t x1, int32_t y1, int32_t x4, int32_t y2, Color color, int32_t width=1) {
-		int xa,ya,xb,yb,xc,yc,xm,ym,xn,yn,x,y;
-		int x23 = (x4+x1)/2;
-		int lastX, lastY;
-		for (float i = 0.f ; i < 1.001f ; i += 0.02f) {
-	    xa = getPt( x1 , x23, i );
-	    ya = getPt( y1 , y1 , i );
-	    xb = getPt( x23, x23, i );
-	    yb = getPt( y1 , y2 , i );
-	    xc = getPt( x23, x4 , i );
-	    yc = getPt( y2 , y2 , i );
-	
-	    xm = getPt( xa , xb , i );
-	    ym = getPt( ya , yb , i );
-	    xn = getPt( xb , xc , i );
-	    yn = getPt( yb , yc , i );
-	
-	    x = getPt( xm , xn , i );
-	    y = getPt( ym , yn , i );
-			if (i>0) {
-				imgDraw.DrawLine(lastX,lastY, x,y, width, color);
 			}
 			lastX = x;
 			lastY = y;

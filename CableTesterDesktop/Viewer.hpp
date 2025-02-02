@@ -30,6 +30,22 @@ private:
 		return Black;
 	}
 	
+	void DrawCable() {
+		if (dImg) delete dImg;
+		Size sz = GetSize();
+		dSize = {sz.cx * 2, sz.cy * 2};
+		dImg = new ImageDraw(dSize);
+		dImg->DrawRect(dSize, White);
+		ImageDraw objID(dSize);
+		if (cable != NULL) {
+			cable->CalculateConnectorsPosition(dSize);
+			DrawSelected();
+			cable->Draw(*dImg, &objID, dSize);
+		}
+		objImg = objID;
+		Refresh();
+	}
+	
 public:
 	Viewer() {
 	}
@@ -69,7 +85,7 @@ public:
 			createWire->Draw(w, {sX, sY}, createPoint, sz.cx - pinWidth - 10 - cowerWith);
 		}
 		if (sX < 1.6 || sX > 2.4 || sY < 1.6 || sY > 2.4) {
-			Show(cable);
+			DrawCable();
 		}
 	}
 	
@@ -92,24 +108,10 @@ public:
 		}
 	}
 	
-	void Show(MainCable *cable) {
-		if (dImg) delete dImg;
-		if (this->cable != cable) {
-			sels.Clear();
-			this->cable = cable;
-		}
-		if (cable != NULL) {
-			Size sz = GetSize();
-			dSize = {sz.cx*2, sz.cy*2};
-			dImg = new ImageDraw(dSize);
-			dImg->DrawRect(dSize, White);
-			ImageDraw objID(dSize);
-			cable->CalculateConnectorsPosition(dSize);
-			DrawSelected();
-			cable->Draw(*dImg, &objID, dSize);
-			objImg = objID;
-		}
-		Refresh();
+	void DrawCable(MainCable *cable) {
+		sels.Clear();
+		this->cable = cable;
+		DrawCable();
 	}
 	
 	void SaveImage(const String& str) {
@@ -120,7 +122,7 @@ public:
 		cable->CalculateConnectorsPosition(nextionImageSize);
 		cable->Draw(nextionImg, NULL, nextionImageSize);
 		png.SaveFile(str, nextionImg);
-		Show(cable);
+		DrawCable();
 	}
 	
 	virtual void LeftDown(Point p, dword keyflags) {
@@ -147,7 +149,7 @@ public:
 				}
 			}
 		}
-		Show(cable);
+		DrawCable();
 	}
 	
 	virtual void LeftUp(Point p, dword keyflags) {
@@ -176,7 +178,7 @@ public:
 				delete createWire;
 				createWire = NULL;
 			}
-			Show(cable);
+			DrawCable();
 		}
 	}
 	
@@ -243,7 +245,7 @@ public:
 		switch (key) {
 			case K_DELETE:
 				RemoveSels();
-				Show(cable);
+				DrawCable();
 				return true;
 		}
 		return false;

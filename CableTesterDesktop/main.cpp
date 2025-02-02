@@ -46,7 +46,7 @@ void CableTester::LoadFile(String filePath, String name) {
 	currentCable = Parser::LoadFromFile(filePath, name);
 	currentCable->Sort();
 	//RLOG(*currentCable);
-	viewer.Show(currentCable);
+	viewer.DrawCable(currentCable);
 }
 
 GUI_APP_MAIN {

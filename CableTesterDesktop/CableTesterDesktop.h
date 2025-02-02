@@ -18,6 +18,7 @@ private:
 	MainCable* currentCable = NULL;
 public:
 	CableTester();
+	~CableTester();
 };
 
 #endif

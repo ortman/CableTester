@@ -10,6 +10,11 @@ private:
 public:
 	MainCable(String name) {}
 	
+	~MainCable() {
+		delete cable;
+		for (Connector *c : connectors) delete c;
+	}
+	
 	void SetCable(Cable* c) {cable = c;}
 	Cable* GetCable() {return cable;}
 	

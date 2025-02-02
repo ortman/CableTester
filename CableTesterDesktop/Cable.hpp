@@ -20,6 +20,11 @@ public:
 	
 	Cable(String name, Color color) : name(name), color(color) {}
 	
+	~Cable() {
+		for (Cable *c : cables) delete c;
+		for (Wire *w : wires) delete w;
+	}
+	
 	void Add(Cable *cable) {cables.Add(cable);}
 	
 	void Add(Wire *wire) {wires.Add(wire);}

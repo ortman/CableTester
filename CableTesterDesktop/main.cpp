@@ -35,8 +35,14 @@ CableTester::CableTester() {
 	};
 }
 
+CableTester::~CableTester() {
+	ViewerSelector::Clear();
+	if (currentCable) delete currentCable;
+}
+
 void CableTester::LoadFile(String filePath, String name) {
 	ViewerSelector::Clear();
+	if (currentCable) delete currentCable;
 	currentCable = Parser::LoadFromFile(filePath, name);
 	currentCable->Sort();
 	//RLOG(*currentCable);

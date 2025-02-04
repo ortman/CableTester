@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "group": "build",
+            "command": "make.exe",
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "group": "build",
+            "command": "make.exe clean",
+            "problemMatcher": []
+        },
+        {
+            "label": "Program",
+            "type": "shell",
+            "command": "make.exe build prog",
+            "problemMatcher": []
+        }
+    ]
+}

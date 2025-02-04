@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Windows",
+            "includePath": [
+                "${workspaceFolder}/Inc/**",
+                "${workspaceFolder}/Drivers/CMSIS/Include/**",
+                "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32F1xx/Include/**",
+                "${workspaceFolder}/Drivers/STM32F1xx_HAL_Driver/Inc/**",
+                "${workspaceFolder}/Middlewares/ST/STM32_USB_Device_Library/Class/CustomHID/Inc/**",
+                "${workspaceFolder}/Middlewares/ST/STM32_USB_Device_Library/Core/Inc/**",
+                "C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2021.10/arm-none-eabi/include/**",
+                "C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2021.10/lib/gcc/arm-none-eabi/10.3.1/include/**"
+            ],
+            "intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4
+}

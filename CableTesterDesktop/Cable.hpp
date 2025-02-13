@@ -135,7 +135,8 @@ public:
 			Point(cableRect.right, cableRect.bottom),
 			Point(cableRect.left, cableRect.bottom),
 		}, color, 1, DarkColor(color));
-		imgDraw.DrawText(cableRect.left + 4, cableRect.top +  (cables.GetCount() ? 0 : (int)round((pinHeight - textFont.GetHeight() * 0.95) / 2.)), name, textFont, Black);
+		imgDraw.DrawText(cableRect.left + 4, cableRect.top +  (cables.GetCount() ? 0 : (int)round((pinHeight - textFont.GetHeight() * 0.95) / 2.)),
+				name, textFont, IsDark(color) ? White : Black);
 		for (Cable* c : cables) {
 			c->DrawCable(imgDraw, objImg, iSize);
 		}

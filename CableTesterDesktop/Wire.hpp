@@ -114,7 +114,7 @@ public:
 		rightConnectorPin = pin;
 	}
 
-	void Draw(Draw& w, Sizef scale, Point p, int coverStartX, int centerX) {
+	void Draw(Draw& w, Sizef scale, Point p, int coverStartX) {
 		int penScale = (int)round((double)pen / scale.cx);
 		if (leftConnector) {
 			Point left = leftConnector->GetPinPosition(leftConnectorPin);

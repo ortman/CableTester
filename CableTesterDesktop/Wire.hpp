@@ -176,6 +176,10 @@ public:
 		return ColorToHtml(color);
 	}
 	
+	void SetColor(const Color& c) {
+		color = c;
+	}
+	
 	Color& GetColor() {return color;}
 };
 

@@ -3,9 +3,9 @@ LAYOUT(CableTesterLayout, 648, 414)
 	ITEM(Viewer, viewer, HSizePosZ(192, 0).VSizePosZ(0, 32))
 	ITEM(Upp::Button, bCancel, SetLabel(t_("Cancel")).RightPosZ(0, 88).BottomPosZ(0, 32))
 	ITEM(Upp::Button, bSave, SetLabel(t_("Save")).RightPosZ(92, 88).BottomPosZ(0, 32))
-	ITEM(Upp::DropList, dlWireCover, HSizePosZ(292, 196).BottomPosZ(6, 20))
-	ITEM(Upp::ColorPusher, cWireColor, LeftPosZ(264, 24).BottomPosZ(6, 20))
-	ITEM(Upp::Button, bAddConnector, LeftPosZ(196, 24).BottomPosZ(6, 20))
-	ITEM(Upp::Button, bAddWire, LeftPosZ(224, 24).BottomPosZ(6, 20))
+	ITEM(Upp::DropList, dlWireCable, HSizePosZ(292, 196).BottomPosZ(6, 20))
+	ITEM(Upp::ColorPusher, cWireColor, Tip(t_("Change color")).LeftPosZ(264, 24).BottomPosZ(6, 20))
+	ITEM(Upp::Button, bAddConnector, SetLabel(t_("Cn")).Tip(t_("Add connector")).LeftPosZ(196, 24).BottomPosZ(6, 20))
+	ITEM(Upp::Button, bAddWire, SetLabel(t_("Cb")).Tip(t_("Add wire")).LeftPosZ(224, 24).BottomPosZ(6, 20))
 END_LAYOUT
 

@@ -185,7 +185,7 @@ public:
 			name = GetFileName(fileName);
 			name.TrimLast(4);
 		}
-		MainCable* cable = new MainCable(name);
+		MainCable* cable = new MainCable(name, White);
 		cable->ClearConnectors();
 		
 		FileIn  f(fileName);
@@ -201,9 +201,7 @@ public:
 			} else if (cmd.StartsWith(CMD_RIGHT)) {
 				result = parseLeftRight(f, *cable, false);
 			} else {
-				Cable* c = new Cable(name, White);
-				result = parseCable(f, *cable, *c, _level);
-				cable->SetCable(c);
+				result = parseCable(f, *cable, *cable, _level);
 			}
 		}
 		if (!result) RLOG("parse error! line:" << getLine(f));

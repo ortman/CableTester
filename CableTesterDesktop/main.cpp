@@ -32,6 +32,44 @@ CableTester::CableTester() {
 	cWireColor.SetData(viewer.GetCreateWireColor());
 	cWireColor.WhenAction = [=] {
 		viewer.SetCreateWireColor(cWireColor.GetData());
+		Wire* w;
+		Cable* c;
+		const Index<CableNode*>& sels = viewer.GetSels();
+		if (sels.GetCount() == 1) {
+			if ((w = dynamic_cast<Wire*>(sels[0]))) {
+				w->SetColor(cWireColor.GetData());
+				viewer.DrawCable();
+			} else if ((c = dynamic_cast<Cable*>(sels[0]))) {
+				c->SetColor(cWireColor.GetData());
+				viewer.DrawCable();
+			}
+		}
+	};
+	
+	viewer.WhenSelect = [=] {
+		Wire* w;
+		Cable* c;
+		const Index<CableNode*>& sels = viewer.GetSels();
+		int selCount = sels.GetCount();
+		if (selCount) {
+			if (selCount == 1 && (w = dynamic_cast<Wire*>(sels[0]))) {
+				const Color& color = w->GetColor();
+				cWireColor.SetData(color);
+				viewer.SetCreateWireColor(color);
+				cWireColor.Show();
+			} else if (selCount == 1 && (c = dynamic_cast<Cable*>(sels[0]))) {
+				const Color& color = c->GetColor();
+				cWireColor.SetData(color);
+				viewer.SetCreateWireColor(color);
+				cWireColor.Show();
+			} else {
+				cWireColor.Hide();
+			}
+			dlWireCable.Show();
+		} else {
+			dlWireCable.Hide();
+			cWireColor.Show();
+		}
 	};
 }
 
@@ -40,13 +78,22 @@ CableTester::~CableTester() {
 	if (currentCable) delete currentCable;
 }
 
+void CableTester::AddCableNameToList(Cable* cable) {
+	dlWireCable.Add(cable->GetName());
+	for (Cable* c : cable->GetCables()) {
+		AddCableNameToList(c);
+	}
+}
+
 void CableTester::LoadFile(String filePath, String name) {
+	dlWireCable.Clear();
 	ViewerSelector::Clear();
 	if (currentCable) delete currentCable;
 	currentCable = Parser::LoadFromFile(filePath, name);
 	currentCable->Sort();
 	//RLOG(*currentCable);
 	viewer.DrawCable(currentCable);
+	AddCableNameToList(currentCable);
 }
 
 GUI_APP_MAIN {

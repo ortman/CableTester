@@ -3,20 +3,15 @@
 
 #include "Cable.hpp"
 
-class MainCable {
+class MainCable : public Cable {
 private:
 	VectorMap<int, Connector*> connectors;
-	Cable* cable;
 public:
-	MainCable(String name) {}
+	MainCable(String name, Color color) : Cable(name, color) {}
 	
 	~MainCable() {
-		delete cable;
 		for (Connector *c : connectors) delete c;
 	}
-	
-	void SetCable(Cable* c) {cable = c;}
-	Cable* GetCable() {return cable;}
 	
 	void AddConnector(int id, Connector* c) {connectors.Add(id, c);}
 	
@@ -29,12 +24,12 @@ public:
 	
 	void Sort() {
 		for (Connector *c : connectors) {
-			if (c->IsRight()) cable->SortRight(c);
+			if (c->IsRight()) SortRight(c);
 		}
 		for (Connector *c : connectors) {
 			if (c->IsLeft()) {
 				int pinStart = 0;
-				cable->SortLeft(c, pinStart);
+				SortLeft(c, pinStart);
 				if (pinStart < c->GetPinCount()) {
 					int j;
 					for (int p = 1; p <= c->GetPinCount(); ++p) {
@@ -90,23 +85,19 @@ public:
 		Wire::pen = pinHeight / 6;
 	}
 	
-	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, Size &iSize) {
-		for (Cable* c : cable->GetCables()) {
+	virtual void Draw(ImageDraw& imgDraw, ImageDraw* objImg, Size &iSize) {
+		for (Cable* c : GetCables()) {
 			c->CalcCableRect(iSize);
 			c->DrawCable(imgDraw, objImg, iSize);
 		}
-		cable->Draw(imgDraw, objImg, iSize.cx / 5);
+		Cable::Draw(imgDraw, objImg, iSize.cx / 5);
 		for (Connector* c : connectors) {
 			c->Draw(imgDraw, objImg, iSize);
 		}
 	}
-	
-	void RemoveWire(Wire* w) {
-		cable->RemoveWire(w, true);
-	}
 		
 	void RemoveConnector(Connector* c, bool removeAll) {
-		cable->RemoveWires(c);
+		RemoveWires(c);
 		if (removeAll) {
 			int cnt = connectors.GetCount();
 			for (int i = 0; i < cnt; ++i) {
@@ -116,11 +107,6 @@ public:
 				}
 			}
 		}
-	}
-	
-	void RemoveCable(Cable* c, bool removeAll) {
-		if (c == cable) return;
-		cable->RemoveCable(c, removeAll);
 	}
 };
 

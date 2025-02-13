@@ -141,7 +141,7 @@ public:
 		}
 	}
 	
-	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, int coverWidth) {
+	virtual void Draw(ImageDraw& imgDraw, ImageDraw* objImg, int coverWidth) {
 		for (Cable* c : cables) {
 			c->Draw(imgDraw, objImg, coverWidth);
 		}
@@ -181,8 +181,16 @@ public:
 		return name;
 	}
 	
-	Color GetColor() {
+	const String& GetName() {
+		return name;
+	}
+	
+	const Color& GetColor() {
 		return color;
+	}
+	
+	void SetColor(const Color& c) {
+		color = c;
 	}
 	
 	void RemoveWire(Wire* w, bool recursive) {

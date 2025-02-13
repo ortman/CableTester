@@ -138,6 +138,10 @@ public:
 	virtual String GetTip() {
 		return name;
 	}
+	
+	const String& GetName() {
+		return name;
+	}
 };
 
 int Connector::borderWidth = 2;

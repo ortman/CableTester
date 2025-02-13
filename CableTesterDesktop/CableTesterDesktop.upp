@@ -13,6 +13,8 @@ file
 	Cable.hpp,
 	CableNode.hpp,
 	Viewer.hpp,
+	PropertiesCtrl.hpp,
+	SubCtrls.lay,
 	CableTesterDesktop.lay;
 
 mainconfig

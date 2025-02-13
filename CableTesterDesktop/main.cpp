@@ -5,6 +5,7 @@ CableTester::CableTester() {
 	CtrlLayout(*this, t_("Cable tester"));
 	Sizeable().Zoomable();
 	
+	pProperties.Hide();
 	list.ItemHeight(25);
 	
 	Vector<String> cableFiles = FindAllPaths(GetExeDirFile("Cables"), "*.cbl");
@@ -29,52 +30,17 @@ CableTester::CableTester() {
 		}
 	};
 	
-	cWireColor.SetData(viewer.GetCreateWireColor());
-	cWireColor.WhenAction = [=] {
-		viewer.SetCreateWireColor(cWireColor.GetData());
-		Wire* w;
-		Cable* c;
-		const Index<CableNode*>& sels = viewer.GetSels();
-		if (sels.GetCount() == 1) {
-			if ((w = dynamic_cast<Wire*>(sels[0]))) {
-				w->SetColor(cWireColor.GetData());
-				viewer.DrawCable();
-			} else if ((c = dynamic_cast<Cable*>(sels[0]))) {
-				c->SetColor(cWireColor.GetData());
-				viewer.DrawCable();
-			}
-		}
+	cNewWireColor.SetData(viewer.GetCreateWireColor());
+	cNewWireColor.WhenAction = [=] {
+		viewer.SetCreateWireColor(cNewWireColor.GetData());
 	};
 	
 	viewer.WhenSelect = [=] {
-		Wire* w;
-		Cable* c, *cc;
 		const Index<CableNode*>& sels = viewer.GetSels();
-		int selCount = sels.GetCount();
-		if (selCount) {
-			if (selCount == 1 && (w = dynamic_cast<Wire*>(sels[0]))) {
-				const Color& color = w->GetColor();
-				cWireColor.SetData(color);
-				viewer.SetCreateWireColor(color);
-				cWireColor.Show();
-				if (currentCable && (cc = currentCable->GetWireCable(w))) {
-					dlWireCable.SetData(cc->GetName());
-				}
-			} else if (selCount == 1 && (c = dynamic_cast<Cable*>(sels[0]))) {
-				const Color& color = c->GetColor();
-				cWireColor.SetData(color);
-				viewer.SetCreateWireColor(color);
-				cWireColor.Show();
-				if (currentCable && (cc = currentCable->GetParentCable(c))) {
-					dlWireCable.SetData(cc->GetName());
-				}
-			} else {
-				cWireColor.Hide();
-			}
-			dlWireCable.Show();
+		if (sels.GetCount()) {
+			pProperties.Set(currentCable, sels);
 		} else {
-			dlWireCable.Hide();
-			cWireColor.Show();
+			pProperties.Clear();
 		}
 	};
 }
@@ -84,23 +50,14 @@ CableTester::~CableTester() {
 	if (currentCable) delete currentCable;
 }
 
-void CableTester::AddCableNameToList(Cable* cable) {
-	dlWireCable.Add(cable->GetName());
-	for (Cable* c : cable->GetCables()) {
-		AddCableNameToList(c);
-	}
-}
-
 void CableTester::LoadFile(String filePath, String name) {
-	dlWireCable.Hide();
-	dlWireCable.Clear();
+	pProperties.Clear();
 	ViewerSelector::Clear();
 	if (currentCable) delete currentCable;
 	currentCable = Parser::LoadFromFile(filePath, name);
 	currentCable->Sort();
 	//RLOG(*currentCable);
 	viewer.DrawCable(currentCable);
-	AddCableNameToList(currentCable);
 }
 
 GUI_APP_MAIN {

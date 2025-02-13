@@ -3,6 +3,7 @@
 
 #include <CtrlLib/CtrlLib.h>
 #include "Viewer.hpp"
+#include "PropertiesCtrl.hpp"
 
 using namespace Upp;
 
@@ -16,7 +17,6 @@ class CableTester : public WithCableTesterLayout<TopWindow> {
 private:
 	void LoadFile(String filePath, String name = "");
 	MainCable* currentCable = NULL;
-	void AddCableNameToList(Cable* c);
 public:
 	CableTester();
 	~CableTester();

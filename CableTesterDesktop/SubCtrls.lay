@@ -1,0 +1,11 @@
+LAYOUT(PropertiesLayout, 132, 252)
+	ITEM(Upp::DropList, dlCables, HSizePosZ(0, 0).TopPosZ(64, 20))
+	ITEM(Upp::ColorPusher, cColor, Tip(t_("Change color")).RightPosZ(0, 132).TopPosZ(20, 20))
+	ITEM(Upp::Label, lColor, SetLabel(t_("Color")).HSizePosZ(0, 0).TopPosZ(0, 20))
+	ITEM(Upp::Label, lParentCable, SetLabel(t_("ParentCable")).HSizePosZ(0, 0).TopPosZ(44, 19))
+	ITEM(Upp::Label, lName, SetLabel(t_("Name")).HSizePosZ(0, 0).TopPosZ(88, 19))
+	ITEM(Upp::EditString, eName, HSizePosZ(0, 0).TopPosZ(108, 19))
+	ITEM(Upp::Label, lPinCount, SetLabel(t_("Pin count")).HSizePosZ(0, 0).TopPosZ(132, 19))
+	ITEM(Upp::EditIntSpin, ePinCount, Min(0).Max(200).HSizePosZ(0, 0).TopPosZ(152, 19))
+END_LAYOUT
+

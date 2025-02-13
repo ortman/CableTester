@@ -33,6 +33,28 @@ public:
 	
 	Vector<Wire*>& GetWires() {return wires;};
 	
+	Cable* GetWireCable(const Wire* wire) {
+		Cable* res = NULL;
+		for (Wire* w : wires) {
+			if (w == wire) return this;
+		}
+		for (Cable* c : cables) {
+			res = c->GetWireCable(wire);
+			if (res) return res;
+		}
+		return res;
+	}
+	
+	Cable* GetParentCable(const Cable* cable) {
+		Cable* res = NULL;
+		for (Cable* c : cables) {
+			if (c == cable) return this;
+			res = c->GetParentCable(cable);
+			if (res) return res;
+		}
+		return res;
+	}
+	
 	void SortRight(Connector* connector) {
 		for (Cable *cable : cables) {
 			cable->SortRight(connector);

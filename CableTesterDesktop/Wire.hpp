@@ -85,7 +85,7 @@ public:
 			Connector *rightConnector = NULL, int rightConnectorPin = 0) :
 				leftConnector(leftConnector), leftConnectorPin(leftConnectorPin),
 				rightConnector(rightConnector), rightConnectorPin(rightConnectorPin) {
-		color = Color::Special((hexColor & 0x0000ff) << 16 | (hexColor & 0x00ff00) | (hexColor & 0xff0000) >> 16);
+		color = Color::FromRaw((hexColor & 0x0000ff) << 16 | (hexColor & 0x00ff00) | (hexColor & 0xff0000) >> 16);
 	}
 			
 	Wire(Wire &w) {

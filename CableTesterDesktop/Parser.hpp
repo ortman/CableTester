@@ -133,7 +133,7 @@ private:
 						result = false;
 						break;
 					};
-					color = Color::Special((hexColor & 0x0000ff) << 16 | (hexColor & 0x00ff00) | (hexColor & 0xff0000) >> 16);
+					color = Color::FromRaw((hexColor & 0x0000ff) << 16 | (hexColor & 0x00ff00) | (hexColor & 0xff0000) >> 16);
 					startName += 7;
 				}
 				name = line.Mid(startName + 1);

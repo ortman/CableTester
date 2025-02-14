@@ -64,14 +64,21 @@
 
 #define USBD_VID     1155
 #define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "STMicroelectronics"
+#define USBD_MANUFACTURER_STRING     "Ortman"
 #define USBD_PID_FS     22336
-#define USBD_PRODUCT_STRING_FS     "STM32 Virtual ComPort"
+#define USBD_PRODUCT_STRING_FS     "CableTester"
 #define USBD_CONFIGURATION_STRING_FS     "CDC Config"
 #define USBD_INTERFACE_STRING_FS     "CDC Interface"
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
+#define USBD_MSFT_STRING_FS     "MSFT100"
+#define USBD_MSFT_VENDOR_ID     0xAE
+#define USBD_MSFT_PROP_DI_GUID_NAME	"DeviceInterfaceGUID"
+#define USBD_MSFT_PROP_DI_GUID_VAL	"{92cf51ca-392a-4db5-9bff-46d0e0062c1b}\0"
+#define USBD_MSFT_PROP_DI_GUID_VAL_SIZ   39
 
+#define USB_SIZ_MSID_FD				0x28
+#define USB_SIZ_MSID_EP				0x8e
 /* USER CODE END PRIVATE_DEFINES */
 
 /**
@@ -79,7 +86,36 @@
   */
 
 /* USER CODE BEGIN 0 */
+uint8_t *     USBD_FS_MsftStrDescriptor( USBD_SpeedTypeDef speed , uint16_t *length);
+uint8_t *     USBD_FS_MSIDFeatureDescriptor( USBD_SpeedTypeDef speed , USBD_SetupReqTypedef  *req , uint16_t *length);
+#if (USBD_MSFT_ENABLED == 1)
+	#if defined ( __ICCARM__ ) /*!< IAR Compiler */
+	  #pragma data_alignment=4
+	#endif
+	__ALIGN_BEGIN  uint8_t USBD_MSID_FeatureDesc[USB_SIZ_MSID_FD] __ALIGN_END =
+	{
+	  USB_SIZ_MSID_FD, 0x00, 0x00, 0x00,
+	#if (USBD_LPM_ENABLED == 1)
+	  0x01, 0x02,                       /*bcdUSB */ /* changed to USB version 2.01
+												   in order to support LPM L1 suspend
+												   resume test of USBCV3.0*/
+	#else
+	  0x00, 0x01,                      /* bcdUSB */
+	#endif
+	  0x04, 0x00, /* wIndex */
+	  0x01, /* number of section */
+	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 7 bytes reserved */
+	  0x00,  /* interface number */
+	  0x01, /* reserved */
+	  0x57, 0x49, 0x4e, 0x55, 0x53, 0x42, 0x00, 0x00, /* 8 bytes Compatible ID "WINUSB\0\0" */
+	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 8 bytes sub-compatible ID */
+	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00 /* 6 bytes reserved */
+	};
 
+	#if defined ( __ICCARM__ ) /*!< IAR Compiler */
+	  #pragma data_alignment=4
+	#endif
+#endif /* USBD_MSFT_ENABLED */
 /* USER CODE END 0 */
 
 /** @defgroup USBD_DESC_Private_Macros USBD_DESC_Private_Macros
@@ -138,6 +174,11 @@ USBD_DescriptorsTypeDef FS_Desc =
 , USBD_FS_SerialStrDescriptor
 , USBD_FS_ConfigStrDescriptor
 , USBD_FS_InterfaceStrDescriptor
+#if (USBD_MSFT_ENABLED == 1)
+  ,USBD_FS_MsftStrDescriptor
+  ,USBD_FS_MSIDFeatureDescriptor
+  ,USBD_MSFT_VENDOR_ID
+#endif
 };
 
 #if defined ( __ICCARM__ ) /* IAR Compiler */
@@ -150,8 +191,8 @@ __ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
   USB_DESC_TYPE_DEVICE,       /*bDescriptorType*/
   0x00,                       /*bcdUSB */
   0x02,
-  0x02,                       /*bDeviceClass*/
-  0x02,                       /*bDeviceSubClass*/
+  0x00,                       /*bDeviceClass*/
+  0x00,                       /*bDeviceSubClass*/
   0x00,                       /*bDeviceProtocol*/
   USB_MAX_EP0_SIZE,           /*bMaxPacketSize*/
   LOBYTE(USBD_VID),           /*idVendor*/
@@ -280,12 +321,13 @@ uint8_t * USBD_FS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *l
 uint8_t * USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
   UNUSED(speed);
-  *length = USB_SIZ_STRING_SERIAL;
+  //*length = USB_SIZ_STRING_SERIAL;
 
   /* Update the serial number string descriptor with the data from the unique
    * ID */
-  Get_SerialNum();
+  //Get_SerialNum();
   /* USER CODE BEGIN USBD_FS_SerialStrDescriptor */
+  USBD_GetString((uint8_t *)USBD_MANUFACTURER_STRING, USBD_StrDesc, length);
 
   /* USER CODE END USBD_FS_SerialStrDescriptor */
   return (uint8_t *) USBD_StringSerial;
@@ -380,6 +422,38 @@ static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len)
     pbuf[2 * idx + 1] = 0;
   }
 }
+
+#if (USBD_MSFT_ENABLED == 1)
+uint8_t *USBD_FS_MsftStrDescriptor( USBD_SpeedTypeDef speed , uint16_t *length)
+{
+  if(speed == 0)
+  {
+	  USBD_GetString ((uint8_t *)USBD_MSFT_STRING_FS, USBD_StrDesc, length);
+  }
+  else
+  {
+	  USBD_GetString ((uint8_t *)USBD_MSFT_STRING_FS, USBD_StrDesc, length);
+  }
+  *(USBD_StrDesc+*length) = USBD_MSFT_VENDOR_ID;
+  *(USBD_StrDesc+*length+1) = 0x00;
+  *length = *length + 2;
+  *USBD_StrDesc = *length;
+  return USBD_StrDesc;
+}
+
+uint8_t *USBD_FS_MSIDFeatureDescriptor( USBD_SpeedTypeDef speed , USBD_SetupReqTypedef  *req , uint16_t *length) {
+  if ((req->bmRequest == USB_REQ_RECIPIENT_MS_FD) && req->wIndex == 0x0004) {
+    *length = sizeof(USBD_MSID_FeatureDesc);
+    return (uint8_t*)USBD_MSID_FeatureDesc;
+  } else if ((req->bmRequest == USB_REQ_RECIPIENT_MS_EP) && req->wIndex == 0x0005/* && req->wValue == 0*/) {
+	  USBD_MSFT_GetExtendedProp(REG_SZ, USBD_MSFT_PROP_DI_GUID_NAME, USBD_MSFT_PROP_DI_GUID_VAL, USBD_MSFT_PROP_DI_GUID_VAL_SIZ, USBD_StrDesc, length);
+  } else {
+    *length = 0;
+  }
+  return USBD_StrDesc;
+}
+
+#endif
 /**
   * @}
   */

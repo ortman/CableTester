@@ -212,7 +212,7 @@ USBD_StatusTypeDef USBD_WinUSB_Config(USBD_WinUSB_EnpointsConfig_t *conf, uint8_
 	USBD_WinUSB_CfgDesc[14] = 0xFF; /*bInterfaceClass: Vendor*/
 	USBD_WinUSB_CfgDesc[15] = 0x00; /*bInterfaceSubClass : 1=BOOT, 0=no boot*/
 	USBD_WinUSB_CfgDesc[16] = 0x00; /*nInterfaceProtocol : 0=none, 1=keyboard, 2=mouse*/
-	USBD_WinUSB_CfgDesc[17] = 0x02; /*iInterface: Index of string descriptor*/
+	USBD_WinUSB_CfgDesc[17] = 0x00; /*iInterface: Index of string descriptor*/
 
 	uint16_t idx = 18;
 	for (uint8_t i=0; i<epCount; ++i) {

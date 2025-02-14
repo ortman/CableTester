@@ -394,6 +394,40 @@ USBD_StatusTypeDef  USBD_StdEPReq(USBD_HandleTypeDef *pdev,
   return ret;
 }
 
+/**
+* @brief  USBD_StdMSIDFDReq
+*         Handle Get MSID Feature Descriptor requests
+* @param  pdev: device instance
+* @param  req: usb request
+* @retval status
+*/
+
+USBD_StatusTypeDef USBD_StdMSIDFDReq(USBD_HandleTypeDef *pdev , USBD_SetupReqTypedef  *req) {
+  USBD_StatusTypeDef ret = USBD_OK;
+#if (USBD_MSFT_ENABLED == 1)
+  uint16_t len;
+  uint8_t *pbuf;
+  //USBD_DbgLog("USBD_LL_SetupStage: bmRequest %02x, bRequest %02x, wValue %04x, wLength %04x, wIndex %04x\n", pdev->request.bmRequest, pdev->request.bRequest, pdev->request.wValue, pdev->request.wLength, pdev->request.wIndex);
+  if (req->bRequest == (uint8_t) pdev->pDesc->MSFT_VENDORID) {
+	  pbuf = pdev->pDesc->GetMSIDFeatureDescriptor(pdev->dev_speed, req, &len);
+	  if (len || req->wLength) {
+		  if ((len != 0) && (req->wLength != 0)) {
+			len = MIN(len , req->wLength);
+			USBD_CtlSendData (pdev,
+							  pbuf,
+							  len);
+		  }
+	  } else {
+		  USBD_CtlError(pdev , req);
+	  }
+  } else {
+	  USBD_CtlError(pdev , req);
+  }
+#else /* USBD_MSFT_ENABLED */
+  USBD_CtlError(pdev , req);
+#endif /* USBD_MSFT_ENABLED */
+  return ret;
+}
 
 /**
 * @brief  USBD_GetDescriptor
@@ -408,6 +442,8 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev,
   uint16_t len = 0U;
   uint8_t *pbuf = NULL;
   uint8_t err = 0U;
+  //USBD_DbgLog("USBD_LL_SetupStage: bmRequest %02x, bRequest %02x, wValue %04x, wLength %04x, wIndex %04x\n", pdev->request.bmRequest, pdev->request.bRequest, pdev->request.wValue, pdev->request.wLength, pdev->request.wIndex);
+  USBD_DbgLog("req->wValue=0x%04x\n", req->wValue);
 
   switch (req->wValue >> 8)
   {
@@ -515,6 +551,20 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev,
             err++;
           }
           break;
+      
+#if (USBD_MSFT_ENABLED == 1)
+        case USBD_IDX_MSFT_STR:
+          if (pdev->pDesc->GetMsftStrDescriptor != NULL)
+          {
+            pbuf = pdev->pDesc->GetMsftStrDescriptor(pdev->dev_speed, &len);
+          }
+          else
+          {
+            USBD_CtlError(pdev, req);
+            err++;
+          }
+          break;
+#endif
 
         default:
 #if (USBD_SUPPORT_USER_STRING_DESC == 1U)
@@ -881,6 +931,45 @@ void USBD_GetString(uint8_t *desc, uint8_t *unicode, uint16_t *len)
       unicode[idx++] =  0U;
     }
   }
+}
+
+/** 
+ * @brief  USBD_MSFT_GetExtendedProp
+ * @param  propType : property type
+ * @param  propName : property name
+ * @param  propVal : property value
+ * @param  valSize : property value size
+ * @param  unicode : formatted string buffer (unicode)
+ * @param  len : formatted string length
+ * @retval None
+ */
+void USBD_MSFT_GetExtendedProp(uint8_t propType, char *propName, char *propVal, uint32_t valSize, uint8_t *unicode, uint16_t *len) {
+	*len = USBD_GetLen((uint8_t*)propName) * 2 + valSize*2 + 26;
+	*((uint16_t*)(unicode)) = *len;
+	unicode[2] = 0x00; unicode[3] = 0x00;
+#if (USBD_LPM_ENABLED == 1)
+	unicode[4] = 0x01; unicode[5] = 0x02;      /*bcdUSB */ /* changed to USB version 2.01
+                                               in order to support LPM L1 suspend
+                                               resume test of USBCV3.0*/
+#else
+	unicode[4] = 0x00; unicode[5] = 0x01;      /* bcdUSB */
+#endif
+	unicode[6] = 0x05; unicode[7] = 0x00;  /* Extended Property Descriptor index (5) */
+	unicode[8] = 0x01; unicode[9] = 0x00;  /* Number of sections (1) */
+	*((uint16_t*)(unicode + 10)) = *len - 10; unicode[12] = 0x00; unicode[13] = 0x00;
+	unicode[14] = propType; unicode[15] = 0x00; unicode[16] = 0x00; unicode[17] = 0x00; /* Property data type */
+	unicode[18] = *len - valSize*2 - 24; unicode[19] = 0x00;
+	unicode += 20;
+    do {
+      *unicode++ = *propName;
+      *unicode++ =  0x00;
+    } while (*propName++ != '\0');
+
+    *((uint32_t*)(unicode)) = valSize * 2; unicode += 4;
+    while (valSize--) {
+      *unicode++ = *propVal++;
+      *unicode++ =  0x00;
+    }
 }
 
 /**

@@ -68,15 +68,20 @@
 /*---------- -----------*/
 #define USBD_MAX_STR_DESC_SIZ     512
 /*---------- -----------*/
-#define USBD_DEBUG_LEVEL     0
+#define USBD_DEBUG_LEVEL     10
 /*---------- -----------*/
-#define USBD_SELF_POWERED     1
+#define USBD_LPM_ENABLED     0
+/*---------- -----------*/
+#define USBD_SELF_POWERED     0
+/*---------- -----------*/
+#define USBD_MSFT_ENABLED     1
 /*---------- -----------*/
 #define MAX_STATIC_ALLOC_SIZE     512
 
 /****************************************/
 /* #define for FS and HS identification */
 #define DEVICE_FS 		0
+#define DEVICE_HS 		1
 
 /**
   * @}

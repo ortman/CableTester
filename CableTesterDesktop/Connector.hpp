@@ -61,7 +61,11 @@ public:
 		int32_t widthRect = pinSize.cx - pinSize.cy / 3;
 		int32_t yRect = position.y, xRect = (isLeft ? 0 : pinSize.cy / 4) + position.x;
 		Point rect[] = {
-			{xRect, yRect}, {xRect + widthRect, yRect}, {xRect+widthRect, yRect + heightRect}, {xRect, yRect + heightRect}, {xRect, yRect}
+			{xRect, yRect},
+			{xRect + widthRect, yRect},
+			{xRect+widthRect, yRect + heightRect},
+			{xRect, yRect + heightRect},
+			{xRect, yRect}
 		};
 		String pinText;
 		imgDraw.DrawPolyline(rect, 5, borderWidth, borderColor);
@@ -104,13 +108,25 @@ public:
 		}
 	}
 	
-	Point& Position() {return position;};
+	Point& Position() {
+		return position;
+	}
 	
-	Size& PinSize() {return pinSize;};
+	Size& PinSize() {
+		return pinSize;
+	}
 		
-	bool IsLeft() {return isLeft;};
+	bool IsLeft() {
+		return isLeft;
+	}
 	
-	bool IsRight() {return !isLeft;};
+	bool IsRight() {
+		return !isLeft;
+	}
+	
+	void SetIsLeft(bool isLeft) {
+		this->isLeft = isLeft;
+	}
 	
 	Point GetPinPosition(int32_t pin) {
 		int pinPos = 0;
@@ -131,9 +147,18 @@ public:
 		String str = "Connector{pinCount:";
 		str << pinCount << ", isLeft=" << isLeft << ", x=" << position.x << ", y=" << position.y << ", name=\"" << name << "\"}";
 		return str;
-	};
+	}
 	
-	int GetPinCount() {return pinCount;};
+	int GetPinCount() {return pinCount;}
+	
+	void SetPinCount(int count) {
+		if (pinCount == count) return;
+		pinCount = count;
+		pins.SetCount(pinCount);
+		for (int i = 0; i < pinCount; ++i) {
+			pins[i] = i+1;
+		}
+	}
 	
 	virtual String GetTip() {
 		return name;

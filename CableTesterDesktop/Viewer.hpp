@@ -201,13 +201,8 @@ public:
 			Tip("");
 			Refresh();
 		} else {
-			Color id = GetId(p);
-			CableNode* obj = ViewerSelector::Get(id);
-			if (obj) {
-				Tip(obj->GetTip());
-			} else {
-				Tip("");
-			}
+			CableNode* obj = ViewerSelector::Get(GetId(p));
+			Tip(obj ? obj->GetTip() : "");
 		}
 	}
 	

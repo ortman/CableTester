@@ -7,6 +7,8 @@ CableTester::CableTester() {
 	
 	pProperties.Hide();
 	list.ItemHeight(25);
+	bAddCable.SetImage(CtrlImg::Add());
+	bAddConnector.SetImage(CtrlImg::Add());
 	
 	Vector<String> cableFiles = FindAllPaths(GetExeDirFile("Cables"), "*.cbl");
 	String name;
@@ -37,11 +39,20 @@ CableTester::CableTester() {
 	
 	viewer.WhenSelect = [=] {
 		const Index<CableNode*>& sels = viewer.GetSels();
-		if (sels.GetCount()) {
-			pProperties.Set(currentCable, sels);
+		if (sels.GetCount() == 1) {
+			pProperties.Set(currentCable, sels[0]);
 		} else {
 			pProperties.Clear();
 		}
+	};
+	
+	pProperties.WhenUpdate = [=] {
+		viewer.DrawCable();
+	};
+	
+	pProperties.WhenSortUpdate = [=] {
+		currentCable->Sort();
+		viewer.DrawCable();
 	};
 }
 

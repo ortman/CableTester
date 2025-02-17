@@ -55,7 +55,9 @@ CableTester::CableTester() {
 		if (currentCable) {
 			addCableWindow.Open();
 			if (addCableWindow.RunAppModal() != 0) {
-				currentCable->Add(addCableWindow.GetCable());
+				Cable* c = addCableWindow.GetCable();
+				currentCable->Add(c);
+				ViewerSelector::Add(c);
 			}
 			addCableWindow.Close();
 			viewer.DrawCable();
@@ -66,7 +68,9 @@ CableTester::CableTester() {
 		if (currentCable) {
 			addConnectorWindow.Open();
 			if (addConnectorWindow.RunAppModal() != 0) {
-				currentCable->AddConnector(addConnectorWindow.GetConnector());
+				Connector* cn = addConnectorWindow.GetConnector();
+				currentCable->AddConnector(cn);
+				ViewerSelector::Add(cn);
 			}
 			addConnectorWindow.Close();
 			viewer.DrawCable();

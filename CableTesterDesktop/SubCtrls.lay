@@ -14,26 +14,6 @@ LAYOUT(PropertiesLayout, 124, 252)
 	ITEM(Upp::Button, bPosDown, SetLabel(t_("Down")).HSizePosZ(64, 0).TopPosZ(152, 20))
 END_LAYOUT
 
-LAYOUT(AddCableLayout, 228, 80)
-	ITEM(Upp::EditString, eName, HSizePosZ(60, 4).TopPosZ(4, 19))
-	ITEM(Upp::ColorPusher, cColor, LeftPosZ(60, 56).TopPosZ(24, 20))
-	ITEM(Upp::Label, dv___2, SetLabel(t_("Name")).SetAlign(Upp::ALIGN_RIGHT).LeftPosZ(4, 52).TopPosZ(4, 19))
-	ITEM(Upp::Label, dv___3, SetLabel(t_("Color")).SetAlign(Upp::ALIGN_RIGHT).LeftPosZ(4, 52).TopPosZ(24, 19))
-	ITEM(Upp::Button, bCancel, SetLabel(t_("Cancel")).RightPosZ(4, 76).BottomPosZ(5, 27))
-	ITEM(Upp::Button, bOk, SetLabel(t_("OK")).RightPosZ(88, 76).BottomPosZ(5, 27))
-END_LAYOUT
-
-LAYOUT(AddConnectorLayout, 228, 100)
-	ITEM(Upp::EditString, eName, HSizePosZ(68, 4).TopPosZ(4, 19))
-	ITEM(Upp::Label, dv___1, SetLabel(t_("Name")).SetAlign(Upp::ALIGN_RIGHT).LeftPosZ(4, 60).TopPosZ(4, 19))
-	ITEM(Upp::Label, dv___2, SetLabel(t_("Position")).SetAlign(Upp::ALIGN_RIGHT).LeftPosZ(4, 60).TopPosZ(24, 19))
-	ITEM(Upp::Label, dv___3, SetLabel(t_("Pin count")).SetAlign(Upp::ALIGN_RIGHT).LeftPosZ(4, 60).TopPosZ(44, 19))
-	ITEM(Upp::Button, bCancel, SetLabel(t_("Cancel")).HSizePosZ(148, 4).BottomPosZ(5, 27))
-	ITEM(Upp::Button, bOk, SetLabel(t_("OK")).RightPosZ(88, 76).BottomPosZ(5, 27))
-	ITEM(Upp::DropList, dlLeftRight, LeftPosZ(68, 80).TopPosZ(24, 19))
-	ITEM(Upp::EditIntSpin, ePinCount, LeftPosZ(68, 80).TopPosZ(44, 19))
-END_LAYOUT
-
 LAYOUT(CreateCableLayout, 228, 60)
 	ITEM(Upp::EditString, eName, HSizePosZ(60, 4).TopPosZ(4, 19))
 	ITEM(Upp::Label, dv___1, SetLabel(t_("Name")).SetAlign(Upp::ALIGN_RIGHT).LeftPosZ(4, 52).TopPosZ(4, 19))

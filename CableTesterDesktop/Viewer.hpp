@@ -60,6 +60,13 @@ public:
 		return sels;
 	}
 	
+	void Select(CableNode* node) {
+		sels.Clear();
+		sels.Add(node);
+		DrawCable();
+		WhenSelect();
+	}
+	
 	virtual void Paint(Draw& w) {
 		Size sz = GetSize();
 		//w.DrawRect(sz, White);

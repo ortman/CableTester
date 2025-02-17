@@ -157,41 +157,10 @@ public:
 	}
 };
 
-class AddCableWindow : public WithAddCableLayout<TopWindow> {
-public:
-	AddCableWindow() {
-		CtrlLayout(*this, t_("Add cable"));
-		bOk.WhenAction = Breaker(1);
-		WhenClose = bCancel.WhenAction = Breaker(0);
-		eName <<= "";
-		cColor.SetData(LtGray());
-	}
-	Cable* GetCable() {
-		return new Cable(~eName, cColor.GetData());
-	}
-};
-
-class AddConnectorWindow : public WithAddConnectorLayout<TopWindow> {
-public:
-	AddConnectorWindow() {
-		CtrlLayout(*this, t_("Add connector"));
-		bOk.WhenAction = Breaker(1);
-		WhenClose = bCancel.WhenAction = Breaker(0);
-		eName <<= "";
-		dlLeftRight.Add(t_("Left"));
-		dlLeftRight.Add(t_("Right"));
-		dlLeftRight.SetIndex(0);
-		ePinCount <<= 5;
-	}
-	Connector* GetConnector() {
-		return new Connector(~eName, ePinCount, dlLeftRight.GetIndex() == 0);
-	}
-};
-
 class CreateCableWindow : public WithCreateCableLayout<TopWindow> {
 public:
 	CreateCableWindow() {
-		CtrlLayout(*this, t_("Create cable"));
+		CtrlLayout(*this, t_("Input caption"));
 		bOk.WhenAction = Breaker(1);
 		WhenClose = bCancel.WhenAction = Breaker(0);
 		eName <<= "";

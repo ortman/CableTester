@@ -18,8 +18,8 @@ private:
 	void LoadFile(String filePath, String name = "");
 	MainCable* currentCable = NULL;
 	CreateCableWindow createCableWindow;
-	AddCableWindow addCableWindow;
-	AddConnectorWindow addConnectorWindow;
+	CreateCableWindow addCableWindow;
+	CreateCableWindow addConnectorWindow;
 public:
 	CableTester();
 	~CableTester();

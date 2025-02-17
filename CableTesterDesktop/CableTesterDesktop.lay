@@ -1,13 +1,11 @@
-LAYOUT(CableTesterLayout, 780, 414)
-	ITEM(Upp::ColumnList, list, LeftPosZ(0, 192).VSizePosZ(0, 0))
+LAYOUT(CableTesterLayout, 780, 402)
+	ITEM(Upp::ColumnList, list, LeftPosZ(0, 192).VSizePosZ(0, 32))
 	ITEM(Viewer, viewer, HSizePosZ(192, 132).VSizePosZ(0, 0))
 	ITEM(Upp::Button, bCancel, SetLabel(t_("Cancel")).RightPosZ(0, 64).BottomPosZ(0, 32))
 	ITEM(Upp::Button, bSave, SetLabel(t_("Save")).RightPosZ(68, 64).BottomPosZ(0, 32))
-	ITEM(Upp::ColorPusher, cNewWireColor, NotNull(true).Tip(t_("Change color")).RightPosZ(4, 24).TopPosZ(52, 20))
+	ITEM(Upp::Button, bCreateCable, SetLabel(t_("Create cable")).LeftPosZ(0, 192).BottomPosZ(0, 32))
 	ITEM(Upp::Button, bAddConnector, SetLabel(t_("Connector")).Tip(t_("Add connector")).RightPosZ(4, 124).TopPosZ(4, 20))
 	ITEM(Upp::Button, bAddCable, SetLabel(t_("Cable")).Tip(t_("Add wire")).RightPosZ(4, 124).TopPosZ(28, 20))
-	ITEM(Upp::Label, lColor, SetLabel(t_("New wire color")).RightPosZ(32, 96).TopPosZ(52, 19))
-	ITEM(Upp::LabelBox, dv___8, RightPosZ(4, 124).TopPosZ(72, 24))
-	ITEM(PropertiesCtrl, pProperties, RightPosZ(4, 124).VSizePosZ(96, 34))
+	ITEM(PropertiesCtrl, pProperties, RightPosZ(4, 124).VSizePosZ(52, 34))
 END_LAYOUT
 

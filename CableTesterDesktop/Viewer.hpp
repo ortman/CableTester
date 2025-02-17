@@ -144,6 +144,7 @@ public:
 		if (obj) {
 			int pin = id.GetRaw() >> 16;
 			if ((cr = dynamic_cast<Connector*>(obj)) != NULL && pin) {
+				sels.Clear();
 				createPoint = p;
 				if (cr->IsLeft()) {
 					createWire = new Wire(createWireColor, cr, pin, NULL, 0);
@@ -181,8 +182,9 @@ public:
 						if (cable) {
 							cable->Add(createWire);
 							ViewerSelector::Add(createWire);
-							if (keyflags & K_CTRL) sels.Add(createWire);
+							sels.Add(createWire);
 							createWire = NULL;
+							WhenSelect();
 						}
 					}
 				}
@@ -230,7 +232,7 @@ public:
 				delete w;
 			}	else if ((c = dynamic_cast<Cable*>(node))) {
 				if (answCables == -10 && c->GetWires().GetCount() == 0 && c->GetCables().GetCount() == 0) {
-					cable->RemoveCable(c, true);
+					cable->RemoveCable(c, true, true);
 					delete c;
 				} else {
 					if (answCables == -10) {
@@ -238,7 +240,7 @@ public:
 								t_("What objects to remove from selected cables?"),
 								t_("Cables and wires"), t_("Only wires"), t_("Cancel"));
 					}
-					if (answCables != CTD_REMOVE_CANCEL) cable->RemoveCable(c, answCables == CTD_REMOVE_ALL);
+					if (answCables != CTD_REMOVE_CANCEL) cable->RemoveCable(c, answCables == CTD_REMOVE_ALL, true);
 					if (answCables == CTD_REMOVE_ALL) delete c;
 				}
 			} else if ((cr = dynamic_cast<Connector*>(node))) {

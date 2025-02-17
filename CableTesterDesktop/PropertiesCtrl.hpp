@@ -15,7 +15,7 @@ private:
 	CableNode* node = NULL;
 	
 	void AddCableNameToList(Cable* cable) {
-		dlParentCable.Add(cable->GetName());
+		dlParentCable.Add((int64_t)cable, cable->GetName());
 		for (Cable* c : cable->GetCables()) {
 			AddCableNameToList(c);
 		}
@@ -30,6 +30,9 @@ public:
 		
 		dlLeftRight.Add(t_("Left"));
 		dlLeftRight.Add(t_("Right"));
+		
+		bPosUp.SetImage(CtrlImg::SmallUp());
+		bPosDown.SetImage(CtrlImg::SmallDown());
 	
 		cColor.WhenAction = [=] {
 			Wire* w;
@@ -57,6 +60,22 @@ public:
 				WhenSortUpdate();
 			}
 		};
+		dlParentCable.WhenAction = [=] {
+			Wire* w;
+			Cable* c;
+			if (node != NULL && mainCable != NULL) {
+				if ((w = dynamic_cast<Wire*>(node))) {
+					mainCable->RemoveWire(w, true);
+					Cable* pCable = (Cable*)(int64_t)dlParentCable.GetData();
+					pCable->Add(w);
+				} else if ((c = dynamic_cast<Cable*>(node))) {
+					mainCable->RemoveCable(c, true, false);
+					Cable* pCable = (Cable*)(int64_t)dlParentCable.GetData();
+					pCable->Add(c);
+				}
+				WhenSortUpdate();
+			}
+		};
 	}
 	
 	void Clear() {
@@ -70,7 +89,10 @@ public:
 		this->mainCable = mainCable;
 		this->node = node;
 		dlParentCable.Clear();
-		AddCableNameToList(mainCable);
+		dlParentCable.Add((int64_t)mainCable, t_("No"));
+		for (Cable* c : mainCable->GetCables()) {
+			AddCableNameToList(c);
+		}
 		Wire* w;
 		Cable* c, *cc;
 		Connector* cn;
@@ -79,12 +101,15 @@ public:
 			ePinCount.Hide();
 			lLeftRight.Hide();
 			dlLeftRight.Hide();
+			lPosition.Hide();
+			bPosUp.Hide();
+			bPosDown.Hide();
 			lName.Hide();
 			eName.Hide();
 			const Color& color = w->GetColor();
 			cColor.SetData(color);
 			if (mainCable && (cc = mainCable->GetWireCable(w))) {
-				dlParentCable.SetData(cc->GetName());
+				dlParentCable.SetData((int64_t)cc);
 			}
 			lColor.Show();
 			cColor.Show();
@@ -95,10 +120,13 @@ public:
 			ePinCount.Hide();
 			lLeftRight.Hide();
 			dlLeftRight.Hide();
+			lPosition.Hide();
+			bPosUp.Hide();
+			bPosDown.Hide();
 			const Color& color = c->GetColor();
 			cColor.SetData(color);
 			if (mainCable && (cc = mainCable->GetParentCable(c))) {
-				dlParentCable.SetData(cc->GetName());
+				dlParentCable.SetData((int64_t)cc);
 			}
 			eName <<= c->GetName();
 			lColor.Show();
@@ -121,8 +149,55 @@ public:
 			ePinCount.Show();
 			lLeftRight.Show();
 			dlLeftRight.Show();
+			lPosition.Show();
+			bPosUp.Show();
+			bPosDown.Show();
 		}
 		Show();
+	}
+};
+
+class AddCableWindow : public WithAddCableLayout<TopWindow> {
+public:
+	AddCableWindow() {
+		CtrlLayout(*this, t_("Add cable"));
+		bOk.WhenAction = Breaker(1);
+		WhenClose = bCancel.WhenAction = Breaker(0);
+		eName <<= "";
+		cColor.SetData(LtGray());
+	}
+	Cable* GetCable() {
+		return new Cable(~eName, cColor.GetData());
+	}
+};
+
+class AddConnectorWindow : public WithAddConnectorLayout<TopWindow> {
+public:
+	AddConnectorWindow() {
+		CtrlLayout(*this, t_("Add connector"));
+		bOk.WhenAction = Breaker(1);
+		WhenClose = bCancel.WhenAction = Breaker(0);
+		eName <<= "";
+		dlLeftRight.Add(t_("Left"));
+		dlLeftRight.Add(t_("Right"));
+		dlLeftRight.SetIndex(0);
+		ePinCount <<= 5;
+	}
+	Connector* GetConnector() {
+		return new Connector(~eName, ePinCount, dlLeftRight.GetIndex() == 0);
+	}
+};
+
+class CreateCableWindow : public WithCreateCableLayout<TopWindow> {
+public:
+	CreateCableWindow() {
+		CtrlLayout(*this, t_("Create cable"));
+		bOk.WhenAction = Breaker(1);
+		WhenClose = bCancel.WhenAction = Breaker(0);
+		eName <<= "";
+	}
+	String GetName() {
+		return ~eName;
 	}
 };
 

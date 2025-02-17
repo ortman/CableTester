@@ -243,20 +243,19 @@ public:
 		}
 	}
 	
-	bool RemoveCable(Cable* c, bool removeAll) {
+	void RemoveCable(Cable* c, bool removeCable, bool removeWires) {
 		int cnt = cables.GetCount();
 		for (int i = 0; i < cnt; ++i) {
-			cables[i]->RemoveCable(c, removeAll);
-			if (removeAll && cables[i] == c) {
+			cables[i]->RemoveCable(c, removeCable, removeWires);
+			if (removeCable && cables[i] == c) {
 				cables.Remove(i);
 				break;
 			}
 		}
-		if (this == c) {
+		if (removeWires && this == c) {
 			for (Wire* w : wires) delete w;
 			wires.Clear();
 		}
-		return false;
 	}
 };
 

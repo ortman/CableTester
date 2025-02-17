@@ -442,8 +442,7 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev,
   uint16_t len = 0U;
   uint8_t *pbuf = NULL;
   uint8_t err = 0U;
-  //USBD_DbgLog("USBD_LL_SetupStage: bmRequest %02x, bRequest %02x, wValue %04x, wLength %04x, wIndex %04x\n", pdev->request.bmRequest, pdev->request.bRequest, pdev->request.wValue, pdev->request.wLength, pdev->request.wIndex);
-  USBD_DbgLog("req->wValue=0x%04x\n", req->wValue);
+  USBD_DbgLog("req->wValue=0x%04x", req->wValue);
 
   switch (req->wValue >> 8)
   {

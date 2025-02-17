@@ -9,6 +9,7 @@ CableTester::CableTester() {
 	list.ItemHeight(25);
 	bAddCable.SetImage(CtrlImg::Add());
 	bAddConnector.SetImage(CtrlImg::Add());
+	bCreateCable.SetImage(CtrlImg::Add());
 	
 	Vector<String> cableFiles = FindAllPaths(GetExeDirFile("Cables"), "*.cbl");
 	String name;
@@ -32,11 +33,6 @@ CableTester::CableTester() {
 		}
 	};
 	
-	cNewWireColor.SetData(viewer.GetCreateWireColor());
-	cNewWireColor.WhenAction = [=] {
-		viewer.SetCreateWireColor(cNewWireColor.GetData());
-	};
-	
 	viewer.WhenSelect = [=] {
 		const Index<CableNode*>& sels = viewer.GetSels();
 		if (sels.GetCount() == 1) {
@@ -53,6 +49,37 @@ CableTester::CableTester() {
 	pProperties.WhenSortUpdate = [=] {
 		currentCable->Sort();
 		viewer.DrawCable();
+	};
+	
+	bAddCable.WhenPush = [=] {
+		if (currentCable) {
+			addCableWindow.Open();
+			if (addCableWindow.RunAppModal() != 0) {
+				currentCable->Add(addCableWindow.GetCable());
+			}
+			addCableWindow.Close();
+			viewer.DrawCable();
+		}
+	};
+	
+	bAddConnector.WhenPush = [=] {
+		if (currentCable) {
+			addConnectorWindow.Open();
+			if (addConnectorWindow.RunAppModal() != 0) {
+				currentCable->AddConnector(addConnectorWindow.GetConnector());
+			}
+			addConnectorWindow.Close();
+			viewer.DrawCable();
+		}
+	};
+	
+	bCreateCable.WhenPush = [=] {
+		createCableWindow.Open();
+		if (createCableWindow.RunAppModal() != 0) {
+			String name = createCableWindow.GetName();
+			//list.Add(cableFile, name, true);
+		}
+		createCableWindow.Close();
 	};
 }
 

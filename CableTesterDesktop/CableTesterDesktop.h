@@ -17,6 +17,9 @@ class CableTester : public WithCableTesterLayout<TopWindow> {
 private:
 	void LoadFile(String filePath, String name = "");
 	MainCable* currentCable = NULL;
+	CreateCableWindow createCableWindow;
+	AddCableWindow addCableWindow;
+	AddConnectorWindow addConnectorWindow;
 public:
 	CableTester();
 	~CableTester();

@@ -15,6 +15,15 @@ public:
 	
 	void AddConnector(int id, Connector* c) {connectors.Add(id, c);}
 	
+	int AddConnector(Connector* c) {
+		int id = 1;
+		for (int i : connectors.GetKeys()) {
+			if (i >= id) id = i + 1;
+		}
+		connectors.Add(id, c);
+		return id;
+	}
+	
 	void ClearConnectors() {connectors.Clear();};
 	
 	Connector* GetConnector(int id) {

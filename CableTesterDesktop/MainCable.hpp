@@ -3,33 +3,34 @@
 
 #include "Cable.hpp"
 
-class MainCable {
+class MainCable : public Cable {
 private:
-	VectorMap<int, Connector*> connectors;
-	Cable* cable;
+	Vector<Connector*> connectors;
 public:
-	MainCable(String name) {}
+	MainCable(String name) : Cable(name, White) {}
 	
-	void SetCable(Cable* c) {cable = c;}
-	Cable* GetCable() {return cable;}
+	MainCable(const Cable &c) : Cable(c) {}
 	
-	void AddConnector(int id, Connector* c) {connectors.Add(id, c);}
+	~MainCable() {
+		for (Connector *c : connectors) delete c;
+	}
+		
+	void AddConnector(Connector* c) {
+		connectors.Add(c);
+	}
 	
-	void ClearConnectors() {connectors.Clear();};
-	
-	Connector* GetConnector(int id) {
-		if (connectors.Find(id) < 0) return NULL;
-		return connectors.Get(id);
+	Vector<Connector*>& GetConnectors() {
+		return connectors;
 	}
 	
 	void Sort() {
 		for (Connector *c : connectors) {
-			if (c->IsRight()) cable->SortRight(c);
+			if (c->IsRight()) SortRight(c);
 		}
 		for (Connector *c : connectors) {
 			if (c->IsLeft()) {
 				int pinStart = 0;
-				cable->SortLeft(c, pinStart);
+				SortLeft(c, pinStart);
 				if (pinStart < c->GetPinCount()) {
 					int j;
 					for (int p = 1; p <= c->GetPinCount(); ++p) {
@@ -85,15 +86,58 @@ public:
 		Wire::pen = pinHeight / 6;
 	}
 	
-	void Draw(ImageDraw& imgDraw, ImageDraw* objImg, Size &iSize) {
-		for (Cable* c : cable->GetCables()) {
-			c->CalcCoverRect(iSize);
-			c->DrawCovers(imgDraw, objImg, iSize);
+	virtual void Draw(ImageDraw& imgDraw, ImageDraw* objImg, Size &iSize) {
+		for (Cable* c : GetCables()) {
+			c->CalcCableRect(iSize);
+			c->DrawCable(imgDraw, objImg, iSize);
 		}
-		cable->Draw(imgDraw, objImg, iSize.cx / 5);
+		Cable::Draw(imgDraw, objImg, iSize.cx / 5);
 		for (Connector* c : connectors) {
 			c->Draw(imgDraw, objImg, iSize);
 		}
+	}
+		
+	void RemoveConnector(Connector* c, bool removeAll) {
+		RemoveWires(c);
+		if (removeAll) {
+			int cnt = connectors.GetCount();
+			for (int i = 0; i < cnt; ++i) {
+				if (connectors[i] == c) {
+					connectors.Remove(i);
+					break;
+				}
+			}
+		}
+	}
+	
+	static MainCable* FromData(Stream& in) {
+		MainCableCT_t data;
+		in.Get(&data.connectorCount, sizeof(data.connectorCount));
+		Vector<Connector*> connectors;
+		int32_t count = data.connectorCount;
+		while (count) {
+			connectors.Add(Connector::FromData(in));
+			--count;
+		}
+		Cable* c = Cable::FromData(connectors, in);
+		MainCable* mc = new MainCable(*c);
+		delete c;
+		for (Connector* cn : connectors) {
+			mc->AddConnector(cn);
+		}
+		return mc;
+	}
+	
+	virtual void ToData(Stream& out) {
+		MainCableCT_t data;
+		data.connectorCount = connectors.GetCount();
+		out.Put(&data.connectorCount, sizeof(data.connectorCount));
+		uint32_t connectorId = 0;
+		for (Connector* cn : connectors) {
+			cn->SetId(++connectorId);
+			cn->ToData(out);
+		}
+		Cable::ToData(out);
 	}
 };
 

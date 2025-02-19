@@ -6,5 +6,7 @@
         "*.h": "cpp",
         "*.cpp": "cpp",
         "*.hpp": "cpp"
-    }
+    },
+    "C_Cpp.default.intelliSenseMode": "gcc-arm",
+    "cortex-debug.gdbPath": "arm-none-eabi-gdb"
 }

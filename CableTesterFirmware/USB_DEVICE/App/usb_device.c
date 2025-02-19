@@ -27,7 +27,8 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "usbd_winusb.h"
+#include "usbd_winusb_if.h"
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN PV */
@@ -54,7 +55,7 @@ USBD_HandleTypeDef hUsbDeviceFS;
  * -- Insert your external function declaration here --
  */
 /* USER CODE BEGIN 1 */
-
+extern USBD_WinUSB_EnpointsConfig_t winUsbDeviceConfig[WINUSB_DEVICE_EP_COUNT];
 /* USER CODE END 1 */
 
 /**
@@ -64,7 +65,20 @@ USBD_HandleTypeDef hUsbDeviceFS;
 void MX_USB_DEVICE_Init(void)
 {
   /* USER CODE BEGIN USB_DEVICE_Init_PreTreatment */
+  if (USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS) != USBD_OK) {
+    Error_Handler();
+  }
+  if (USBD_RegisterClass(&hUsbDeviceFS, USBD_WINUSB_CLASS) != USBD_OK) {
+    Error_Handler();
+  }
+  if (USBD_WinUSB_Config((USBD_WinUSB_EnpointsConfig_t*) &winUsbDeviceConfig, WINUSB_DEVICE_EP_COUNT, winUsbVendorSetupCallback) != USBD_OK) {
+    Error_Handler();
+  }
+  if (USBD_Start(&hUsbDeviceFS) != USBD_OK) {
+    Error_Handler();
+  }
 
+  #if 0
   /* USER CODE END USB_DEVICE_Init_PreTreatment */
 
   /* Init Device Library, add supported class and start the library. */
@@ -86,7 +100,7 @@ void MX_USB_DEVICE_Init(void)
   }
 
   /* USER CODE BEGIN USB_DEVICE_Init_PostTreatment */
-
+  #endif
   /* USER CODE END USB_DEVICE_Init_PostTreatment */
 }
 

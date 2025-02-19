@@ -1,6 +1,10 @@
 #ifndef _VIEWER_HPP_
 #define _VIEWER_HPP_
 
+#define CTD_REMOVE_ALL		1
+#define CTD_REMOVE_WIRES	0
+#define CTD_REMOVE_CANCEL	-1
+
 #include <CtrlLib/CtrlLib.h>
 #include "MainCable.hpp"
 
@@ -12,7 +16,7 @@ private:
 	Image objImg;
 	Size dSize;
 	MainCable *cable = NULL;
-	Index<Wire*> selectedWire;
+	Index<CableNode*> sels;
 	
 	Wire* createWire = NULL;
 	Color createWireColor = LtGreen;
@@ -26,59 +30,9 @@ private:
 		return Black;
 	}
 	
-	bool isSelectCable(Cable *c) {
-		for (Wire *w : c->GetWires()) {
-			if (selectedWire.Find(w) < 0) return false;
-		}
-		for (Cable *cc : c->GetCables()) {
-			if (!isSelectCable(cc)) return false;
-		}
-		return c->GetCables().GetCount() || c->GetWires().GetCount();
-	}
-	
-	void SelectCable(Cable *c, bool isSelect) {
-		for (Wire *w : c->GetWires()) {
-			if (isSelect) {
-				selectedWire.FindAdd(w);
-			} else {
-				int idx = selectedWire.Find(w);
-				if (idx >= 0) selectedWire.Remove(idx);
-			}
-		}
-		for (Cable *cc : c->GetCables()) {
-			SelectCable(cc, isSelect);
-		}
-	}
-	
-	bool isSelectConnector(Connector *cr, Cable *c) {
-		for (Wire *w : c->GetWires()) {
-			if (w->GetLeftConnector() == cr || w->GetRightConnector() == cr) {
-				if (selectedWire.Find(w) < 0) return false;
-			}
-		}
-		for (Cable *cc : c->GetCables()) {
-			if (!isSelectConnector(cr, cc)) return false;
-		}
-		return c->GetCables().GetCount() || c->GetWires().GetCount();
-	}
-	
-	void SelectConnector(Connector *cr, Cable *c, bool isSelect) {
-		for (Wire *w : c->GetWires()) {
-			if ((w->GetLeftConnector() == cr || w->GetRightConnector() == cr)) {
-				if (isSelect) {
-					selectedWire.FindAdd(w);
-				} else {
-					int idx = selectedWire.Find(w);
-					if (idx >= 0) selectedWire.Remove(idx);
-				}
-			}
-		}
-		for (Cable *cc : c->GetCables()) {
-			SelectConnector(cr, cc, isSelect);
-		}
-	}
-	
 public:
+	Event<> WhenSelect;
+	
 	Viewer() {
 	}
 	
@@ -102,6 +56,17 @@ public:
 		return createWireColor;
 	}
 	
+	const Index<CableNode*>& GetSels() {
+		return sels;
+	}
+	
+	void Select(CableNode* node) {
+		sels.Clear();
+		sels.Add(node);
+		DrawCable();
+		WhenSelect();
+	}
+	
 	virtual void Paint(Draw& w) {
 		Size sz = GetSize();
 		//w.DrawRect(sz, White);
@@ -117,30 +82,61 @@ public:
 			createWire->Draw(w, {sX, sY}, createPoint, sz.cx - pinWidth - 10 - cowerWith);
 		}
 		if (sX < 1.6 || sX > 2.4 || sY < 1.6 || sY > 2.4) {
-			Show(cable);
+			DrawCable();
 		}
 	}
 	
-	void Show(MainCable *cable) {
-		if (dImg) delete dImg;
-		if (this->cable != cable) {
-			selectedWire.Clear();
-			this->cable = cable;
-		}
-		if (cable != NULL) {
-			Size sz = GetSize();
-			dSize = {sz.cx*2, sz.cy*2};
-			dImg = new ImageDraw(dSize);
-			dImg->DrawRect(dSize, White);
-			ImageDraw objID(dSize);
-			cable->CalculateConnectorsPosition(dSize);
-			for (Wire* w : selectedWire) {
+	void DrawSelected() {
+		Wire* w;
+		Connector* con;
+		Cable* cbl;
+		for (CableNode* node : sels) {
+			if ((cbl = dynamic_cast<Cable*>(node))) {
+				Rect r = cbl->GetCableRect();
+				r.Inflate(5);
+				dImg->DrawRect(r, Black);
+			} else if ((con = dynamic_cast<Connector*>(node))) {
+				Size sz = con->PinSize();
+				Point p = con->Position();
+				dImg->DrawRect(p.x - 5, p.y - 5, sz.cx + 10, sz.cy * (con->GetPinCount()+1) + 10, LtGray);
+			} else if ((w = dynamic_cast<Wire*>(node))) {
 				w->Draw(*dImg, dSize.cx / 5, (int)round(Wire::pen * 1.5), Black);
 			}
-			cable->Draw(*dImg, &objID, dSize);
-			objImg = objID;
 		}
+	}
+	
+	void DrawCable() {
+		if (dImg) delete dImg;
+		Size sz = GetSize();
+		dSize = {sz.cx * 2, sz.cy * 2};
+		dImg = new ImageDraw(dSize);
+		dImg->DrawRect(dSize, White);
+		ImageDraw objID(dSize);
+		if (cable != NULL) {
+			cable->CalculateConnectorsPosition(dSize);
+			DrawSelected();
+			cable->Draw(*dImg, &objID, dSize);
+		}
+		objImg = objID;
 		Refresh();
+	}
+	
+	void AddToViewerCelector(Cable *c) {
+		ViewerSelector::Add(c);
+		for (Wire* w : c->GetWires()) ViewerSelector::Add(w);
+		for (Cable* cc : c->GetCables()) AddToViewerCelector(cc);
+	}
+	
+	void DrawCable(MainCable *cable) {
+		sels.Clear();
+		ViewerSelector::Clear();
+		this->cable = cable;
+		if (cable != NULL) {
+			for (Connector* cn : cable->GetConnectors()) ViewerSelector::Add(cn);
+			for (Cable* c : cable->GetCables()) AddToViewerCelector(c);
+			for (Wire* w : cable->GetWires()) ViewerSelector::Add(w);
+		}
+		DrawCable();
 	}
 	
 	void SaveImage(const String& str) {
@@ -151,42 +147,41 @@ public:
 		cable->CalculateConnectorsPosition(nextionImageSize);
 		cable->Draw(nextionImg, NULL, nextionImageSize);
 		png.SaveFile(str, nextionImg);
-		Show(cable);
+		DrawCable();
 	}
 	
 	virtual void LeftDown(Point p, dword keyflags) {
 		if (cable == NULL) return;
-		Wire* w;
-		Cable* c;
 		Connector* cr;
-		if (!(keyflags & K_CTRL)) selectedWire.Clear();
+		bool whenSel = false;
+		if (!(keyflags & K_CTRL) && sels.GetCount()) {
+			whenSel = true;
+			sels.Clear();
+		}
 		Color id = GetId(p);
 		CableNode* obj = ViewerSelector::Get(id);
 		if (obj) {
-			if ((w = dynamic_cast<Wire*>(obj)) != NULL) {
-				int idx = selectedWire.Find(w);
+			int pin = id.GetRaw() >> 16;
+			if ((cr = dynamic_cast<Connector*>(obj)) != NULL && pin) {
+				sels.Clear();
+				createPoint = p;
+				if (cr->IsLeft()) {
+					createWire = new Wire(createWireColor, cr, pin, NULL, 0);
+				} else {
+					createWire = new Wire(createWireColor, NULL, 0, cr, pin);
+				}
+			} else {
+				int idx = sels.Find(obj);
 				if (idx < 0) {
-					selectedWire.Add(w);
+					sels.Add(obj);
 				} else {
-					selectedWire.Remove(idx);
+					sels.Remove(idx);
 				}
-			} else if ((c = dynamic_cast<Cable*>(obj)) != NULL) {
-				SelectCable(c, !isSelectCable(c));
-			} else if ((cr = dynamic_cast<Connector*>(obj)) != NULL) {
-				int pin = id.GetRaw() >> 16;
-				if (pin) {
-					createPoint = p;
-					if (cr->IsLeft()) {
-						createWire = new Wire(createWireColor, cr, pin, NULL, 0);
-					} else {
-						createWire = new Wire(createWireColor, NULL, 0, cr, pin);
-					}
-				} else {
-					SelectConnector(cr, cable->GetCable(), !isSelectConnector(cr, cable->GetCable()));
-				}
+				whenSel = true;
 			}
 		}
-		Show(cable);
+		DrawCable();
+		if (whenSel) WhenSelect();
 	}
 	
 	virtual void LeftUp(Point p, dword keyflags) {
@@ -204,9 +199,11 @@ public:
 							createWire->SetLeftConnector(cr, pin);
 						}
 						if (cable) {
-							cable->GetCable()->Add(createWire);
+							cable->Add(createWire);
 							ViewerSelector::Add(createWire);
+							sels.Add(createWire);
 							createWire = NULL;
+							WhenSelect();
 						}
 					}
 				}
@@ -215,7 +212,7 @@ public:
 				delete createWire;
 				createWire = NULL;
 			}
-			Show(cable);
+			DrawCable();
 		}
 	}
 	
@@ -225,13 +222,8 @@ public:
 			Tip("");
 			Refresh();
 		} else {
-			Color id = GetId(p);
-			CableNode* obj = ViewerSelector::Get(id);
-			if (obj) {
-				Tip(obj->GetTip());
-			} else {
-				Tip("");
-			}
+			CableNode* obj = ViewerSelector::Get(GetId(p));
+			Tip(obj ? obj->GetTip() : "");
 		}
 	}
 	
@@ -247,24 +239,48 @@ public:
 		return Image::Hand();
 	}
 	
-	void RemoveSelectedWires(Cable* c) {
-		Vector<Wire*>& wires = c->GetWires();
-		for (int i = wires.GetCount() - 1; i >= 0; --i) {
-			if (selectedWire.Find(wires[i]) >= 0) {
-				wires.Remove(i);
+	void RemoveSels() {
+		Wire *w;
+		Cable *c;
+		Connector *cr;
+		int answCables = -10;
+		int answConnectors = -10;
+		for (CableNode* node : sels) {
+			if ((w = dynamic_cast<Wire*>(node))) {
+				cable->RemoveWire(w, true);
+				delete w;
+			}	else if ((c = dynamic_cast<Cable*>(node))) {
+				if (answCables == -10 && c->GetWires().GetCount() == 0 && c->GetCables().GetCount() == 0) {
+					cable->RemoveCable(c, true, true);
+					delete c;
+				} else {
+					if (answCables == -10) {
+						answCables = Prompt(BEEP_NONE, Ctrl::GetAppName(), CtrlImg::question(),
+								t_("What objects to remove from selected cables?"),
+								t_("Cables and wires"), t_("Only wires"), t_("Cancel"));
+					}
+					if (answCables != CTD_REMOVE_CANCEL) cable->RemoveCable(c, answCables == CTD_REMOVE_ALL, true);
+					if (answCables == CTD_REMOVE_ALL) delete c;
+				}
+			} else if ((cr = dynamic_cast<Connector*>(node))) {
+				if (answConnectors == -10) {
+					answConnectors = Prompt(BEEP_NONE, Ctrl::GetAppName(), CtrlImg::question(),
+							t_("What objects to remove from selected connectors?"),
+							t_("Connectors and wires"), t_("Only wires"), t_("Cancel"));
+				}
+				cable->RemoveConnector(cr, answConnectors == CTD_REMOVE_ALL);
+				if (answConnectors == CTD_REMOVE_ALL) delete cr;
 			}
 		}
-		for (Cable *cc : c->GetCables()) {
-			RemoveSelectedWires(cc);
-		}
+		sels.Clear();
+		DrawCable();
+		WhenSelect();
 	}
 	
 	virtual bool HotKey(dword key) {
 		switch (key) {
 			case K_DELETE:
-				RemoveSelectedWires(cable->GetCable());
-				selectedWire.Clear();
-				Show(cable);
+				RemoveSels();
 				return true;
 		}
 		return false;

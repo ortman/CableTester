@@ -25,6 +25,9 @@
 extern "C" {
 #endif
 
+#define REG_SZ			0x01
+#define REG_MULTI_SZ	0x07
+
 /* Includes ------------------------------------------------------------------*/
 #include  "usbd_def.h"
 
@@ -76,6 +79,7 @@ extern "C" {
 USBD_StatusTypeDef  USBD_StdDevReq(USBD_HandleTypeDef  *pdev, USBD_SetupReqTypedef  *req);
 USBD_StatusTypeDef  USBD_StdItfReq(USBD_HandleTypeDef  *pdev, USBD_SetupReqTypedef  *req);
 USBD_StatusTypeDef  USBD_StdEPReq(USBD_HandleTypeDef  *pdev, USBD_SetupReqTypedef  *req);
+USBD_StatusTypeDef  USBD_StdMSIDFDReq(USBD_HandleTypeDef *pdev , USBD_SetupReqTypedef  *req);
 
 
 void USBD_CtlError(USBD_HandleTypeDef  *pdev, USBD_SetupReqTypedef *req);
@@ -83,6 +87,8 @@ void USBD_CtlError(USBD_HandleTypeDef  *pdev, USBD_SetupReqTypedef *req);
 void USBD_ParseSetupRequest(USBD_SetupReqTypedef *req, uint8_t *pdata);
 
 void USBD_GetString(uint8_t *desc, uint8_t *unicode, uint16_t *len);
+
+void USBD_MSFT_GetExtendedProp(uint8_t propType, char *propName, char *propVal, uint32_t valSize, uint8_t *unicode, uint16_t *len);
 /**
   * @}
   */

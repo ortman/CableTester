@@ -24,7 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "usbd_winusb_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,7 +45,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+extern USBD_HandleTypeDef hUsbDeviceFS;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,6 +97,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    //USBD_WinUSB_Send(&hUsbDeviceFS, WINUSB_EP_IN_ADDR, data, WINUSB_EP_IN_SIZE);
+    HAL_Delay(1000);
+    HAL_GPIO_TogglePin(D31_GPIO_Port, D31_Pin);
+    //printf("Hello World!\r\n");
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -152,6 +156,17 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+#if DEBUG
+int _write(int fd, char* ptr, int len)
+{
+  int i = 0;
+  while (ptr[i] && (i < len)) {
+    ITM_SendChar((uint32_t)ptr[i]);
+    i++;
+  }
+  return len;
+}
+#endif /* DEBUG */
 /* USER CODE END 4 */
 
 /**

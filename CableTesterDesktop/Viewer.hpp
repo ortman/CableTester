@@ -268,7 +268,7 @@ public:
 							t_("What objects to remove from selected connectors?"),
 							t_("Connectors and wires"), t_("Only wires"), t_("Cancel"));
 				}
-				cable->RemoveConnector(cr, answConnectors == CTD_REMOVE_ALL);
+				if (answConnectors != CTD_REMOVE_CANCEL) cable->RemoveConnector(cr, answConnectors == CTD_REMOVE_ALL);
 				if (answConnectors == CTD_REMOVE_ALL) delete cr;
 			}
 		}

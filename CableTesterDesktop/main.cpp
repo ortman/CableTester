@@ -95,7 +95,7 @@ CableTester::~CableTester() {
 
 void CableTester::AddFileToList(String filePath) {
 	String name = "  " + GetFileName(filePath);
-	name.TrimLast(5);
+	name.TrimLast(4);
 	list.Add(filePath, name, true);
 }
 

@@ -8,11 +8,12 @@ using namespace Upp;
 
 class Wire : public CableNode {
 	Color color;
-	Color color2 = Black;
+	Color color2;
 	Connector *leftConnector;
 	int leftConnectorPin;
 	Connector *rightConnector;
 	int rightConnectorPin;
+	Color coperColor = Color::FromRaw(0x666666);
 	
 private:
 	int getPt( int n1 , int n2 , float perc ) {
@@ -21,11 +22,23 @@ private:
 	}
 	
 	template<typename TDraw>
+	void DrawCoper(TDraw& draw, int x1, int y1, int x2, int y2, int width, const Color& color) {
+		if (color == coperColor) {
+			int subWidth = width / 2;
+			draw.DrawLine(x1, y1, x2, y2, 2, coperColor);
+			draw.DrawLine(x1, y1 - subWidth, x2, y2 + subWidth, 2, coperColor);
+			draw.DrawLine(x1, y1 + subWidth, x2, y2 - subWidth, 2, coperColor);
+		} else {
+			draw.DrawLine(x1,y1, x2,y2, width, color);
+		}
+	}
+	
+	template<typename TDraw>
 	void DrawBezier(TDraw& draw, int32_t x1, int32_t y1,
 									int32_t x2, int32_t y2,
 									int32_t x3, int32_t y3,
 									int32_t x4, int32_t y4,
-									Color color, Color color2, int32_t width) {
+									const Color& color, const Color& color2, int32_t width) {
 		int lastX, lastY;
 		int xa, ya, xb, yb, xc, yc, xm, ym, xn, yn, x, y;
 		int n = 0;
@@ -50,9 +63,9 @@ private:
 	
 			if (i > 0) {
 				if (IsNull(color2) || ++n % 4)
-					draw.DrawLine(lastX,lastY, x,y, width, color);
+					DrawCoper(draw, lastX,lastY, x,y, width, color);
 				else
-					draw.DrawLine(lastX,lastY, x,y, width, color2);
+					DrawCoper(draw, lastX,lastY, x,y, width, color2);
 			}
 			lastX = x;
 			lastY = y;
@@ -136,18 +149,18 @@ public:
 			} else {
 				DrawBezierLR(w, left.x, left.y, min(coverStartX, p.x), p.y, color, color2, penScale);
 				if (p.x > coverStartX) {
-					w.DrawLine(coverStartX, p.y, p.x, p.y, penScale, color);
+					DrawCoper(w, coverStartX, p.y, p.x, p.y, penScale, color);
 				}
 			}
 		} else if (rightConnector) {
 			Point right = rightConnector->GetPinPosition(rightConnectorPin);
 			right.x = (int)round((double)right.x / scale.cx);
 			right.y = (int)round((double)right.y / scale.cy);
-			w.DrawLine(coverStartX, right.y, right.x, right.y, penScale, color);
+			DrawCoper(w, coverStartX, right.y, right.x, right.y, penScale, color);
 			if (p.x < coverStartX - abs(p.y - right.y) * 0.4) {
 				DrawBezierLR(w, p.x, p.y, coverStartX, right.y, color, color2, penScale);
 			} else if (p.x > coverStartX) {
-				w.DrawLine(coverStartX, p.y, p.x, p.y, penScale, color);
+				DrawCoper(w, coverStartX, p.y, p.x, p.y, penScale, color);
 				DrawBezierRR(w, coverStartX, p.y, coverStartX, right.y, color, color2, penScale);
 			} else {
 				DrawBezierRR(w, p.x, p.y, coverStartX, right.y, color, color2, penScale);
@@ -160,10 +173,10 @@ public:
 			Point left = leftConnector->GetPinPosition(leftConnectorPin);
 			Point right = rightConnector->GetPinPosition(rightConnectorPin);
 			if (rightConnector->IsRight()) {	// ? - r
-				imgDraw.DrawLine(right.x - coverWidth, right.y, right.x, right.y, pen, color);
+				DrawCoper(imgDraw, right.x - coverWidth, right.y, right.x, right.y, pen, color);
 			}
 			if (leftConnector->IsRight()) { // r - r
-				imgDraw.DrawLine(left.x - coverWidth, left.y, left.x, left.y, pen, color);
+				DrawCoper(imgDraw, left.x - coverWidth, left.y, left.x, left.y, pen, color);
 				DrawBezierRR(imgDraw, left.x - coverWidth, left.y, right.x - coverWidth, right.y, color, color, pen);
 			} else if (rightConnector->IsLeft()) { // l - l
 				DrawBezierLL(imgDraw, left.x, left.y, right.x, right.y, color, color, pen);

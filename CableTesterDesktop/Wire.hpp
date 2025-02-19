@@ -8,6 +8,7 @@ using namespace Upp;
 
 class Wire : public CableNode {
 	Color color;
+	Color color2 = Black;
 	Connector *leftConnector;
 	int leftConnectorPin;
 	Connector *rightConnector;
@@ -24,9 +25,10 @@ private:
 									int32_t x2, int32_t y2,
 									int32_t x3, int32_t y3,
 									int32_t x4, int32_t y4,
-									Color color, int32_t width) {
+									Color color, Color color2, int32_t width) {
 		int lastX, lastY;
 		int xa, ya, xb, yb, xc, yc, xm, ym, xn, yn, x, y;
+		int n = 0;
 		for (float i = 0.f ; i < 1.001f ; i += 0.02f) {
 	    // The Green Lines
 	    xa = getPt( x1 , x2 , i );
@@ -47,7 +49,10 @@ private:
 	    y = getPt( ym , yn , i );
 	
 			if (i > 0) {
-				draw.DrawLine(lastX,lastY, x,y, width, color);
+				if (IsNull(color2) || ++n % 4)
+					draw.DrawLine(lastX,lastY, x,y, width, color);
+				else
+					draw.DrawLine(lastX,lastY, x,y, width, color2);
 			}
 			lastX = x;
 			lastY = y;
@@ -55,21 +60,21 @@ private:
 	}
 	
 	template<typename TDraw>
-	void DrawBezierLR(TDraw& draw, int32_t x1, int32_t y1, int32_t x2, int32_t y2, Color color, int32_t width) {
+	void DrawBezierLR(TDraw& draw, int32_t x1, int32_t y1, int32_t x2, int32_t y2, Color color, Color color2, int32_t width) {
 		int centerX = (x1 + x2) / 2;
-		DrawBezier(draw, x1, y1, centerX, y1, centerX, y2, x2, y2, color, width);
+		DrawBezier(draw, x1, y1, centerX, y1, centerX, y2, x2, y2, color, color2, width);
 	}
 	
 	template<typename TDraw>
-	void DrawBezierLL(TDraw& draw, int32_t x1, int32_t y1, int32_t x2, int32_t y2, Color color, int32_t width) {
+	void DrawBezierLL(TDraw& draw, int32_t x1, int32_t y1, int32_t x2, int32_t y2, Color color, Color color2, int32_t width) {
 		int centerX = max(x1, x2) + (int)round(abs(y1 - y2) * 0.4);
-		DrawBezier(draw, x1, y1, centerX, y1, centerX, y2, x2, y2, color, width);
+		DrawBezier(draw, x1, y1, centerX, y1, centerX, y2, x2, y2, color, color2, width);
 	}
 	
 	template<typename TDraw>
-	void DrawBezierRR(TDraw& draw, int32_t x1, int32_t y1, int32_t x2, int32_t y2, Color color, int32_t width) {
+	void DrawBezierRR(TDraw& draw, int32_t x1, int32_t y1, int32_t x2, int32_t y2, Color color, Color color2, int32_t width) {
 		int centerX = min(x1, x2) - (int)round(abs(y1 - y2) * 0.4);
-		DrawBezier(draw, x1, y1, centerX, y1, centerX, y2, x2, y2, color, width);
+		DrawBezier(draw, x1, y1, centerX, y1, centerX, y2, x2, y2, color, color2, width);
 	}
 	
 public:
@@ -78,6 +83,12 @@ public:
 	Wire(Color color, Connector *leftConnector = NULL, int leftConnectorPin = 0,
 			Connector *rightConnector = NULL, int rightConnectorPin = 0) :
 				color(color), leftConnector(leftConnector), leftConnectorPin(leftConnectorPin),
+				rightConnector(rightConnector), rightConnectorPin(rightConnectorPin) {
+	}
+	
+	Wire(Color color, Color color2, Connector *leftConnector = NULL, int leftConnectorPin = 0,
+			Connector *rightConnector = NULL, int rightConnectorPin = 0) :
+				color(color), color2(color2), leftConnector(leftConnector), leftConnectorPin(leftConnectorPin),
 				rightConnector(rightConnector), rightConnectorPin(rightConnectorPin) {
 	}
 	
@@ -121,9 +132,9 @@ public:
 			left.x = (int)round((double)left.x / scale.cx);
 			left.y = (int)round((double)left.y / scale.cy);
 			if (p.x < left.x + abs(p.y - left.y) * 0.4) {
-				DrawBezierLL(w, left.x, left.y, p.x, p.y, color, penScale);
+				DrawBezierLL(w, left.x, left.y, p.x, p.y, color, color2, penScale);
 			} else {
-				DrawBezierLR(w, left.x, left.y, min(coverStartX, p.x), p.y, color, penScale);
+				DrawBezierLR(w, left.x, left.y, min(coverStartX, p.x), p.y, color, color2, penScale);
 				if (p.x > coverStartX) {
 					w.DrawLine(coverStartX, p.y, p.x, p.y, penScale, color);
 				}
@@ -134,12 +145,12 @@ public:
 			right.y = (int)round((double)right.y / scale.cy);
 			w.DrawLine(coverStartX, right.y, right.x, right.y, penScale, color);
 			if (p.x < coverStartX - abs(p.y - right.y) * 0.4) {
-				DrawBezierLR(w, p.x, p.y, coverStartX, right.y, color, penScale);
+				DrawBezierLR(w, p.x, p.y, coverStartX, right.y, color, color2, penScale);
 			} else if (p.x > coverStartX) {
 				w.DrawLine(coverStartX, p.y, p.x, p.y, penScale, color);
-				DrawBezierRR(w, coverStartX, p.y, coverStartX, right.y, color, penScale);
+				DrawBezierRR(w, coverStartX, p.y, coverStartX, right.y, color, color2, penScale);
 			} else {
-				DrawBezierRR(w, p.x, p.y, coverStartX, right.y, color, penScale);
+				DrawBezierRR(w, p.x, p.y, coverStartX, right.y, color, color2, penScale);
 			}
 		}
 	}
@@ -153,11 +164,11 @@ public:
 			}
 			if (leftConnector->IsRight()) { // r - r
 				imgDraw.DrawLine(left.x - coverWidth, left.y, left.x, left.y, pen, color);
-				DrawBezierRR(imgDraw, left.x - coverWidth, left.y, right.x - coverWidth, right.y, color, pen);
+				DrawBezierRR(imgDraw, left.x - coverWidth, left.y, right.x - coverWidth, right.y, color, color, pen);
 			} else if (rightConnector->IsLeft()) { // l - l
-				DrawBezierLL(imgDraw, left.x, left.y, right.x, right.y, color, pen);
+				DrawBezierLL(imgDraw, left.x, left.y, right.x, right.y, color, color, pen);
 			} else { // l - r
-				DrawBezierLR(imgDraw, left.x, left.y, right.x - coverWidth, right.y, color, pen);
+				DrawBezierLR(imgDraw, left.x, left.y, right.x - coverWidth, right.y, color, color, pen);
 			}
 		}
 	}
@@ -181,6 +192,34 @@ public:
 	}
 	
 	Color& GetColor() {return color;}
+	
+	static Wire* FromData(Vector<Connector*>& connectors, Stream& in) {
+		WireCT_t data;
+		if (in.Get(&data, sizeof(data)) != sizeof(data)) {
+			throw "Read EOF";
+		}
+		Connector* leftCn = NULL;
+		Connector* rightCn = NULL;
+		for (Connector* cn : connectors) {
+			if (cn->GetId() == data.leftConnectorId) leftCn = cn;
+			if (cn->GetId() == data.rightConnectorId) rightCn = cn;
+		}
+		return new Wire(Color::FromRaw(data.color), Color::FromRaw(data.color2),
+				leftCn, data.leftPin, rightCn, data.rightPin);
+	}
+	
+	virtual void ToData(Stream& out) {
+		WireCT_t data;
+		
+		data.leftConnectorId = leftConnector ? leftConnector->GetId() : 0;
+		data.rightConnectorId = rightConnector ? rightConnector->GetId() : 0;
+		data.leftPin = leftConnectorPin;
+		data.rightPin = rightConnectorPin;
+		data.color = color.GetRaw();
+		data.color2 = color2.GetRaw();
+		
+		out.Put(&data, sizeof(data));
+	}
 };
 
 int Wire::pen = 4;

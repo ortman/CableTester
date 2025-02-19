@@ -3,13 +3,13 @@ uses
 
 file
 	CableTesterDesktop.h,
-	Parser.hpp,
 	main.cpp,
 	Wire.hpp,
 	CableTesterDesktop.t,
 	ViewerSelector.hpp,
 	Connector.hpp,
 	MainCable.hpp,
+	DataCT.h,
 	Cable.hpp,
 	CableNode.hpp,
 	Viewer.hpp,

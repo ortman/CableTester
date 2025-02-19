@@ -15,7 +15,10 @@ using namespace Upp;
 
 class CableTester : public WithCableTesterLayout<TopWindow> {
 private:
+	String cableDir;
+	void AddFileToList(String filePath);
 	void LoadFile(String filePath, String name = "");
+	void SaveFile(String filePath);
 	MainCable* currentCable = NULL;
 	CreateCableWindow createCableWindow;
 	CreateCableWindow addCableWindow;

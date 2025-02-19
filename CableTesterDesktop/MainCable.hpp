@@ -5,30 +5,22 @@
 
 class MainCable : public Cable {
 private:
-	VectorMap<int, Connector*> connectors;
+	Vector<Connector*> connectors;
 public:
-	MainCable(String name, Color color) : Cable(name, color) {}
+	MainCable(String name) : Cable(name, White) {}
+	
+	MainCable(const Cable &c) : Cable(c) {}
 	
 	~MainCable() {
 		for (Connector *c : connectors) delete c;
 	}
-	
-	void AddConnector(int id, Connector* c) {connectors.Add(id, c);}
-	
-	int AddConnector(Connector* c) {
-		int id = 1;
-		for (int i : connectors.GetKeys()) {
-			if (i >= id) id = i + 1;
-		}
-		connectors.Add(id, c);
-		return id;
+		
+	void AddConnector(Connector* c) {
+		connectors.Add(c);
 	}
 	
-	void ClearConnectors() {connectors.Clear();};
-	
-	Connector* GetConnector(int id) {
-		if (connectors.Find(id) < 0) return NULL;
-		return connectors.Get(id);
+	Vector<Connector*>& GetConnectors() {
+		return connectors;
 	}
 	
 	void Sort() {
@@ -116,6 +108,36 @@ public:
 				}
 			}
 		}
+	}
+	
+	static MainCable* FromData(Stream& in) {
+		MainCableCT_t data;
+		in.Get(&data.connectorCount, sizeof(data.connectorCount));
+		Vector<Connector*> connectors;
+		int32_t count = data.connectorCount;
+		while (count) {
+			connectors.Add(Connector::FromData(in));
+			--count;
+		}
+		Cable* c = Cable::FromData(connectors, in);
+		MainCable* mc = new MainCable(*c);
+		delete c;
+		for (Connector* cn : connectors) {
+			mc->AddConnector(cn);
+		}
+		return mc;
+	}
+	
+	virtual void ToData(Stream& out) {
+		MainCableCT_t data;
+		data.connectorCount = connectors.GetCount();
+		out.Put(&data.connectorCount, sizeof(data.connectorCount));
+		uint32_t connectorId = 0;
+		for (Connector* cn : connectors) {
+			cn->SetId(++connectorId);
+			cn->ToData(out);
+		}
+		Cable::ToData(out);
 	}
 };
 

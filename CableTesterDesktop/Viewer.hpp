@@ -121,9 +121,21 @@ public:
 		Refresh();
 	}
 	
+	void AddToViewerCelector(Cable *c) {
+		ViewerSelector::Add(c);
+		for (Wire* w : c->GetWires()) ViewerSelector::Add(w);
+		for (Cable* cc : c->GetCables()) AddToViewerCelector(cc);
+	}
+	
 	void DrawCable(MainCable *cable) {
 		sels.Clear();
+		ViewerSelector::Clear();
 		this->cable = cable;
+		if (cable != NULL) {
+			for (Connector* cn : cable->GetConnectors()) ViewerSelector::Add(cn);
+			for (Cable* c : cable->GetCables()) AddToViewerCelector(c);
+			for (Wire* w : cable->GetWires()) ViewerSelector::Add(w);
+		}
 		DrawCable();
 	}
 	

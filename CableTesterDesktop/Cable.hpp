@@ -20,6 +20,17 @@ public:
 	
 	Cable(String name, Color color) : name(name), color(color) {}
 	
+	Cable(const Cable& c) {
+		color = c.color;
+		name = c.name;
+		for (Cable* cc : c.cables) {
+			cables.Add(new Cable(*cc));
+		}
+		for (Wire* w : c.wires) {
+			wires.Add(new Wire(*w));
+		}
+	}
+	
 	~Cable() {
 		for (Cable *c : cables) delete c;
 		for (Wire *w : wires) delete w;
@@ -255,6 +266,45 @@ public:
 		if (removeWires && this == c) {
 			for (Wire* w : wires) delete w;
 			wires.Clear();
+		}
+	}
+	
+	static Cable* FromData(Vector<Connector *>& connectors, Stream& in) {
+		CableCT_t data;
+		in.Get(&data.color, sizeof(data.color));
+		in.Get(&data.name, sizeof(data.name));
+		in.Get(&data.wiresCount, sizeof(data.wiresCount));
+		Cable* c = new Cable(data.name, Color::FromRaw(data.color));
+		int32_t count = data.wiresCount;
+		while (count) {
+			c->Add(Wire::FromData(connectors, in));
+			--count;
+		}
+		in.Get(&data.cablesCount, sizeof(data.cablesCount));
+		count = data.cablesCount;
+		while (count) {
+			c->Add(Cable::FromData(connectors, in));
+			--count;
+		}
+		return c;
+	}
+	
+	virtual void ToData(Stream& out) {
+		CableCT_t data;
+		data.color = color.GetRaw();
+		strcpy_s(data.name, sizeof(data.name), name);
+		data.wiresCount = wires.GetCount();
+		data.cablesCount = cables.GetCount();
+		
+		out.Put(&data.color, sizeof(data.color));
+		out.Put(data.name, sizeof(data.name));
+		out.Put(data.wiresCount, sizeof(data.wiresCount));
+		for (Wire* w : wires) {
+			w->ToData(out);
+		}
+		out.Put(data.cablesCount, sizeof(data.cablesCount));
+		for (Cable* c : cables) {
+			c->ToData(out);
 		}
 	}
 };

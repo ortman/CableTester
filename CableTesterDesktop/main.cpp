@@ -1,7 +1,7 @@
 #include "CableTesterDesktop.h"
-#include "Parser.hpp"
 
 CableTester::CableTester() {
+	cableDir = GetExeDirFile("Cables");
 	CtrlLayout(*this, t_("Cable tester"));
 	Sizeable().Zoomable();
 	
@@ -11,12 +11,9 @@ CableTester::CableTester() {
 	bAddConnector.SetImage(CtrlImg::Add());
 	bCreateCable.SetImage(CtrlImg::Add());
 	
-	Vector<String> cableFiles = FindAllPaths(GetExeDirFile("Cables"), "*.cbl");
-	String name;
+	Vector<String> cableFiles = FindAllPaths(cableDir, "*.cbl");
 	for (String cableFile : cableFiles) {
-		name = "  " + GetFileName(cableFile);
-		name.TrimLast(4);
-		list.Add(cableFile, name, true);
+		AddFileToList(cableFile);
 	}
 	list.WhenSel = [=] {
 		int i = list.GetCursor();
@@ -29,7 +26,9 @@ CableTester::CableTester() {
 	//bSave.Disable();
 	bSave.WhenPush = [=] {
 		if (currentCable != NULL) {
-		  viewer.SaveImage(GetExeDirFile(list.GetValue(list.GetCursor()).ToString().Mid(2) + ".png"));
+			String fileName = cableDir + "/" + list.GetValue(list.GetCursor()).ToString().Mid(2);
+			viewer.SaveImage(fileName + ".png");
+			SaveFile(fileName + ".cbl");
 		}
 	};
 	
@@ -83,7 +82,7 @@ CableTester::CableTester() {
 		createCableWindow.Open();
 		if (createCableWindow.RunAppModal() != 0) {
 			String name = createCableWindow.GetName();
-			//list.Add(cableFile, name, true);
+			AddFileToList(cableDir + "/" + name + ".cbl");
 		}
 		createCableWindow.Close();
 	};
@@ -94,14 +93,32 @@ CableTester::~CableTester() {
 	if (currentCable) delete currentCable;
 }
 
+void CableTester::AddFileToList(String filePath) {
+	String name = "  " + GetFileName(filePath);
+	name.TrimLast(5);
+	list.Add(filePath, name, true);
+}
+
 void CableTester::LoadFile(String filePath, String name) {
 	pProperties.Clear();
-	ViewerSelector::Clear();
 	if (currentCable) delete currentCable;
-	currentCable = Parser::LoadFromFile(filePath, name);
-	currentCable->Sort();
+	if (FileExists(filePath)) {
+		FileIn f(filePath);
+		currentCable = MainCable::FromData(f);
+		f.Close();
+	} else {
+		currentCable = new MainCable(name);
+	}
+	if (currentCable) currentCable->Sort();
 	//RLOG(*currentCable);
 	viewer.DrawCable(currentCable);
+}
+
+void CableTester::SaveFile(String filePath) {
+	if (currentCable) {
+		FileOut out(filePath);
+		currentCable->ToData(out);
+	}
 }
 
 GUI_APP_MAIN {

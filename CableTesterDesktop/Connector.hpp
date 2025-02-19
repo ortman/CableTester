@@ -4,6 +4,7 @@
 #include "ViewerSelector.hpp"
 #include "CableNode.hpp"
 
+#include "DataCT.h"
 #include <CtrlLib/CtrlLib.h>
 using namespace Upp;
 
@@ -17,6 +18,8 @@ private:
 	static int borderWidth;
 	static Color borderColor;
 	static Color textColor;
+	uint32_t id;
+
 public:
 	Vector<int> pins;
 	static Font textFont;
@@ -26,6 +29,7 @@ public:
 		for (int i = 0; i < pinCount; ++i) {
 			pins[i] = i+1;
 		}
+		id = GetNextId();
 	}
 	
 	Connector(const String &name, int32_t pinCount, bool isLeft)
@@ -33,9 +37,11 @@ public:
 		for (int i = 0; i < pinCount; ++i) {
 			pins[i] = i+1;
 		}
+		id = GetNextId();
 	}
 	
-	Connector(Connector&& c) : pins(c.pinCount) {
+	Connector(const Connector&& c) : pins(c.pinCount) {
+		id = c.id;
 		name = c.name;
 		pinCount = c.pinCount;
 		position = c.position;
@@ -45,11 +51,24 @@ public:
 		}
 	}
 	
-	void operator=(Connector&& c) {
+	void operator=(const Connector&& c) {
+		id = c.id;
 		name = c.name;
 		pinCount = c.pinCount;
 		position = c.position;
 		isLeft = c.isLeft;
+		pins.SetCount(c.pins.GetCount());
+		for (int i=0; i<pinCount; ++i) {
+			pins[i] = c.pins[i];
+		}
+	}
+	
+	inline uint32_t GetId() {
+		return id;
+	}
+	
+	inline void SetId(const uint32_t& id) {
+		this->id = id;
 	}
 	
 	int32_t GetHeight() {
@@ -166,6 +185,31 @@ public:
 	
 	const String& GetName() {
 		return name;
+	}
+	
+	static Connector* FromData(Stream& in) {
+		ConnectorCT_t data;
+		if (in.Get(&data, sizeof(data)) != sizeof(data)) {
+			throw "Read EOF";
+		}
+		Connector* cn = new Connector(data.name, data.pinCount, (bool)data.isLeft);
+		cn->SetId(data.id);
+		return cn;
+	}
+	
+	virtual void ToData(Stream& out) {
+		ConnectorCT_t data;
+		data.color = White().GetRaw(); //reserved
+		data.id = id;
+		data.isLeft = isLeft;
+		strcpy_s(data.name, sizeof(data.name), name);
+		data.pinCount = pinCount;
+		out.Put(&data, sizeof(data));
+	}
+	
+	static uint32_t GetNextId() {
+		static uint32_t nextId = 0;
+		return ++nextId;
 	}
 };
 

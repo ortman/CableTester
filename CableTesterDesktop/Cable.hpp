@@ -220,6 +220,10 @@ public:
 		return name;
 	}
 	
+	void SetName(const String& str) {
+		name = str;
+	}
+	
 	const Color& GetColor() {
 		return color;
 	}

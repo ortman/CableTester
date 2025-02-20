@@ -76,6 +76,20 @@ public:
 				WhenSortUpdate();
 			}
 		};
+		eName.WhenEnter = [=] {
+			Cable* c;
+			Connector* cn;
+			if (node != NULL) {
+				String name = ~eName;
+				name.Replace("\\n", "\n");
+				if ((c = dynamic_cast<Cable*>(node))) {
+					c->SetName(name);
+				} else if ((cn = dynamic_cast<Connector*>(node))) {
+					cn->SetName(name);
+				}
+				WhenUpdate();
+			}
+		};
 	}
 	
 	void Clear() {
@@ -128,7 +142,9 @@ public:
 			if (mainCable && (cc = mainCable->GetParentCable(c))) {
 				dlParentCable.SetData((int64_t)cc);
 			}
-			eName <<= c->GetName();
+			String name = c->GetName();
+			name.Replace("\n", "\\n");
+			eName <<= name;
 			lColor.Show();
 			cColor.Show();
 			lName.Show();
@@ -140,7 +156,9 @@ public:
 			cColor.Hide();
 			lParentCable.Hide();
 			dlParentCable.Hide();
-			eName <<= cn->GetName();
+			String name = cn->GetName();
+			name.Replace("\n", "\\n");
+			eName <<= name;
 			ePinCount <<= cn->GetPinCount();
 			dlLeftRight.SetIndex(cn->IsLeft() ? 0 : 1);
 			lName.Show();

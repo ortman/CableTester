@@ -111,11 +111,11 @@ public:
 		int maxCnt = (heightRect - 20) / fi.GetAveWidth();
 		int nameSize, textX;
 		if (isLeft) {
-			textX = position.x + widthRect - fi.GetHeight() - (int)round(fi.GetWidth('0') * ((pinCount < 10) ? 1. : ((pinCount < 100) ? 2. : 3.)));
+			textX = position.x + widthRect - fi.GetHeight() - (int)round(fi.GetWidth('0') * ((pinCount < 10) ? 1.3 : ((pinCount < 100) ? 2.6 : 3.9)));
 		} else {
 			textX = position.x + pinSize.cx - 5;
 		}
-		Vector<String> names = Split(name, "\n");
+		Vector<String> names = Split(name, '\n');
 		for (String name : names) {
 			nameSize = name.GetLength();
 			if (nameSize > maxCnt) {
@@ -123,7 +123,7 @@ public:
 				name = name.Left(nameSize);
 			}
 			imgDraw.DrawText(textX, position.y + 5, -900, name, textFont, textColor);
-			textX += (int)(fi.GetHeight() / (isLeft ? 1.4 : -1.4));
+			textX += (int)(fi.GetHeight() / (isLeft ? 1. : -1.));
 		}
 	}
 	
@@ -185,6 +185,10 @@ public:
 	
 	const String& GetName() {
 		return name;
+	}
+	
+	void SetName(const String& str) {
+		name = str;
 	}
 	
 	static Connector* FromData(Stream& in) {

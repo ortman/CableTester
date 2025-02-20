@@ -100,7 +100,7 @@ public:
 				Point p = con->Position();
 				dImg->DrawRect(p.x - 5, p.y - 5, sz.cx + 10, sz.cy * (con->GetPinCount()+1) + 10, LtGray);
 			} else if ((w = dynamic_cast<Wire*>(node))) {
-				w->Draw(*dImg, dSize.cx / 5, (int)round(Wire::pen * 1.5), Black);
+				w->Draw(*dImg, dSize, (int)round(Wire::pen * 1.5), Black);
 			}
 		}
 	}
@@ -189,14 +189,15 @@ public:
 			Color id = GetId(p);
 			CableNode* obj = ViewerSelector::Get(id);
 			if (obj) {
-				Connector* cr;
-				if ((cr = dynamic_cast<Connector*>(obj)) != NULL) {
+				Connector* cn;
+				Cable* c;
+				if ((cn = dynamic_cast<Connector*>(obj))) {
 					int pin = id.GetRaw() >> 16;
 					if (pin) {
 						if (createWire->GetLeftConnector()) {
-							createWire->SetRightConnector(cr, pin);
+							createWire->SetRightConnector(cn, pin);
 						} else {
-							createWire->SetLeftConnector(cr, pin);
+							createWire->SetLeftConnector(cn, pin);
 						}
 						if (cable) {
 							cable->Add(createWire);
@@ -206,6 +207,12 @@ public:
 							WhenSelect();
 						}
 					}
+				} else if ((c = dynamic_cast<Cable*>(obj))) {
+					c->Add(createWire);
+					ViewerSelector::Add(createWire);
+					sels.Add(createWire);
+					createWire = NULL;
+					WhenSelect();
 				}
 			}
 			if (createWire) {

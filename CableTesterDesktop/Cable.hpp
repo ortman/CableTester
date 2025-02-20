@@ -176,13 +176,13 @@ public:
 		}
 	}
 	
-	virtual void Draw(ImageDraw& imgDraw, ImageDraw* objImg, int coverWidth) {
+	virtual void Draw(ImageDraw& imgDraw, ImageDraw* objImg, const Size& imgSize) {
 		for (Cable* c : cables) {
-			c->Draw(imgDraw, objImg, coverWidth);
+			c->Draw(imgDraw, objImg, imgSize);
 		}
 		for (Wire* w : wires) {
-			w->Draw(imgDraw, coverWidth);
-			if (objImg) w->Draw(*objImg, coverWidth, Wire::pen * 2, ViewerSelector::GetId(w));
+			w->Draw(imgDraw, imgSize);
+			if (objImg) w->Draw(*objImg, imgSize, Wire::pen * 2, ViewerSelector::GetId(w));
 		}
 	}
 	

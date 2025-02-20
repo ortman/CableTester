@@ -91,7 +91,7 @@ public:
 			c->CalcCableRect(iSize);
 			c->DrawCable(imgDraw, objImg, iSize);
 		}
-		Cable::Draw(imgDraw, objImg, iSize.cx / 5);
+		Cable::Draw(imgDraw, objImg, iSize);
 		for (Connector* c : connectors) {
 			c->Draw(imgDraw, objImg, iSize);
 		}

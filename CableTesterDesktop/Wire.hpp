@@ -168,7 +168,8 @@ public:
 		}
 	}
 	
-	void Draw(ImageDraw& imgDraw, int coverWidth, int pen, const Color& color) {
+	void Draw(ImageDraw& imgDraw, const Size& imgSize, int pen, const Color& color) {
+		int coverWidth = imgSize.cx / 5;
 		if (leftConnector && rightConnector) {
 			Point left = leftConnector->GetPinPosition(leftConnectorPin);
 			Point right = rightConnector->GetPinPosition(rightConnectorPin);
@@ -183,11 +184,19 @@ public:
 			} else { // l - r
 				DrawBezierLR(imgDraw, left.x, left.y, right.x - coverWidth, right.y, color, color, pen);
 			}
+		} else if (leftConnector || rightConnector) {
+			int coverRight = imgSize.cx - imgSize.cx / 6 - 30;
+			Point pinPos = leftConnector ?
+					leftConnector->GetPinPosition(leftConnectorPin) :
+					rightConnector->GetPinPosition(rightConnectorPin);
+			DrawCoper(imgDraw, pinPos.x, pinPos.y,
+					leftConnector ? coverRight - coverWidth / 5 : coverRight - coverWidth * 4 / 5,
+					pinPos.y, pen, color);
 		}
 	}
 	
-	void Draw(ImageDraw& imgDraw, int coverWidth) {
-		Draw(imgDraw, coverWidth, pen, color);
+	void Draw(ImageDraw& imgDraw, const Size& imgSize) {
+		Draw(imgDraw, imgSize, pen, color);
 	}
 	
 	String ToString() const {

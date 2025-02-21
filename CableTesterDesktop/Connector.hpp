@@ -15,12 +15,13 @@ private:
 	Size pinSize = {50, 15};
 	bool isLeft;
 	String name;
-	static int borderWidth;
-	static Color borderColor;
-	static Color textColor;
 	uint32_t id;
 
 public:
+	static Color borderColor;
+	static Color textColor;
+	static int borderWidth;
+	
 	Vector<int> pins;
 	static Font textFont;
 	

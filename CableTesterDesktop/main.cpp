@@ -2,6 +2,9 @@
 
 CableTester::CableTester() {
 	cableDir = GetExeDirFile("Cables");
+	//SetDarkThemeEnabled(!IsDarkThemeEnabled());
+	Connector::borderColor = SGreen;
+	Connector::textColor = SBlue;
 	CtrlLayout(*this, t_("Cable tester"));
 	Sizeable().Zoomable();
 	
@@ -23,7 +26,6 @@ CableTester::CableTester() {
 	};
 	
 	bCancel.Disable();
-	//bSave.Disable();
 	bSave.WhenPush = [=] {
 		if (currentCable != NULL) {
 			String fileName = cableDir + "/" + list.GetValue(list.GetCursor()).ToString().Mid(2);
@@ -126,5 +128,6 @@ GUI_APP_MAIN {
 	int lang = GetSystemLNG();
 	lang = SetLNGCharset(lang, CHARSET_UTF8);
 	SetLanguage(lang);
+	//SetLanguage(LNG_('E', 'N', 'U', 'S'));
 	CableTester().Run();
 }

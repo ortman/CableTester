@@ -94,13 +94,13 @@ public:
 			if ((cbl = dynamic_cast<Cable*>(node))) {
 				Rect r = cbl->GetCableRect();
 				r.Inflate(5);
-				dImg->DrawRect(r, Black);
+				dImg->DrawRect(r, SBlack);
 			} else if ((con = dynamic_cast<Connector*>(node))) {
 				Size sz = con->PinSize();
 				Point p = con->Position();
-				dImg->DrawRect(p.x - 5, p.y - 5, sz.cx + 10, sz.cy * (con->GetPinCount()+1) + 10, LtGray);
+				dImg->DrawRect(p.x - 5, p.y - 5, sz.cx + 10, sz.cy * (con->GetPinCount()+1) + 10, SLtGray);
 			} else if ((w = dynamic_cast<Wire*>(node))) {
-				w->Draw(*dImg, dSize, (int)round(Wire::pen * 1.5), Black);
+				w->Draw(*dImg, dSize, (int)round(Wire::pen * 1.5), SBlack);
 			}
 		}
 	}
@@ -110,7 +110,7 @@ public:
 		Size sz = GetSize();
 		dSize = {sz.cx * 2, sz.cy * 2};
 		dImg = new ImageDraw(dSize);
-		dImg->DrawRect(dSize, White);
+		dImg->DrawRect(dSize, SColorFace);
 		ImageDraw objID(dSize);
 		if (cable != NULL) {
 			cable->CalculateConnectorsPosition(dSize);
@@ -152,6 +152,7 @@ public:
 	
 	virtual void LeftDown(Point p, dword keyflags) {
 		if (cable == NULL) return;
+		SetFocus();
 		Connector* cr;
 		bool whenSel = false;
 		if (!(keyflags & K_CTRL) && sels.GetCount()) {
@@ -204,7 +205,6 @@ public:
 							ViewerSelector::Add(createWire);
 							sels.Add(createWire);
 							createWire = NULL;
-							WhenSelect();
 						}
 					}
 				} else if ((c = dynamic_cast<Cable*>(obj))) {
@@ -212,14 +212,16 @@ public:
 					ViewerSelector::Add(createWire);
 					sels.Add(createWire);
 					createWire = NULL;
-					WhenSelect();
 				}
 			}
 			if (createWire) {
 				delete createWire;
 				createWire = NULL;
+				DrawCable();
+			} else {
+				DrawCable();
+				WhenSelect();
 			}
-			DrawCable();
 		}
 	}
 	

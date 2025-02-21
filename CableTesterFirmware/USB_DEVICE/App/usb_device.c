@@ -68,6 +68,14 @@ void MX_USB_DEVICE_Init(void)
   if (USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS) != USBD_OK) {
     Error_Handler();
   }
+  //if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC) != USBD_OK)
+  //{
+  //  Error_Handler();
+  //}
+  //if (USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS) != USBD_OK)
+  //{
+  //  Error_Handler();
+  //}
   if (USBD_RegisterClass(&hUsbDeviceFS, USBD_WINUSB_CLASS) != USBD_OK) {
     Error_Handler();
   }

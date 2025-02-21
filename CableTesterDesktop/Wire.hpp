@@ -24,6 +24,13 @@ private:
 	template<typename TDraw>
 	void DrawCoper(TDraw& draw, int x1, int y1, int x2, int y2, int width, const Color& color) {
 		if (color == coperColor) {
+			if (abs(x2 - x1) > width * 3) {
+				int x12 = (x1 + x2) / 2;
+				int y12 = (y1 + y2) / 2;
+				DrawCoper(draw, x1, y1, x12, y12, width, color);
+				DrawCoper(draw, x12, y12, x2, y2, width, color);
+				return;
+			}
 			int subWidth = width / 2;
 			draw.DrawLine(x1, y1, x2, y2, 2, coperColor);
 			draw.DrawLine(x1, y1 - subWidth, x2, y2 + subWidth, 2, coperColor);

@@ -1,12 +1,12 @@
 {
-    "configurations": [
+  "configurations": [
 		{
 			"name": "Run",
 			"type": "cortex-debug",
 			"request": "launch",
 			"cwd": "${workspaceRoot}",
 			"servertype": "openocd",
-			"executable": "./build/SiamsJoystick.elf",
+			"executable": "./build/${defaultBuildTask}.elf",
 			"svdFile": "STM32F103.svd",
 			"configFiles": [
 				"interface/stlink.cfg",
@@ -15,7 +15,22 @@
 			],
 			"preLaunchTask": "Build",
 			"showDevDebugOutput": "raw"
+		},
+		{
+				"name": "Cortex Debug",
+				"cwd": "${workspaceFolder}",
+				"executable": "./build/${defaultBuildTask}.elf",
+				"svdFile": "STM32F103.svd",
+				"request": "launch",
+				"type": "cortex-debug",
+				"runToEntryPoint": "main",
+				"servertype": "openocd",
+				"gdbPath": "riscv-none-elf-gdb",
+				"configFiles": [
+					"interface/stlink.cfg",
+					// ".vscode/stm32f1x-china.cfg"
+					"target/stm32f1x.cfg"
+				]
 		}
-    ]
-    
+  ]
 }

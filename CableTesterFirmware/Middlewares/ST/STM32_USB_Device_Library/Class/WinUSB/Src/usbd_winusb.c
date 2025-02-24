@@ -97,10 +97,7 @@ static uint8_t USBD_WinUSB_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx) {
 		USBD_free(pdev->pClassData);
 		pdev->pClassData = NULL;
 	}
-//	if (USBD_WinUSB_CfgDesc != NULL) {
-//		USBD_free(USBD_WinUSB_CfgDesc);
-//		USBD_WinUSB_CfgDesc = NULL;
-//	}
+	
 	return USBD_OK;
 }
 
@@ -109,13 +106,20 @@ static uint8_t USBD_WinUSB_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
 //		uint16_t len = 0;
 //		uint8_t	*pbuf = NULL;
 	USBD_WinUSB_HandleTypeDef *hWinUSB = (USBD_WinUSB_HandleTypeDef*) pdev->pClassData;
+  uint8_t ifalt = 0U;
   uint16_t status_info = 0U;
   uint8_t ret = USBD_OK;
 
 	switch (req->bmRequest & USB_REQ_TYPE_MASK) {
 		case USB_REQ_TYPE_CLASS :
-			ret = USBD_FAIL;
-			break;
+      if (req->wLength) {
+        if (req->bmRequest & 0x80U) {
+          USBD_CtlSendData(pdev, (uint8_t *)(void *)hWinUSB, req->wLength);
+        } else {
+          USBD_CtlPrepareRx(pdev, (uint8_t *)(void *)hWinUSB, req->wLength);
+        }
+      }
+      break;
 		case USB_REQ_TYPE_STANDARD:
 			switch (req->bRequest) {
         case USB_REQ_GET_STATUS:
@@ -127,18 +131,18 @@ static uint8_t USBD_WinUSB_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
           break;
 				case USB_REQ_GET_INTERFACE :
           if (pdev->dev_state == USBD_STATE_CONFIGURED) {
-						USBD_CtlSendData (pdev, (uint8_t *)&hWinUSB->AltSetting, 1);
-					} else {
-						ret = USBD_FAIL;
-					}
-					break;
-				case USB_REQ_SET_INTERFACE :
-				  if (pdev->dev_state == USBD_STATE_CONFIGURED) {
-						hWinUSB->AltSetting = (uint8_t)(req->wValue);
-					} else {
-						ret = USBD_FAIL;
-					}
-					break;
+            USBD_CtlSendData(pdev, &ifalt, 1U);
+          } else {
+            USBD_CtlError(pdev, req);
+            ret = USBD_FAIL;
+          }
+          break;
+        case USB_REQ_SET_INTERFACE:
+          if (pdev->dev_state != USBD_STATE_CONFIGURED) {
+            USBD_CtlError(pdev, req);
+            ret = USBD_FAIL;
+          }
+          break;
         default:
           ret = USBD_FAIL;
           break;
@@ -147,6 +151,8 @@ static uint8_t USBD_WinUSB_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
 		case USB_REQ_TYPE_VENDOR:
 			if (vendorSetup != NULL) {
 				ret = vendorSetup(pdev, req);
+			} else {
+				ret = USBD_FAIL;
 			}
 			break;
     default:

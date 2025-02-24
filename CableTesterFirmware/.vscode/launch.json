@@ -25,7 +25,7 @@
 				"type": "cortex-debug",
 				"runToEntryPoint": "main",
 				"servertype": "openocd",
-				"gdbPath": "riscv-none-elf-gdb",
+				//"gdbPath": "riscv-none-elf-gdb",
 				"configFiles": [
 					"interface/stlink.cfg",
 					// ".vscode/stm32f1x-china.cfg"

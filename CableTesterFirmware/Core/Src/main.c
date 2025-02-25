@@ -100,7 +100,7 @@ int main(void)
     //USBD_WinUSB_Send(&hUsbDeviceFS, WINUSB_EP_IN_ADDR, data, WINUSB_EP_IN_SIZE);
     HAL_Delay(1000);
     HAL_GPIO_TogglePin(D31_GPIO_Port, D31_Pin);
-    //printf("Hello World!\r\n");
+    printf("Hello World!\r\n");
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -1,36 +1,32 @@
 {
   "configurations": [
 		{
-			"name": "Run",
+			"name": "Debug",
 			"type": "cortex-debug",
 			"request": "launch",
 			"cwd": "${workspaceRoot}",
 			"servertype": "openocd",
-			"executable": "./build/${defaultBuildTask}.elf",
+			"interface": "swd",
+			"executable": "./build/${workspaceFolderBasename}.elf",
 			"svdFile": "STM32F103.svd",
+			"device": "STM32F103VBT6",
+			//"runToEntryPoint": "main",
 			"configFiles": [
 				"interface/stlink.cfg",
 				// ".vscode/stm32f1x-china.cfg"
 				"target/stm32f1x.cfg"
 			],
 			"preLaunchTask": "Build",
-			"showDevDebugOutput": "raw"
-		},
-		{
-				"name": "Cortex Debug",
-				"cwd": "${workspaceFolder}",
-				"executable": "./build/${defaultBuildTask}.elf",
-				"svdFile": "STM32F103.svd",
-				"request": "launch",
-				"type": "cortex-debug",
-				"runToEntryPoint": "main",
-				"servertype": "openocd",
-				//"gdbPath": "riscv-none-elf-gdb",
-				"configFiles": [
-					"interface/stlink.cfg",
-					// ".vscode/stm32f1x-china.cfg"
-					"target/stm32f1x.cfg"
+			//"showDevDebugOutput": "raw",
+			"swoConfig": {
+				"enabled": true,
+				"cpuFrequency": 72000000,
+				"swoFrequency": 2000000,
+				"source": "probe",
+				"decoders": [
+						{ "type": "console", "label": "ITM", "port": 0 }
 				]
+			}
 		}
   ]
 }

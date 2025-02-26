@@ -36,6 +36,8 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+RTT/SEGGER_RTT.c \
+RTT/SEGGER_RTT_printf.c \
 Core/Src/main.c \
 Core/Src/gpio.c \
 Core/Src/usart.c \
@@ -126,6 +128,7 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
+-IRTT \
 -ICore/Inc \
 -IUSB_DEVICE/App \
 -IUSB_DEVICE/Target \

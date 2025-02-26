@@ -24,6 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "SEGGER_RTT.h"
 #include "usbd_winusb_if.h"
 /* USER CODE END Includes */
 
@@ -155,16 +156,9 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
 #if DEBUG
-int _write(int fd, char* ptr, int len)
-{
-  int i = 0;
-  while (ptr[i] && (i < len)) {
-    ITM_SendChar((uint32_t)ptr[i]);
-    i++;
-  }
-  return len;
+int _write(int fd, char* ptr, int len) {
+  return  SEGGER_RTT_Write(0, ptr, len);
 }
 #endif /* DEBUG */
 /* USER CODE END 4 */

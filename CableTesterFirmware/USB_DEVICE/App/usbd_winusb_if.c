@@ -1,20 +1,134 @@
-/*
- * usbd_winusb_if.c
- *
- *  Created on: 29 ���. 2018 �.
- *      Author: ortman
- */
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : usbd_winusb_if.c
+  * @brief          : WinUSB
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2025 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
 
+/* Includes ------------------------------------------------------------------*/
 #include "usbd_winusb_if.h"
+
+/* USER CODE BEGIN INCLUDE */
+
+/* USER CODE END INCLUDE */
+
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE END PV */
+
+/** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
+  * @brief Usb device.
+  * @{
+  */
+
+/** @defgroup USBD_DFU
+  * @brief Usb DFU device module.
+  * @{
+  */
+
+/** @defgroup USBD_DFU_Private_TypesDefinitions
+  * @brief Private types.
+  * @{
+  */
+
+/* USER CODE BEGIN PRIVATE_TYPES */
+
+/* USER CODE END PRIVATE_TYPES */
+
+/**
+  * @}
+  */
+
+/** @defgroup USBD_DFU_Private_Defines
+  * @brief Private defines.
+  * @{
+  */
+
+/* USER CODE BEGIN PRIVATE_DEFINES */
+
+/* USER CODE END PRIVATE_DEFINES */
+
+/**
+  * @}
+  */
+
+/** @defgroup USBD_DFU_Private_Macros
+  * @brief Private macros.
+  * @{
+  */
+
+/* USER CODE BEGIN PRIVATE_MACRO */
+
+/* USER CODE END PRIVATE_MACRO */
+
+/**
+  * @}
+  */
+
+/** @defgroup USBD_DFU_Private_Variables
+  * @brief Private variables.
+  * @{
+  */
+
+/* USER CODE BEGIN PRIVATE_VARIABLES */
+
+/* USER CODE END PRIVATE_VARIABLES */
+
+/**
+  * @}
+  */
+
+/** @defgroup USBD_DFU_Exported_Variables
+  * @brief Public variables.
+  * @{
+  */
+
+extern USBD_HandleTypeDef hUsbDeviceFS;
+
+/* USER CODE BEGIN EXPORTED_VARIABLES */
+
+/* USER CODE END EXPORTED_VARIABLES */
+
+/**
+  * @}
+  */
+
+/** @defgroup USBD_DFU_Private_FunctionPrototypes
+  * @brief Private functions declaration.
+  * @{
+  */
 
 static uint8_t USBD_WinUSB_interruptEvent(uint8_t epAddr, uint8_t *buff, uint16_t buffSize);
 static uint8_t USBD_WinUSB_BulkEvent(uint8_t epAddr, uint8_t *buff, uint16_t buffSize);
 
-extern USBD_HandleTypeDef hUsbDeviceFS;
-
 uint8_t buffInterrupt[WINUSB_EP_CMD_SIZE];
 uint8_t buffBulk[WINUSB_EP_DATA_SIZE];
 
+/* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
+
+/* USER CODE END PRIVATE_FUNCTIONS_DECLARATION */
+
+/**
+  * @}
+  */
+/* USER CODE BEGIN 0 */
 USBD_WinUSB_EnpointsConfig_t winUsbDeviceConfig[WINUSB_DEVICE_EP_COUNT] = {
   {
     .epType = USBD_EP_TYPE_INTR,
@@ -54,25 +168,36 @@ USBD_WinUSB_EnpointsConfig_t winUsbDeviceConfig[WINUSB_DEVICE_EP_COUNT] = {
     .buffSize = WINUSB_EP_DATA_SIZE
   }
 };
+/* USER CODE END 0 */
 
+/* Private functions ---------------------------------------------------------*/
 static uint8_t USBD_WinUSB_interruptEvent(uint8_t epAddr, uint8_t *buff, uint16_t buffSize) {
-  //my_data_in_t *data = (my_data_in_t*)buff;
+  /* USER CODE BEGIN 1 */
   return USBD_OK;
+  /* USER CODE END 1 */
 }
 
 static uint8_t USBD_WinUSB_BulkEvent(uint8_t epAddr, uint8_t *buff, uint16_t buffSize) {
+  /* USER CODE BEGIN 2 */
   return USBD_OK;
+  /* USER CODE END 2 */
 }
 
 uint8_t winUsbVendorSetupCallback(struct _USBD_HandleTypeDef *pdev , USBD_SetupReqTypedef  *req) {
-  // if (req->bRequest == 0x10) {
-  //   uint16_t blockCount = (sizeof(smc_state_t) + WINUSB_EP_STATE_SIZE - 1) / WINUSB_EP_STATE_SIZE;
-  //   if (req->wValue < blockCount) {
-  //     USBD_WinUSB_Send(&hUsbDeviceFS, WINUSB_EP_STATE_ADDR, ((uint8_t*)&data) + req->wValue * WINUSB_EP_STATE_SIZE, WINUSB_EP_STATE_SIZE);
-  //   } else {
-  //     //Log("ERR: Get state (%i/%i)\n", req->wValue, blockCount);
-  //   }
-  // }
+  /* USER CODE BEGIN 3 */
   return USBD_OK;
+  /* USER CODE END 3 */
 }
+
+/* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
+
+/* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 

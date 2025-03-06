@@ -73,8 +73,6 @@
 #define USBD_SELF_POWERED     0
 /*---------- -----------*/
 #define USBD_MSFT_ENABLED     1
-/*---------- -----------*/
-#define MAX_STATIC_ALLOC_SIZE     512
 
 /****************************************/
 /* #define for FS and HS identification */

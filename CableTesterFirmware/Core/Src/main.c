@@ -66,6 +66,7 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -83,7 +84,8 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  
+  printf("RTT debug start!\r\n");
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -101,7 +103,6 @@ int main(void)
     //USBD_WinUSB_Send(&hUsbDeviceFS, WINUSB_EP_IN_ADDR, data, WINUSB_EP_IN_SIZE);
     HAL_Delay(1000);
     HAL_GPIO_TogglePin(D31_GPIO_Port, D31_Pin);
-    printf("Hello World!\r\n");
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

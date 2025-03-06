@@ -222,8 +222,8 @@ typedef struct
   uint8_t  *(*GetConfigurationStrDescriptor)(USBD_SpeedTypeDef speed, uint16_t *length);
   uint8_t  *(*GetInterfaceStrDescriptor)(USBD_SpeedTypeDef speed, uint16_t *length);
 #if (USBD_MSFT_ENABLED == 1)
-  uint8_t  *(*GetMsftStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
-  uint8_t  *(*GetMSIDFeatureDescriptor)( USBD_SpeedTypeDef speed , USBD_SetupReqTypedef  *req , uint16_t *length);
+  uint8_t  *(*GetMsftStrDescriptor)(USBD_SpeedTypeDef speed , uint16_t *length);
+  uint8_t  *(*GetMSIDFeatureDescriptor)(USBD_SpeedTypeDef speed , USBD_SetupReqTypedef  *req , uint16_t *length);
   uint32_t MSFT_VENDORID;
 #endif
 #if (USBD_LPM_ENABLED == 1U)

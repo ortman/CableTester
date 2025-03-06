@@ -1,7 +1,7 @@
 /*
  * usbd_winusb.h
  *
- *  Created on: 29 мар. 2018 г.
+ *  Created on: 29 пїЅпїЅпїЅ. 2018 пїЅ.
  *      Author: ortman
  */
 
@@ -31,8 +31,8 @@ typedef struct
 }
 USBD_WinUSB_HandleTypeDef;
 
-extern USBD_ClassTypeDef  USBD_WinUSB;
-#define USBD_WINUSB_CLASS    &USBD_WinUSB
+extern USBD_ClassTypeDef  USBD_WINUSB;
+#define USBD_WINUSB_CLASS    &USBD_WINUSB
 
 USBD_StatusTypeDef USBD_WinUSB_Config(USBD_WinUSB_EnpointsConfig_t *conf, uint8_t endpointsCount, USBD_WinUSB_VendorSetup_t setupCallback);
 USBD_StatusTypeDef USBD_WinUSB_getStateSend(uint8_t epAddr);

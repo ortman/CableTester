@@ -16,9 +16,15 @@
             "problemMatcher": []
         },
         {
-            "label": "Program",
+            "label": "Program from ST-Link",
             "type": "shell",
-            "command": "make.exe build prog",
+            "command": "make.exe build prog-stlink",
+            "problemMatcher": []
+        },
+        {
+            "label": "Program from J-Link",
+            "type": "shell",
+            "command": "make.exe build prog-jlink",
             "problemMatcher": []
         }
     ]

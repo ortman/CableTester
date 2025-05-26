@@ -66,7 +66,7 @@
 #define USBD_LANGID_STRING     1033
 #define USBD_MANUFACTURER_STRING     "Ortman"
 #define USBD_PID_FS     0x5744
-#define USBD_PRODUCT_STRING_FS     "WinUSB"
+#define USBD_PRODUCT_STRING_FS     "CableTester"
 #define USBD_CONFIGURATION_STRING_FS     "WinUSB Config"
 #define USBD_INTERFACE_STRING_FS     "WinUSB Interface"
 #define USBD_MSFT_STRING_FS     "MSFT100"
@@ -376,10 +376,13 @@ uint8_t * USBD_FS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *leng
 #if (USBD_MSFT_ENABLED == 1)
 uint8_t *USBD_FS_MsftStrDescriptor( USBD_SpeedTypeDef speed , uint16_t *length)
 {
-  if(speed == 0) {
-	  USBD_GetString (USBD_MSFT_STRING_FS, USBD_StrDesc, length);
-  } else {
-	  USBD_GetString (USBD_MSFT_STRING_FS, USBD_StrDesc, length);
+  if(speed == 0)
+  {
+	USBD_GetString (USBD_MSFT_STRING_FS, USBD_StrDesc, length);
+  }
+  else
+  {
+	USBD_GetString (USBD_MSFT_STRING_FS, USBD_StrDesc, length);
   }
   *(USBD_StrDesc+*length) = USBD_MSFT_VENDOR_ID;
   *(USBD_StrDesc+*length+1) = 0x00;
@@ -388,7 +391,7 @@ uint8_t *USBD_FS_MsftStrDescriptor( USBD_SpeedTypeDef speed , uint16_t *length)
   return USBD_StrDesc;
 }
 
-#define USBD_MSFT_REG_SZ			  0x01
+#define USBD_MSFT_REG_SZ			0x01
 #define USBD_MSFT_REG_MULTI_SZ	0x07
 
 /**
@@ -397,23 +400,23 @@ uint8_t *USBD_FS_MsftStrDescriptor( USBD_SpeedTypeDef speed , uint16_t *length)
    * @param  buf : pointer to the ascii string buffer
   * @retval string length
   */
- static uint8_t USBD_GetLen(uint8_t *buf) {
-   uint8_t  len = 0U;
- 
-   while (*buf != '\0') {
-     len++;
-     buf++;
-   }
- 
-   return len;
- }
+static uint8_t USBD_GetLen(uint8_t *buf) {
+	uint8_t  len = 0U;
+
+	while (*buf != '\0') {
+	 len++;
+	 buf++;
+	}
+
+	return len;
+}
 
 uint8_t *USBD_FS_MSIDFeatureDescriptor( USBD_SpeedTypeDef speed , USBD_SetupReqTypedef  *req , uint16_t *length) {
   if ((req->bmRequest == USB_REQ_RECIPIENT_MS_FD) && req->wIndex == 0x0004) {
     *length = sizeof(USBD_MSID_FeatureDesc);
     return (uint8_t*)USBD_MSID_FeatureDesc;
   } else if ((req->bmRequest == USB_REQ_RECIPIENT_MS_EP) && req->wIndex == 0x0005/* && req->wValue == 0*/) {
-	  USBD_MSFT_GetExtendedProp(USBD_MSFT_REG_SZ, USBD_MSFT_PROP_DI_GUID_NAME, USBD_MSFT_PROP_DI_GUID_VALUE, USBD_GetLen(USBD_MSFT_PROP_DI_GUID_VALUE), USBD_StrDesc, length);
+	USBD_MSFT_GetExtendedProp(USBD_MSFT_REG_SZ, USBD_MSFT_PROP_DI_GUID_NAME, USBD_MSFT_PROP_DI_GUID_VALUE, USBD_GetLen(USBD_MSFT_PROP_DI_GUID_VALUE), USBD_StrDesc, length);
   } else {
     *length = 0;
   }

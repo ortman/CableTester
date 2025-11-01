@@ -92,6 +92,54 @@ public:
 				WhenUpdate();
 			}
 		};
+		
+		bPosUp.WhenPush = [=] {
+			if (mainCable == NULL || node == NULL) return;
+			Connector* cn, *currCn = dynamic_cast<Connector*>(node);
+			if (currCn == NULL) return;
+			bool isLeft = currCn->IsLeft();
+			Vector<Connector*>& connectors = mainCable->GetConnectors();
+			int count = connectors.GetCount();
+			int prewPos = -1;
+			for (int i = 0; i < count; ++i) {
+				cn = connectors[i];
+				if (cn == currCn) {
+					if (prewPos >= 0) {
+						connectors[i] = connectors[prewPos];
+						connectors[prewPos] = cn;
+						WhenSortUpdate();
+					}
+					break;
+				}
+				if (cn->IsLeft() == isLeft) {
+					prewPos = i;
+				}
+			}
+		};
+		
+		bPosDown.WhenPush = [=] {
+			if (mainCable == NULL || node == NULL) return;
+			Connector* cn, *currCn = dynamic_cast<Connector*>(node);
+			if (currCn == NULL) return;
+			bool isLeft = currCn->IsLeft();
+			Vector<Connector*>& connectors = mainCable->GetConnectors();
+			int count = connectors.GetCount();
+			int prewPos = -1;
+			for (int i = count - 1; i >= 0; --i) {
+				cn = connectors[i];
+				if (cn == currCn) {
+					if (prewPos >= 0) {
+						connectors[i] = connectors[prewPos];
+						connectors[prewPos] = cn;
+						WhenSortUpdate();
+					}
+					break;
+				}
+				if (cn->IsLeft() == isLeft) {
+					prewPos = i;
+				}
+			}
+		};
 	}
 	
 	void Clear() {

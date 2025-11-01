@@ -47,9 +47,11 @@ public:
 			}
 		};
 		ePinCount.WhenAction = [=] {
+			int32_t pinCount = ~ePinCount;
+			if (pinCount < 1 || pinCount > 255) return;
 			Connector* cn;
 			if (node != NULL && (cn = dynamic_cast<Connector*>(node))) {
-				cn->SetPinCount(ePinCount);
+				cn->SetPinCount(pinCount);
 				WhenSortUpdate();
 			}
 		};

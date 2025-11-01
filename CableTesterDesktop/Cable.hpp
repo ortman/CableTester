@@ -276,7 +276,7 @@ public:
 	static Cable* FromData(Vector<Connector *>& connectors, Stream& in) {
 		CableCT_t data;
 		in.Get(&data.color, sizeof(data.color));
-		in.Get(&data.name, sizeof(data.name));
+		in.Get(data.name, sizeof(data.name));
 		in.Get(&data.wiresCount, sizeof(data.wiresCount));
 		Cable* c = new Cable(data.name, Color::FromRaw(data.color));
 		int32_t count = data.wiresCount;
@@ -302,11 +302,11 @@ public:
 		
 		out.Put(&data.color, sizeof(data.color));
 		out.Put(data.name, sizeof(data.name));
-		out.Put(data.wiresCount, sizeof(data.wiresCount));
+		out.Put(&data.wiresCount, sizeof(data.wiresCount));
 		for (Wire* w : wires) {
 			w->ToData(out);
 		}
-		out.Put(data.cablesCount, sizeof(data.cablesCount));
+		out.Put(&data.cablesCount, sizeof(data.cablesCount));
 		for (Cable* c : cables) {
 			c->ToData(out);
 		}

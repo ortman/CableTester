@@ -28,6 +28,7 @@ CableTester::CableTester() {
 	bCancel.Disable();
 	bSave.WhenPush = [=] {
 		if (currentCable != NULL) {
+			if (!DirectoryExists(cableDir)) DirectoryCreate(cableDir);
 			String fileName = cableDir + "/" + list.GetValue(list.GetCursor()).ToString().Mid(2);
 			viewer.SaveImage(fileName + ".png");
 			SaveFile(fileName + ".cbl");

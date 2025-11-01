@@ -16,6 +16,7 @@ private:
 	bool isLeft;
 	String name;
 	uint32_t id;
+	uint8_t *testerPins;
 
 public:
 	static Color borderColor;
@@ -31,6 +32,7 @@ public:
 			pins[i] = i+1;
 		}
 		id = GetNextId();
+		testerPins = (uint8_t*) malloc(pinCount * sizeof(uint8_t));
 	}
 	
 	Connector(const String &name, int32_t pinCount, bool isLeft)
@@ -39,6 +41,7 @@ public:
 			pins[i] = i+1;
 		}
 		id = GetNextId();
+		testerPins = (uint8_t*) malloc(pinCount * sizeof(uint8_t));
 	}
 	
 	Connector(const Connector&& c) : pins(c.pinCount) {
@@ -50,6 +53,8 @@ public:
 		for (int i=0; i<pinCount; ++i) {
 			pins[i] = c.pins[i];
 		}
+		testerPins = (uint8_t*) malloc(pinCount * sizeof(uint8_t));
+		memcpy(testerPins, c.testerPins, pinCount * sizeof(uint8_t));
 	}
 	
 	void operator=(const Connector&& c) {
@@ -194,22 +199,33 @@ public:
 	
 	static Connector* FromData(Stream& in) {
 		ConnectorCT_t data;
-		if (in.Get(&data, sizeof(data)) != sizeof(data)) {
-			throw "Read EOF";
-		}
+		in.Get(&data.id, sizeof(data.id));
+		in.Get(&data.pinCount, sizeof(data.pinCount));
+		in.Get(data.name, sizeof(data.name));
+		in.Get(&data.isLeft, sizeof(data.isLeft));
+		in.Get(&data.color, sizeof(data.color));
+		
 		Connector* cn = new Connector(data.name, data.pinCount, (bool)data.isLeft);
 		cn->SetId(data.id);
+		
+		in.Get(cn->testerPins, data.pinCount * sizeof(uint8_t));
 		return cn;
 	}
 	
 	virtual void ToData(Stream& out) {
 		ConnectorCT_t data;
-		data.color = White().GetRaw(); //reserved
 		data.id = id;
-		data.isLeft = isLeft;
-		strcpy_s(data.name, sizeof(data.name), name);
 		data.pinCount = pinCount;
-		out.Put(&data, sizeof(data));
+		strcpy_s(data.name, sizeof(data.name), name);
+		data.isLeft = isLeft;
+		data.color = White().GetRaw(); //reserved
+		
+		out.Put(&data.id, sizeof(data.id));
+		out.Put(&data.pinCount, sizeof(data.pinCount));
+		out.Put(data.name, sizeof(data.name));
+		out.Put(&data.isLeft, sizeof(data.isLeft));
+		out.Put(&data.color, sizeof(data.color));
+		out.Put(testerPins, pinCount * sizeof(uint8_t));
 	}
 	
 	static uint32_t GetNextId() {

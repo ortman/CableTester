@@ -95,7 +95,10 @@ CableTester::CableTester() {
 	};
 	
 	bSort.WhenPush = [=] {
-		if (currentCable) currentCable->Sort();
+		if (currentCable) {
+			currentCable->Sort();
+			viewer.DrawCable();
+		}
 	};
 }
 

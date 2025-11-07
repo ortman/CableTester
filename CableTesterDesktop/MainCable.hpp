@@ -7,7 +7,7 @@ class MainCable : public Cable {
 private:
 	Vector<Connector*> connectors;
 public:
-	MainCable(String name) : Cable(name, White) {}
+	MainCable(WString name) : Cable(name, White) {}
 	
 	MainCable(const Cable &c) : Cable(c) {}
 	
@@ -24,13 +24,14 @@ public:
 	}
 	
 	void Sort() {
+		ClearSortCache();
 		for (Connector *c : connectors) {
-			if (c->IsRight()) SortRight(c);
+			if (c->IsRight()) SortWiresRight(c);
 		}
 		for (Connector *c : connectors) {
 			if (c->IsLeft()) {
 				int pinStart = 0;
-				SortLeft(c, pinStart);
+				SortPinsLeft(c, pinStart);
 				if (pinStart < c->GetPinCount()) {
 					int j;
 					for (int p = 1; p <= c->GetPinCount(); ++p) {
@@ -112,7 +113,7 @@ public:
 	
 	static MainCable* FromData(Stream& in) {
 		MainCableCT_t data;
-		in.Get(&data.connectorCount, sizeof(data.connectorCount));
+		GetStreamThrow(in, &data.connectorCount, sizeof(data.connectorCount));
 		Vector<Connector*> connectors;
 		int32_t count = data.connectorCount;
 		while (count) {

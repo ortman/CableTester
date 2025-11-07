@@ -8,7 +8,7 @@ using namespace Upp;
 
 class Cable : public CableNode {
 private:
-	String name;
+	WString name;
 	Vector<Cable*> cables;
 	Vector<Wire*> wires;
 	Rect cableRect;
@@ -18,7 +18,7 @@ public:
 	static int pinHeight;
 	static Font textFont;
 	
-	Cable(String name, Color color) : name(name), color(color) {}
+	Cable(WString name, Color color) : name(name), color(color) {}
 	
 	Cable(const Cable& c) {
 		color = c.color;
@@ -66,35 +66,48 @@ public:
 		return res;
 	}
 	
-	void SortRight(Connector* connector) {
+	int sortCacheWiresNum;
+	
+	void ClearSortCache() {
 		for (Cable *cable : cables) {
-			cable->SortRight(connector);
+			cable->ClearSortCache();
 		}
-		int min, minIdx, cnt = wires.GetCount();
+		sortCacheWiresNum = 0;
+	}
+	
+	void SortWiresRight(Connector* connector) {
+		for (Cable *cable : cables) {
+			cable->SortWiresRight(connector);
+		}
+		int min;
+		int minIdx;
+		int wiresCount = wires.GetCount();
 		Wire *w;
-		for (int i=0; i<cnt; ++i) {
+		for (int i = sortCacheWiresNum; i < wiresCount; ++i) {
 			w = wires[i];
 			if (w->GetRightConnector() == connector) {
-				min = w->GetRightConnectorPin();
-				for (int n=i+1; n<cnt; ++n) {
-					if (w->GetRightConnector() == wires[n]->GetRightConnector() && wires[n]->GetRightConnectorPin() < min) {
+				min = INT_MAX;
+				minIdx = -1;
+				for (int n = i; n < wiresCount; ++n) {
+					if (connector == wires[n]->GetRightConnector() && wires[n]->GetRightConnectorPin() < min) {
 						min = wires[n]->GetRightConnectorPin();
 						minIdx = n;
 					}
 				}
-				if (min < w->GetRightConnectorPin()) {
-					wires[i] = wires[minIdx];
+				if (minIdx >= 0) {
+					w = wires[sortCacheWiresNum];
+					wires[sortCacheWiresNum] = wires[minIdx];
 					wires[minIdx] = w;
 				}
+				++sortCacheWiresNum;
 			}
 		}
 	}
 	
-	void SortLeft(Connector* connector, int &pinStart) {
+	void SortPinsLeft(Connector* connector, int &pinStart) {
 		for (Cable *cable : cables) {
-			cable->SortLeft(connector, pinStart);
+			cable->SortPinsLeft(connector, pinStart);
 		}
-		
 		for (Wire *wire : wires) {
 			if (wire->GetLeftConnector() == connector && pinStart < connector->GetPinCount()) {
 				int p=0;
@@ -213,14 +226,14 @@ public:
 	};
 	
 	virtual String GetTip() {
+		return name.ToString();
+	}
+	
+	const WString& GetName() {
 		return name;
 	}
 	
-	const String& GetName() {
-		return name;
-	}
-	
-	void SetName(const String& str) {
+	void SetName(const WString& str) {
 		name = str;
 	}
 	
@@ -274,17 +287,17 @@ public:
 	}
 	
 	static Cable* FromData(Vector<Connector *>& connectors, Stream& in) {
-		CableCT_t data;
-		in.Get(&data.color, sizeof(data.color));
-		in.Get(data.name, sizeof(data.name));
-		in.Get(&data.wiresCount, sizeof(data.wiresCount));
-		Cable* c = new Cable(data.name, Color::FromRaw(data.color));
+		CableCT_t data = {0};
+		GetStreamThrow(in, &data.color, sizeof(data.color));
+		GetStreamThrow(in, data.name, sizeof(data.name));
+		GetStreamThrow(in, &data.wiresCount, sizeof(data.wiresCount));
+		Cable* c = new Cable((wchar*)data.name, Color::FromRaw(data.color));
 		int32_t count = data.wiresCount;
 		while (count) {
 			c->Add(Wire::FromData(connectors, in));
 			--count;
 		}
-		in.Get(&data.cablesCount, sizeof(data.cablesCount));
+		GetStreamThrow(in, &data.cablesCount, sizeof(data.cablesCount));
 		count = data.cablesCount;
 		while (count) {
 			c->Add(Cable::FromData(connectors, in));
@@ -294,9 +307,9 @@ public:
 	}
 	
 	virtual void ToData(Stream& out) {
-		CableCT_t data;
+		CableCT_t data = {0};
 		data.color = color.GetRaw();
-		strcpy_s(data.name, sizeof(data.name), name);
+		memcpy(data.name, name.Begin(), min(sizeof(data.name), name.GetLength() * sizeof(wchar)));
 		data.wiresCount = wires.GetCount();
 		data.cablesCount = cables.GetCount();
 		

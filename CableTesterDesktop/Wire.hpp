@@ -224,9 +224,7 @@ public:
 	
 	static Wire* FromData(Vector<Connector*>& connectors, Stream& in) {
 		WireCT_t data;
-		if (in.Get(&data, sizeof(data)) != sizeof(data)) {
-			throw "Read EOF";
-		}
+		GetStreamThrow(in, &data, sizeof(data));
 		Connector* leftCn = NULL;
 		Connector* rightCn = NULL;
 		for (Connector* cn : connectors) {

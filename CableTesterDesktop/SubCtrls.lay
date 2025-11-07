@@ -12,6 +12,7 @@ LAYOUT(PropertiesLayout, 124, 252)
 	ITEM(Upp::EditIntSpin, ePinCount, Min(0).Max(200).WantFocus(false).HSizePosZ(0, 0).TopPosZ(20, 19))
 	ITEM(Upp::Button, bPosUp, SetLabel(t_("Up")).LeftPosZ(0, 60).TopPosZ(152, 20))
 	ITEM(Upp::Button, bPosDown, SetLabel(t_("Down")).HSizePosZ(64, 0).TopPosZ(152, 20))
+	ITEM(Upp::ArrayCtrl, aPins, HSizePosZ(0, 0).VSizePosZ(176, 0))
 END_LAYOUT
 
 LAYOUT(CreateCableLayout, 228, 60)

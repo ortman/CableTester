@@ -6,6 +6,15 @@ using namespace Upp;
 
 class CableNode {
 public:
+	class FileError : public Exc {
+	public:
+	    FileError(const String& s) : Exc(s) {}
+	};
+	
+	static void GetStreamThrow(Stream& s, void* data, int size) {
+		if (s.Get(data, size) != size) throw FileError("Read file EOF");
+	}
+	
 	virtual String GetTip() {return "";}
 	static Color DarkColor(const Color &c, double darked = 0.6) {
 		return Color(

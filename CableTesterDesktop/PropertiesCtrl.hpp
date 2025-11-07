@@ -82,7 +82,7 @@ public:
 			Cable* c;
 			Connector* cn;
 			if (node != NULL) {
-				String name = ~eName;
+				WString name = ~eName;
 				name.Replace("\\n", "\n");
 				if ((c = dynamic_cast<Cable*>(node))) {
 					c->SetName(name);
@@ -140,6 +140,11 @@ public:
 				}
 			}
 		};
+		
+		aPins.AddColumn("Pin");
+		aPins.AddColumn("Tester pin").With([](One<Ctrl>& ctrl) {
+			ctrl.Create<EditInt>();
+		});
 	}
 	
 	void Clear() {
@@ -170,6 +175,7 @@ public:
 			bPosDown.Hide();
 			lName.Hide();
 			eName.Hide();
+			aPins.Hide();
 			const Color& color = w->GetColor();
 			cColor.SetData(color);
 			if (mainCable && (cc = mainCable->GetWireCable(w))) {
@@ -187,12 +193,13 @@ public:
 			lPosition.Hide();
 			bPosUp.Hide();
 			bPosDown.Hide();
+			aPins.Hide();
 			const Color& color = c->GetColor();
 			cColor.SetData(color);
 			if (mainCable && (cc = mainCable->GetParentCable(c))) {
 				dlParentCable.SetData((int64_t)cc);
 			}
-			String name = c->GetName();
+			WString name = c->GetName();
 			name.Replace("\n", "\\n");
 			eName <<= name;
 			lColor.Show();
@@ -206,11 +213,15 @@ public:
 			cColor.Hide();
 			lParentCable.Hide();
 			dlParentCable.Hide();
-			String name = cn->GetName();
+			WString name = cn->GetName();
 			name.Replace("\n", "\\n");
 			eName <<= name;
 			ePinCount <<= cn->GetPinCount();
 			dlLeftRight.SetIndex(cn->IsLeft() ? 0 : 1);
+			aPins.Clear();
+			for (int i = 0; i < cn->GetPinCount(); ++i) {
+				aPins.Add(i + 1, cn->GetTesterPin(i + 1));
+			}
 			lName.Show();
 			eName.Show();
 			lPinCount.Show();
@@ -220,6 +231,7 @@ public:
 			lPosition.Show();
 			bPosUp.Show();
 			bPosDown.Show();
+			aPins.Show();
 		}
 		Show();
 	}
@@ -231,9 +243,9 @@ public:
 		CtrlLayout(*this, t_("Input caption"));
 		bOk.WhenAction = Breaker(1);
 		WhenClose = bCancel.WhenAction = Breaker(0);
-		eName <<= "";
+		//eName <<= "";
 	}
-	String GetName() {
+	WString GetName() {
 		return ~eName;
 	}
 };

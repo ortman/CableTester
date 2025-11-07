@@ -57,7 +57,9 @@ CableTester::CableTester() {
 		if (currentCable) {
 			addCableWindow.Open();
 			if (addCableWindow.RunAppModal() != 0) {
-				Cable* c = new Cable(addCableWindow.GetName(), LtGray);
+				WString name = addCableWindow.GetName();
+				name.Replace("\\n", "\n");
+				Cable* c = new Cable(name, LtGray);
 				currentCable->Add(c);
 				ViewerSelector::Add(c);
 				viewer.Select(c);
@@ -71,7 +73,9 @@ CableTester::CableTester() {
 		if (currentCable) {
 			addConnectorWindow.Open();
 			if (addConnectorWindow.RunAppModal() != 0) {
-				Connector* cn = new Connector(addConnectorWindow.GetName(), 3, true);
+				WString name = addConnectorWindow.GetName();
+				name.Replace("\\n", "\n");
+				Connector* cn = new Connector(name, 3, true);
 				currentCable->AddConnector(cn);
 				ViewerSelector::Add(cn);
 				viewer.Select(cn);
@@ -84,10 +88,14 @@ CableTester::CableTester() {
 	bCreateCable.WhenPush = [=] {
 		createCableWindow.Open();
 		if (createCableWindow.RunAppModal() != 0) {
-			String name = createCableWindow.GetName();
+			String name = createCableWindow.GetName().ToString();
 			AddFileToList(cableDir + "/" + name + ".cbl");
 		}
 		createCableWindow.Close();
+	};
+	
+	bSort.WhenPush = [=] {
+		if (currentCable) currentCable->Sort();
 	};
 }
 
@@ -102,12 +110,17 @@ void CableTester::AddFileToList(String filePath) {
 	list.Add(filePath, name, true);
 }
 
-void CableTester::LoadFile(String filePath, String name) {
+void CableTester::LoadFile(String filePath, WString name) {
 	pProperties.Clear();
 	if (currentCable) delete currentCable;
 	if (FileExists(filePath)) {
 		FileIn f(filePath);
-		currentCable = MainCable::FromData(f);
+		try {
+			currentCable = MainCable::FromData(f);
+		} catch (const CableNode::FileError& e) {
+			ErrorOK(e);
+			currentCable = new MainCable(name);
+		}
 		f.Close();
 	} else {
 		currentCable = new MainCable(name);

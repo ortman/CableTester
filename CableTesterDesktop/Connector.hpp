@@ -14,7 +14,7 @@ private:
 	Point position;
 	Size pinSize = {50, 15};
 	bool isLeft;
-	String name;
+	WString name;
 	uint32_t id;
 	uint8_t *testerPins;
 
@@ -26,7 +26,7 @@ public:
 	Vector<int> pins;
 	static Font textFont;
 	
-	Connector(const String &name, int32_t pinCount, Point& position, bool isLeft)
+	Connector(const WString &name, int32_t pinCount, Point& position, bool isLeft)
 			:pinCount(pinCount), position(position), isLeft(isLeft), name(name), pins(pinCount) {
 		for (int i = 0; i < pinCount; ++i) {
 			pins[i] = i+1;
@@ -35,7 +35,7 @@ public:
 		testerPins = (uint8_t*) malloc(pinCount * sizeof(uint8_t));
 	}
 	
-	Connector(const String &name, int32_t pinCount, bool isLeft)
+	Connector(const WString &name, int32_t pinCount, bool isLeft)
 			:pinCount(pinCount), position(0, 0), isLeft(isLeft), name(name), pins(pinCount) {
 		for (int i = 0; i < pinCount; ++i) {
 			pins[i] = i+1;
@@ -121,8 +121,8 @@ public:
 		} else {
 			textX = position.x + pinSize.cx - 5;
 		}
-		Vector<String> names = Split(name, '\n');
-		for (String name : names) {
+		Vector<WString> names = Split(name, '\n', false);
+		for (WString name : names) {
 			nameSize = name.GetLength();
 			if (nameSize > maxCnt) {
 				nameSize = maxCnt;
@@ -143,6 +143,11 @@ public:
 		
 	bool IsLeft() {
 		return isLeft;
+	}
+	
+	uint8_t GetTesterPin(uint8_t pin) {
+		if (testerPins == NULL || pin > pinCount || pin < 1) return 0;
+		return testerPins[pin - 1];
 	}
 	
 	bool IsRight() {
@@ -178,6 +183,10 @@ public:
 	
 	void SetPinCount(int count) {
 		if (pinCount == count) return;
+		uint8_t* tP = (uint8_t*) malloc(count * sizeof(uint8_t));
+		memcpy(tP, testerPins, min(count, pinCount) * sizeof(uint8_t));
+		free(testerPins);
+		testerPins = tP;
 		pinCount = count;
 		pins.SetCount(pinCount);
 		for (int i = 0; i < pinCount; ++i) {
@@ -186,37 +195,37 @@ public:
 	}
 	
 	virtual String GetTip() {
+		return name.ToString();
+	}
+	
+	const WString& GetName() {
 		return name;
 	}
 	
-	const String& GetName() {
-		return name;
-	}
-	
-	void SetName(const String& str) {
+	void SetName(const WString& str) {
 		name = str;
 	}
 	
 	static Connector* FromData(Stream& in) {
-		ConnectorCT_t data;
-		in.Get(&data.id, sizeof(data.id));
-		in.Get(&data.pinCount, sizeof(data.pinCount));
-		in.Get(data.name, sizeof(data.name));
-		in.Get(&data.isLeft, sizeof(data.isLeft));
-		in.Get(&data.color, sizeof(data.color));
+		ConnectorCT_t data = {0};
+		GetStreamThrow(in, &data.id, sizeof(data.id));
+		GetStreamThrow(in, &data.pinCount, sizeof(data.pinCount));
+		GetStreamThrow(in, data.name, sizeof(data.name));
+		GetStreamThrow(in, &data.isLeft, sizeof(data.isLeft));
+		GetStreamThrow(in, &data.color, sizeof(data.color));
 		
-		Connector* cn = new Connector(data.name, data.pinCount, (bool)data.isLeft);
+		Connector* cn = new Connector((const wchar*)data.name, data.pinCount, (bool)data.isLeft);
 		cn->SetId(data.id);
 		
-		in.Get(cn->testerPins, data.pinCount * sizeof(uint8_t));
+		GetStreamThrow(in, cn->testerPins, data.pinCount * sizeof(uint8_t));
 		return cn;
 	}
 	
 	virtual void ToData(Stream& out) {
-		ConnectorCT_t data;
+		ConnectorCT_t data = {0};
 		data.id = id;
 		data.pinCount = pinCount;
-		strcpy_s(data.name, sizeof(data.name), name);
+		memcpy(data.name, name.Begin(), min(sizeof(data.name), name.GetLength() * sizeof(wchar)));
 		data.isLeft = isLeft;
 		data.color = White().GetRaw(); //reserved
 		

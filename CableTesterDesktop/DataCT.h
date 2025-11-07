@@ -6,7 +6,7 @@
 typedef struct {
 	uint8_t id;
 	uint8_t pinCount;
-	char name[100];
+	uint32_t name[100];
 	uint8_t isLeft;
 	uint32_t color;
 	uint8_t *testerPins;
@@ -23,7 +23,7 @@ typedef struct {
 
 struct CableCT {
 	uint32_t color;
-	char name[100];
+	uint32_t name[100];
 	uint8_t wiresCount;
 	WireCT_t* wires;
 	uint8_t cablesCount;

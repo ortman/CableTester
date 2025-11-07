@@ -6,6 +6,7 @@ LAYOUT(CableTesterLayout, 780, 403)
 	ITEM(Upp::Button, bCreateCable, SetLabel(t_("Create cable")).LeftPosZ(0, 192).BottomPosZ(0, 32))
 	ITEM(Upp::Button, bAddConnector, SetLabel(t_("Connector")).Tip(t_("Add connector")).RightPosZ(4, 124).TopPosZ(4, 20))
 	ITEM(Upp::Button, bAddCable, SetLabel(t_("Cable")).Tip(t_("Add wire")).RightPosZ(4, 124).TopPosZ(28, 20))
-	ITEM(PropertiesCtrl, pProperties, RightPosZ(4, 124).VSizePosZ(52, 34))
+	ITEM(PropertiesCtrl, pProperties, RightPosZ(4, 124).VSizePosZ(52, 63))
+	ITEM(Upp::Button, bSort, SetLabel(t_("Sort")).RightPosZ(0, 128).BottomPosZ(35, 24))
 END_LAYOUT
 

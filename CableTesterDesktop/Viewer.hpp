@@ -141,11 +141,14 @@ public:
 	
 	void SaveImage(const String& str) {
 		PNGEncoder png;
-		Size nextionImageSize = {480*2, 760*2};
+		Size nextionImageSize = {480, 760};
+		Size imageSize = {nextionImageSize.cx * 2, nextionImageSize.cy * 2};
+		ImageDraw img(imageSize);
+		img.DrawRect(imageSize, SColorFace);
+		cable->CalculateConnectorsPosition(imageSize);
+		cable->Draw(img, NULL, imageSize);
 		ImageDraw nextionImg(nextionImageSize);
-		nextionImg.DrawRect(nextionImageSize, White);
-		cable->CalculateConnectorsPosition(nextionImageSize);
-		cable->Draw(nextionImg, NULL, nextionImageSize);
+		nextionImg.DrawImage(nextionImageSize, img);
 		png.SaveFile(str, nextionImg);
 		DrawCable();
 	}

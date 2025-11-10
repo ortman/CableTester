@@ -24,19 +24,24 @@ private:
 	template<typename TDraw>
 	void DrawCoper(TDraw& draw, int x1, int y1, int x2, int y2, int width, const Color& color) {
 		if (color == coperColor) {
-			if (abs(x2 - x1) > width * 3) {
-				int x12 = (x1 + x2) / 2;
-				int y12 = (y1 + y2) / 2;
-				DrawCoper(draw, x1, y1, x12, y12, width, color);
-				DrawCoper(draw, x12, y12, x2, y2, width, color);
-				return;
+			if (x1 > x2) {
+				int x = x1;
+				x1 = x2;
+				x2 = x;
 			}
-			int subWidth = width / 2;
 			draw.DrawLine(x1, y1, x2, y2, 2, coperColor);
-			draw.DrawLine(x1, y1 - subWidth, x2, y2 + subWidth, 2, coperColor);
-			draw.DrawLine(x1, y1 + subWidth, x2, y2 - subWidth, 2, coperColor);
+			int subWidth = width / 2;
+			int segLen = width * 3;
+			int x = x1 + segLen;
+			while (x < x2) {
+				draw.DrawLine(x - segLen, y1 - subWidth, x, y2 + subWidth, 2, coperColor);
+				draw.DrawLine(x - segLen, y1 + subWidth, x, y2 - subWidth, 2, coperColor);
+				x += segLen;
+			}
+			draw.DrawLine(x - segLen, y1 - subWidth, x2, y2 + subWidth, 2, coperColor);
+			draw.DrawLine(x - segLen, y1 + subWidth, x2, y2 - subWidth, 2, coperColor);
 		} else {
-			draw.DrawLine(x1,y1, x2,y2, width, color);
+			draw.DrawLine(x1, y1, x2, y2, width, color);
 		}
 	}
 	
@@ -50,29 +55,26 @@ private:
 		int xa, ya, xb, yb, xc, yc, xm, ym, xn, yn, x, y;
 		int n = 0;
 		for (float i = 0.f ; i < 1.001f ; i += 0.02f) {
-	    // The Green Lines
-	    xa = getPt( x1 , x2 , i );
-	    ya = getPt( y1 , y2 , i );
-	    xb = getPt( x2 , x3 , i );
-	    yb = getPt( y2 , y3 , i );
-	    xc = getPt( x3 , x4 , i );
-	    yc = getPt( y3 , y4 , i );
-	
-	    // The Blue Line
-	    xm = getPt( xa , xb , i );
-	    ym = getPt( ya , yb , i );
-	    xn = getPt( xb , xc , i );
-	    yn = getPt( yb , yc , i );
-	
-	    // The Black Dot
-	    x = getPt( xm , xn , i );
-	    y = getPt( ym , yn , i );
+			// The Green Lines
+			xa = getPt( x1 , x2 , i );
+			ya = getPt( y1 , y2 , i );
+			xb = getPt( x2 , x3 , i );
+			yb = getPt( y2 , y3 , i );
+			xc = getPt( x3 , x4 , i );
+			yc = getPt( y3 , y4 , i );
+			
+			// The Blue Line
+			xm = getPt( xa , xb , i );
+			ym = getPt( ya , yb , i );
+			xn = getPt( xb , xc , i );
+			yn = getPt( yb , yc , i );
+			
+			// The Black Dot
+			x = getPt( xm , xn , i );
+			y = getPt( ym , yn , i );
 	
 			if (i > 0) {
-				if (IsNull(color2) || ++n % 4)
-					DrawCoper(draw, lastX,lastY, x,y, width, color);
-				else
-					DrawCoper(draw, lastX,lastY, x,y, width, color2);
+				DrawCoper(draw, lastX, lastY, x, y, width, (IsNull(color2) || ++n % 4) ? color : color2);
 			}
 			lastX = x;
 			lastY = y;

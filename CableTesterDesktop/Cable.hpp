@@ -286,12 +286,12 @@ public:
 		}
 	}
 	
-	static Cable* FromData(Vector<Connector *>& connectors, Stream& in) {
+	static Cable* FromData(Vector<Connector *>& connectors, Stream& in, int version) {
 		CableCT_t data = {0};
 		GetStreamThrow(in, &data.color, sizeof(data.color));
-		GetStreamThrow(in, data.name, sizeof(data.name));
+		WString cableName = ReadName(in);
 		GetStreamThrow(in, &data.wiresCount, sizeof(data.wiresCount));
-		Cable* c = new Cable((wchar*)data.name, Color::FromRaw(data.color));
+		One<Cable> c = new Cable(cableName, Color::FromRaw(data.color));
 		int32_t count = data.wiresCount;
 		while (count) {
 			c->Add(Wire::FromData(connectors, in));
@@ -300,21 +300,20 @@ public:
 		GetStreamThrow(in, &data.cablesCount, sizeof(data.cablesCount));
 		count = data.cablesCount;
 		while (count) {
-			c->Add(Cable::FromData(connectors, in));
+			c->Add(Cable::FromData(connectors, in, version));
 			--count;
 		}
-		return c;
+		return c.Detach();
 	}
-	
+
 	virtual void ToData(Stream& out) {
 		CableCT_t data = {0};
 		data.color = color.GetRaw();
-		memcpy(data.name, name.Begin(), min(sizeof(data.name), name.GetLength() * sizeof(wchar)));
 		data.wiresCount = wires.GetCount();
 		data.cablesCount = cables.GetCount();
-		
+
 		out.Put(&data.color, sizeof(data.color));
-		out.Put(data.name, sizeof(data.name));
+		WriteName(out, name);
 		out.Put(&data.wiresCount, sizeof(data.wiresCount));
 		for (Wire* w : wires) {
 			w->ToData(out);

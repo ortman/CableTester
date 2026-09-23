@@ -7,6 +7,7 @@
 
 #include <CtrlLib/CtrlLib.h>
 #include "MainCable.hpp"
+#include "TesterPackage.hpp"
 
 using namespace Upp;
 
@@ -141,16 +142,16 @@ public:
 	
 	void SaveImage(const String& str) {
 		PNGEncoder png;
-		Size nextionImageSize = {480, 760};
-		Size imageSize = {nextionImageSize.cx * 2, nextionImageSize.cy * 2};
-		ImageDraw img(imageSize);
-		img.DrawRect(imageSize, SColorFace);
-		cable->CalculateConnectorsPosition(imageSize);
-		cable->Draw(img, NULL, imageSize);
-		ImageDraw nextionImg(nextionImageSize);
-		nextionImg.DrawImage(nextionImageSize, img);
-		png.SaveFile(str, nextionImg);
+		png.SaveFile(str, TesterPackage::RenderImage(*cable));
 		DrawCable();
+	}
+
+	// Saves the tester package and the screen picture next to it
+	bool ExportPackage(const String& packageFile, const String& imageFile, const String& name) {
+		Image img = TesterPackage::RenderImage(*cable);
+		String pkg = TesterPackage::Build(*cable, name);
+		DrawCable();
+		return Upp::SaveFile(packageFile, pkg) && TesterPackage::SaveJpeg(imageFile, img);
 	}
 	
 	virtual void LeftDown(Point p, dword keyflags) {
@@ -235,7 +236,7 @@ public:
 			Refresh();
 		} else {
 			CableNode* obj = ViewerSelector::Get(GetId(p));
-			Tip(obj ? obj->GetTip() : "");
+			Tip(obj ? obj->GetTip() : String());
 		}
 	}
 	

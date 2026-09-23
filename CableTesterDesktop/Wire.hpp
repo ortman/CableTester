@@ -123,6 +123,7 @@ public:
 			
 	Wire(Wire &w) {
 		color = w.color;
+		color2 = w.color2;
 		leftConnector = w.leftConnector;
 		leftConnectorPin = w.leftConnectorPin;
 		rightConnector = w.rightConnector;
@@ -223,6 +224,12 @@ public:
 	}
 	
 	Color& GetColor() {return color;}
+
+	void SetColor2(const Color& c) {
+		color2 = c;
+	}
+
+	Color& GetColor2() {return color2;}
 	
 	static Wire* FromData(Vector<Connector*>& connectors, Stream& in) {
 		WireCT_t data;

@@ -141,10 +141,21 @@ public:
 			}
 		};
 		
-		aPins.AddColumn("Pin");
-		aPins.AddColumn("Tester pin").With([](One<Ctrl>& ctrl) {
-			ctrl.Create<EditInt>();
+		aPins.AddColumn(t_("Pin"));
+		aPins.AddColumn(t_("Tester pin")).With([](One<Ctrl>& ctrl) {
+			ctrl.Create<EditInt>().MinMax(0, 60);
 		});
+		aPins.WhenCtrlsAction = [=] {
+			Connector* cn;
+			if (node == NULL || (cn = dynamic_cast<Connector*>(node)) == NULL) return;
+			for (int i = 0; i < aPins.GetCount(); ++i) {
+				Value v = aPins.Get(i, 1);
+				int testerPin = IsNull(v) ? 0 : (int)v;
+				if (testerPin >= 0 && testerPin <= 60) {
+					cn->SetTesterPin((int)aPins.Get(i, 0), testerPin);
+				}
+			}
+		};
 	}
 	
 	void Clear() {
@@ -247,6 +258,41 @@ public:
 	}
 	WString GetName() {
 		return ~eName;
+	}
+};
+
+// Shows the result of the pin map check
+class IssuesWindow : public WithIssuesLayout<TopWindow> {
+public:
+	Event<CableNode*> WhenNode;
+	
+	IssuesWindow() {
+		CtrlLayout(*this, t_("Check pins"));
+		Sizeable().Zoomable();
+		bOk.WhenAction = Breaker(1);
+		WhenClose = bCancel.WhenAction = Breaker(0);
+		list.AddColumn("", 1).SetDisplay(ImageDisplay());
+		list.AddColumn(t_("Message"), 30);
+		list.AddIndex();
+		list.NoHeader();
+		list.WhenSel = [=] {
+			int i = list.GetCursor();
+			if (i >= 0) WhenNode((CableNode*)(int64_t)list.Get(i, 2));
+		};
+	}
+	
+	// Returns true when the user pressed OK
+	bool Run(const Vector<TesterPackage::Issue>& issues, const String& info, bool canContinue) {
+		list.Clear();
+		for (const TesterPackage::Issue& is : issues) {
+			list.Add(is.isError ? CtrlImg::error() : CtrlImg::exclamation(), is.text, (int64_t)is.node);
+		}
+		lInfo = info;
+		bCancel.Show(canContinue);
+		Open();
+		bool res = RunAppModal() != 0;
+		Close();
+		return res;
 	}
 };
 

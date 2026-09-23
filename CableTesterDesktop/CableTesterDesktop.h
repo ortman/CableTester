@@ -23,6 +23,9 @@ private:
 	CreateCableWindow createCableWindow;
 	CreateCableWindow addCableWindow;
 	CreateCableWindow addConnectorWindow;
+	IssuesWindow issuesWindow;
+	String CurrentFileBase();
+	bool CheckPins(bool forExport);
 public:
 	CableTester();
 	~CableTester();

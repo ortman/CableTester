@@ -22,3 +22,9 @@ LAYOUT(CreateCableLayout, 228, 60)
 	ITEM(Upp::Button, bOk, SetLabel(t_("OK")).RightPosZ(88, 76).BottomPosZ(5, 27))
 END_LAYOUT
 
+LAYOUT(IssuesLayout, 520, 300)
+	ITEM(Upp::Label, lInfo, HSizePosZ(4, 4).TopPosZ(4, 19))
+	ITEM(Upp::ArrayCtrl, list, HSizePosZ(4, 4).VSizePosZ(26, 40))
+	ITEM(Upp::Button, bCancel, SetLabel(t_("Cancel")).RightPosZ(4, 76).BottomPosZ(5, 27))
+	ITEM(Upp::Button, bOk, SetLabel(t_("OK")).RightPosZ(88, 76).BottomPosZ(5, 27))
+END_LAYOUT

@@ -29,7 +29,7 @@ CableTester::CableTester() {
 	bSave.WhenPush = [=] {
 		if (currentCable != NULL) {
 			if (!DirectoryExists(cableDir)) DirectoryCreate(cableDir);
-			String fileName = cableDir + "/" + list.GetValue(list.GetCursor()).ToString().Mid(2);
+			String fileName = CurrentFileBase();
 			viewer.SaveImage(fileName + ".png");
 			SaveFile(fileName + ".cbl");
 		}
@@ -100,6 +100,59 @@ CableTester::CableTester() {
 			viewer.DrawCable();
 		}
 	};
+
+	issuesWindow.WhenNode = [=](CableNode* node) {
+		if (node) viewer.Select(node);
+	};
+
+	bAutoPins.WhenPush = [=] {
+		if (currentCable == NULL) return;
+		if (TesterPackage::HasAssignedPins(*currentCable) &&
+		    !PromptYesNo(t_("Replace the assigned slot pins?"))) return;
+		if (!TesterPackage::AutoAssign(*currentCable)) {
+			Exclamation(t_("Not enough slot pins, some connector pins are left unassigned."));
+		}
+		viewer.WhenSelect();
+	};
+
+	bCheck.WhenPush = [=] {
+		CheckPins(false);
+	};
+
+	bExport.WhenPush = [=] {
+		if (currentCable == NULL || list.GetCursor() < 0) return;
+		if (!CheckPins(true)) return;
+		if (!DirectoryExists(cableDir)) DirectoryCreate(cableDir);
+		String base = CurrentFileBase();
+		if (viewer.ExportPackage(base + ".ctp", base + ".jpg", GetFileTitle(base))) {
+			PromptOK(Format(t_("Exported:&[* \1%s\1]&[* \1%s\1]"), base + ".ctp", base + ".jpg"));
+		} else {
+			Exclamation(t_("Can not write the export files."));
+		}
+	};
+}
+
+String CableTester::CurrentFileBase() {
+	return cableDir + "/" + list.GetValue(list.GetCursor()).ToString().Mid(2);
+}
+
+// Shows the pin map problems. For export returns true when the export can be continued.
+bool CableTester::CheckPins(bool forExport) {
+	if (currentCable == NULL) return false;
+	Vector<TesterPackage::Issue> issues = TesterPackage::Validate(*currentCable);
+	if (issues.GetCount() == 0) {
+		if (!forExport) PromptOK(t_("The slot pin map is correct."));
+		return true;
+	}
+	bool hasErrors = TesterPackage::HasErrors(issues);
+	String info;
+	if (forExport) {
+		info = hasErrors ? t_("Fix the errors before the export.") : t_("Press OK to continue the export.");
+	} else {
+		info = hasErrors ? t_("The slot pin map has errors.") : t_("The slot pin map has warnings.");
+	}
+	bool ok = issuesWindow.Run(issues, info, forExport && !hasErrors);
+	return forExport && !hasErrors && ok;
 }
 
 CableTester::~CableTester() {
@@ -117,14 +170,12 @@ void CableTester::LoadFile(String filePath, WString name) {
 	pProperties.Clear();
 	if (currentCable) delete currentCable;
 	if (FileExists(filePath)) {
-		FileIn f(filePath);
 		try {
-			currentCable = MainCable::FromData(f);
+			currentCable = MainCable::FromData(::LoadFile(filePath));
 		} catch (const CableNode::FileError& e) {
-			ErrorOK(e);
+			ErrorOK(DeQtf(e));
 			currentCable = new MainCable(name);
 		}
-		f.Close();
 	} else {
 		currentCable = new MainCable(name);
 	}

@@ -1,5 +1,6 @@
 uses
-	CtrlLib;
+	CtrlLib,
+	plugin/jpg;
 
 file
 	CableTesterDesktop.h,
@@ -13,6 +14,7 @@ file
 	Cable.hpp,
 	CableNode.hpp,
 	Viewer.hpp,
+	TesterPackage.hpp,
 	PropertiesCtrl.hpp,
 	SubCtrls.lay,
 	CableTesterDesktop.lay;

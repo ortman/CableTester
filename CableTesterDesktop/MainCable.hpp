@@ -111,25 +111,45 @@ public:
 		}
 	}
 	
-	static MainCable* FromData(Stream& in) {
+	static constexpr const char* FILE_MAGIC = "CTBL";
+
+	static MainCable* FromData(Stream& in, int version) {
 		MainCableCT_t data;
 		GetStreamThrow(in, &data.connectorCount, sizeof(data.connectorCount));
+		Array<Connector> connectorsOwner;
 		Vector<Connector*> connectors;
 		int32_t count = data.connectorCount;
 		while (count) {
-			connectors.Add(Connector::FromData(in));
+			connectors.Add(&connectorsOwner.Add(Connector::FromData(in, version)));
 			--count;
 		}
-		Cable* c = Cable::FromData(connectors, in);
+		One<Cable> c = Cable::FromData(connectors, in, version);
 		MainCable* mc = new MainCable(*c);
-		delete c;
-		for (Connector* cn : connectors) {
-			mc->AddConnector(cn);
+		while (connectorsOwner.GetCount()) {
+			mc->AddConnector(connectorsOwner.Detach(0));
 		}
 		return mc;
 	}
-	
+
+	// Loads the .cbl file with the "CTBL" header
+	static MainCable* FromData(const String& fileData) {
+		if (!fileData.StartsWith(FILE_MAGIC)) {
+			throw FileError(t_("Unknown file format"));
+		}
+		StringStream in(fileData);
+		in.SeekCur(4);
+		uint16_t version;
+		GetStreamThrow(in, &version, sizeof(version));
+		if (version != FORMAT_CURRENT) {
+			throw FileError(Format(t_("Unsupported file version %d"), version));
+		}
+		return FromData(in, version);
+	}
+
 	virtual void ToData(Stream& out) {
+		out.Put(FILE_MAGIC, 4);
+		uint16_t version = FORMAT_CURRENT;
+		out.Put(&version, sizeof(version));
 		MainCableCT_t data;
 		data.connectorCount = connectors.GetCount();
 		out.Put(&data.connectorCount, sizeof(data.connectorCount));

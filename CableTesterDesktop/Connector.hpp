@@ -16,7 +16,7 @@ private:
 	bool isLeft;
 	WString name;
 	uint32_t id;
-	uint8_t *testerPins;
+	Vector<int> testerPins; // index = connector pin - 1, value = tester slot pin (0 = not assigned)
 
 public:
 	static Color borderColor;
@@ -32,41 +32,31 @@ public:
 			pins[i] = i+1;
 		}
 		id = GetNextId();
-		testerPins = (uint8_t*) malloc(pinCount * sizeof(uint8_t));
+		testerPins.SetCount(pinCount, 0);
 	}
-	
+
 	Connector(const WString &name, int32_t pinCount, bool isLeft)
 			:pinCount(pinCount), position(0, 0), isLeft(isLeft), name(name), pins(pinCount) {
 		for (int i = 0; i < pinCount; ++i) {
 			pins[i] = i+1;
 		}
 		id = GetNextId();
-		testerPins = (uint8_t*) malloc(pinCount * sizeof(uint8_t));
+		testerPins.SetCount(pinCount, 0);
 	}
-	
-	Connector(const Connector&& c) : pins(c.pinCount) {
+
+	Connector(const Connector& c) {
+		*this = c;
+	}
+
+	void operator=(const Connector& c) {
 		id = c.id;
 		name = c.name;
 		pinCount = c.pinCount;
 		position = c.position;
+		pinSize = c.pinSize;
 		isLeft = c.isLeft;
-		for (int i=0; i<pinCount; ++i) {
-			pins[i] = c.pins[i];
-		}
-		testerPins = (uint8_t*) malloc(pinCount * sizeof(uint8_t));
-		memcpy(testerPins, c.testerPins, pinCount * sizeof(uint8_t));
-	}
-	
-	void operator=(const Connector&& c) {
-		id = c.id;
-		name = c.name;
-		pinCount = c.pinCount;
-		position = c.position;
-		isLeft = c.isLeft;
-		pins.SetCount(c.pins.GetCount());
-		for (int i=0; i<pinCount; ++i) {
-			pins[i] = c.pins[i];
-		}
+		pins = clone(c.pins);
+		testerPins = clone(c.testerPins);
 	}
 	
 	inline uint32_t GetId() {
@@ -145,9 +135,14 @@ public:
 		return isLeft;
 	}
 	
-	uint8_t GetTesterPin(uint8_t pin) {
-		if (testerPins == NULL || pin > pinCount || pin < 1) return 0;
+	int GetTesterPin(int pin) const {
+		if (pin > pinCount || pin < 1) return 0;
 		return testerPins[pin - 1];
+	}
+
+	void SetTesterPin(int pin, int testerPin) {
+		if (pin > pinCount || pin < 1) return;
+		testerPins[pin - 1] = testerPin;
 	}
 	
 	bool IsRight() {
@@ -183,10 +178,7 @@ public:
 	
 	void SetPinCount(int count) {
 		if (pinCount == count) return;
-		uint8_t* tP = (uint8_t*) malloc(count * sizeof(uint8_t));
-		memcpy(tP, testerPins, min(count, pinCount) * sizeof(uint8_t));
-		free(testerPins);
-		testerPins = tP;
+		testerPins.SetCount(count, 0);
 		pinCount = count;
 		pins.SetCount(pinCount);
 		for (int i = 0; i < pinCount; ++i) {
@@ -206,35 +198,35 @@ public:
 		name = str;
 	}
 	
-	static Connector* FromData(Stream& in) {
+	static Connector* FromData(Stream& in, int version) {
 		ConnectorCT_t data = {0};
 		GetStreamThrow(in, &data.id, sizeof(data.id));
 		GetStreamThrow(in, &data.pinCount, sizeof(data.pinCount));
-		GetStreamThrow(in, data.name, sizeof(data.name));
+		WString name = ReadName(in);
 		GetStreamThrow(in, &data.isLeft, sizeof(data.isLeft));
 		GetStreamThrow(in, &data.color, sizeof(data.color));
 		
-		Connector* cn = new Connector((const wchar*)data.name, data.pinCount, (bool)data.isLeft);
+		One<Connector> cn = new Connector(name, data.pinCount, (bool)data.isLeft);
 		cn->SetId(data.id);
-		
-		GetStreamThrow(in, cn->testerPins, data.pinCount * sizeof(uint8_t));
-		return cn;
+		Buffer<uint8_t> pins(data.pinCount);
+		GetStreamThrow(in, pins, data.pinCount);
+		for (int i = 0; i < data.pinCount; ++i) cn->testerPins[i] = pins[i];
+		return cn.Detach();
 	}
-	
+
 	virtual void ToData(Stream& out) {
 		ConnectorCT_t data = {0};
 		data.id = id;
 		data.pinCount = pinCount;
-		memcpy(data.name, name.Begin(), min(sizeof(data.name), name.GetLength() * sizeof(wchar)));
 		data.isLeft = isLeft;
 		data.color = White().GetRaw(); //reserved
-		
+
 		out.Put(&data.id, sizeof(data.id));
 		out.Put(&data.pinCount, sizeof(data.pinCount));
-		out.Put(data.name, sizeof(data.name));
+		WriteName(out, name);
 		out.Put(&data.isLeft, sizeof(data.isLeft));
 		out.Put(&data.color, sizeof(data.color));
-		out.Put(testerPins, pinCount * sizeof(uint8_t));
+		for (int i = 0; i < pinCount; ++i) out.Put((byte)testerPins[i]);
 	}
 	
 	static uint32_t GetNextId() {

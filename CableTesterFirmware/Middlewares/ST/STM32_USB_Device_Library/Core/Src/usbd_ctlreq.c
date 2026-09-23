@@ -927,7 +927,7 @@ void USBD_GetString(uint8_t *desc, uint8_t *unicode, uint16_t *len)
 }
 
 void USBD_MSFT_GetExtendedProp(uint8_t propType, char *propName, char *propVal, uint32_t valSize, uint8_t *unicode, uint16_t *len) {
-	*len = USBD_GetLen(propName) * 2 + valSize*2 + 26;
+	*len = USBD_GetLen((uint8_t *)propName) * 2 + valSize*2 + 26;
 	*((uint16_t*)(unicode)) = *len;
 	unicode[2] = 0x00; unicode[3] = 0x00;
 #if (USBD_LPM_ENABLED == 1)

@@ -190,10 +190,8 @@ USBD_StatusTypeDef USBD_WinUSB_Config(USBD_WinUSB_EnpointsConfig_t *conf, uint8_
 
 	uint16_t descSize = 18 + epCount * 7;
 
-	USBD_WinUSB_CfgDesc = USBD_malloc(descSize);
-	if (USBD_WinUSB_CfgDesc == NULL) {
-		return USBD_FAIL;
-	}
+	USBD_WinUSB_CfgDesc = (uint8_t*)malloc(descSize);
+	if (USBD_WinUSB_CfgDesc == NULL) return USBD_FAIL;
 	USBD_WinUSB_CfgDesc[0] = 0x09; /* bLength: Configuration Descriptor size */
 	USBD_WinUSB_CfgDesc[1] = USB_DESC_TYPE_CONFIGURATION; /* bDescriptorType: Configuration */
 	*(uint16_t*)(USBD_WinUSB_CfgDesc + 2) = descSize;

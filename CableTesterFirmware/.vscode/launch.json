@@ -7,25 +7,26 @@
 			"cwd": "${workspaceRoot}",
 			"servertype": "openocd",
 			"interface": "swd",
-			"executable": "./build/${workspaceFolderBasename}.elf",
+			"executable": "./build/Debug/${workspaceFolderBasename}.elf",
 			"svdFile": "STM32F103.svd",
 			"device": "STM32F103VBT6",
-			//"runToEntryPoint": "main",
 			"configFiles": [
-				".vscode/jlink-stlink.cfg",
-				// "interface/jlink.cfg",
-				// ".vscode/stm32f1x-china.cfg",
+				"interface/stlink.cfg",
 				"target/stm32f1x.cfg"
 			],
-			"preLaunchTask": "Build",
+			//"gdbPath": "C:/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi/bin/arm-none-eabi-gdb.exe",
+			"preLaunchTask": "CMake: build",
 			"showDevDebugOutput": "raw",
 			"rttConfig": {
 				"enabled": true,
 				"address": "auto",
-				"decoders": [
-						{ "type": "console", "label": "", "port": 0, "iencoding": "ascii" }
-				]
+				"decoders": [{
+					"type": "console",
+					"label": "",
+					"port": 0,
+					"iencoding": "ascii"
+				}]
 			}
 		}
-  ]
+  ]    
 }

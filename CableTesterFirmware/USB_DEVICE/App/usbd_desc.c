@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2025 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -378,11 +378,11 @@ uint8_t *USBD_FS_MsftStrDescriptor( USBD_SpeedTypeDef speed , uint16_t *length)
 {
   if(speed == 0)
   {
-	USBD_GetString (USBD_MSFT_STRING_FS, USBD_StrDesc, length);
+	  USBD_GetString((uint8_t *)USBD_MSFT_STRING_FS, USBD_StrDesc, length);
   }
   else
   {
-	USBD_GetString (USBD_MSFT_STRING_FS, USBD_StrDesc, length);
+	  USBD_GetString((uint8_t *)USBD_MSFT_STRING_FS, USBD_StrDesc, length);
   }
   *(USBD_StrDesc+*length) = USBD_MSFT_VENDOR_ID;
   *(USBD_StrDesc+*length+1) = 0x00;
@@ -416,7 +416,7 @@ uint8_t *USBD_FS_MSIDFeatureDescriptor( USBD_SpeedTypeDef speed , USBD_SetupReqT
     *length = sizeof(USBD_MSID_FeatureDesc);
     return (uint8_t*)USBD_MSID_FeatureDesc;
   } else if ((req->bmRequest == USB_REQ_RECIPIENT_MS_EP) && req->wIndex == 0x0005/* && req->wValue == 0*/) {
-	USBD_MSFT_GetExtendedProp(USBD_MSFT_REG_SZ, USBD_MSFT_PROP_DI_GUID_NAME, USBD_MSFT_PROP_DI_GUID_VALUE, USBD_GetLen(USBD_MSFT_PROP_DI_GUID_VALUE), USBD_StrDesc, length);
+	  USBD_MSFT_GetExtendedProp(USBD_MSFT_REG_SZ, USBD_MSFT_PROP_DI_GUID_NAME, USBD_MSFT_PROP_DI_GUID_VALUE, USBD_GetLen((uint8_t *)USBD_MSFT_PROP_DI_GUID_VALUE), USBD_StrDesc, length);
   } else {
     *length = 0;
   }

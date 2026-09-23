@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2025 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -77,7 +77,7 @@ void MX_USB_DEVICE_Init(void)
   {
     Error_Handler();
   }
-  if (USBD_WinUSB_Config(&winUsbDeviceConfig, WINUSB_DEVICE_EP_COUNT, winUsbVendorSetupCallback) != USBD_OK)
+  if (USBD_WinUSB_Config(winUsbDeviceConfig, WINUSB_DEVICE_EP_COUNT, winUsbVendorSetupCallback) != USBD_OK)
   {
     Error_Handler();
   }

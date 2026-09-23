@@ -24,7 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "SEGGER_RTT.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,7 +83,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  Log("\n\nPrintf debug work!\n");
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -152,7 +152,11 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+#if DEBUG
+int _write(int fd, char* ptr, int len) {
+  return  SEGGER_RTT_Write(0, ptr, len);
+}
+#endif /* DEBUG */
 /* USER CODE END 4 */
 
 /**

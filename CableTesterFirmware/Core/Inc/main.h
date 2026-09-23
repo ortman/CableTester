@@ -46,7 +46,11 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#if DEBUG
+  #define Log(...) printf(__VA_ARGS__)
+#else
+  #define Log(...)
+#endif /* DEBUG */
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

@@ -144,21 +144,21 @@ public:
 	// Draws the cable for the tester screen. Connector positions stay calculated
 	// for the doubled size, so the pin points must be divided by 2.
 	// Colors are fixed (light theme) and do not depend on the desktop theme.
+	// The screen is rotated 90 degrees, so the images are drawn rotated.
 	static Image RenderImage(MainCable& cable) {
 		Color borderColor = Connector::borderColor;
 		Color textColor = Connector::textColor;
 		Connector::borderColor = Green;
 		Connector::textColor = Blue;
 
-		Size screenSize = {IMAGE_CX, IMAGE_CY};
-		Size imageSize = {screenSize.cx * 2, screenSize.cy * 2};
+		Size screenSize = {IMAGE_CY, IMAGE_CX};
+		Size imageSize = {screenSize.cy * 2, screenSize.cx * 2};
 		ImageDraw img(imageSize);
 		img.DrawRect(imageSize, Color(240, 240, 240));
 		cable.CalculateConnectorsPosition(imageSize);
 		cable.Draw(img, NULL, imageSize);
 		ImageDraw screenImg(screenSize);
-		screenImg.DrawImage(screenSize, img);
-
+		screenImg.DrawImage(screenSize, RotateClockwise(img));
 		Connector::borderColor = borderColor;
 		Connector::textColor = textColor;
 		return screenImg;

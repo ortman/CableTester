@@ -24,6 +24,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "ct_app.h"
+#include "ct_nextion.h"
+#include "ct_usb.h"
 #include "SEGGER_RTT.h"
 /* USER CODE END Includes */
 
@@ -45,6 +48,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+#if DEBUG
+static CtTestResult ctTestResult;
+#endif
 
 /* USER CODE END PV */
 
@@ -56,6 +62,40 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#if DEBUG
+/* Logs the measured connections, to check the board without a cable schema */
+static void CtDebug_LogScan(void)
+{
+  CtTest_Scan(&ctTestResult);
+  Log("Scan of the slot pins:\n");
+  for (uint8_t a = 1; a <= CT_PIN_COUNT; ++a) {
+    CtPinMask connected = ctTestResult.conn[a - 1];
+    if (connected == 0) continue;
+    Log("  D%u:", a);
+    for (uint8_t b = 1; b <= CT_PIN_COUNT; ++b) {
+      if (connected & CT_PIN_BIT(b)) Log(" D%u", b);
+    }
+    Log("\n");
+  }
+}
+
+/* Logs the geometry of the display objects, to check the HMI project */
+static void CtDebug_LogDisplay(void)
+{
+  static const char* const attributes[] = {
+    "dp", "cablePic.x", "cablePic.y", "cablePic.w", "cablePic.h",
+    "errPic1.x", "errPic1.y", "errPic1.w", "errPic1.h", "cableName.val", "errorList.val"
+  };
+  for (unsigned i = 0; i < sizeof(attributes) / sizeof(attributes[0]); ++i) {
+    int32_t value;
+    if (CtNextion_GetNumber(attributes[i], &value)) {
+      Log("Display: %s = %ld\n", attributes[i], (long)value);
+    } else {
+      Log("Display: %s - no answer\n", attributes[i]);
+    }
+  }
+}
+#endif /* DEBUG */
 
 /* USER CODE END 0 */
 
@@ -84,6 +124,9 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
   Log("\n\nPrintf debug work!\n");
+  CtUsb_Disconnect();
+  CtApp_EarlyInit();
+  CtUsb_Connect();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -91,6 +134,12 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+  CtPins_Init();
+  CtApp_Init();
+#if DEBUG
+  CtDebug_LogScan();
+  CtDebug_LogDisplay();
+#endif
 
   /* USER CODE END 2 */
 
@@ -101,6 +150,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    CtApp_Poll();
   }
   /* USER CODE END 3 */
 }

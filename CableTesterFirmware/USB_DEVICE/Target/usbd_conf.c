@@ -26,6 +26,7 @@
 #include "usbd_winusb.h"
 
 /* USER CODE BEGIN Includes */
+#include "usbd_winusb_if.h"
 
 /* USER CODE END Includes */
 
@@ -329,8 +330,13 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   HAL_PCD_RegisterIsoInIncpltCallback(&hpcd_USB_FS, PCD_ISOINIncompleteCallback);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
   /* USER CODE BEGIN EndPoint_Configuration */
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x80 , PCD_SNG_BUF, 0x58);
+  /* Buffer table takes 0x00..0x17 (3 endpoints), the buffers follow it */
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);  /* EP0 OUT, 64 */
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x80 , PCD_SNG_BUF, 0x58);  /* EP0 IN,  64 */
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , WINUSB_EP_STATE_ADDR, PCD_SNG_BUF, 0x98);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , WINUSB_EP_IN_ADDR,    PCD_SNG_BUF, 0xD8);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , WINUSB_EP_CMD_ADDR,   PCD_SNG_BUF, 0x118);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , WINUSB_EP_DATA_ADDR,  PCD_SNG_BUF, 0x138);
   /* USER CODE END EndPoint_Configuration */
   return USBD_OK;
 }

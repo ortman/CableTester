@@ -30,7 +30,7 @@ CableTester::CableTester() {
 		if (currentCable != NULL) {
 			if (!DirectoryExists(cableDir)) DirectoryCreate(cableDir);
 			String fileName = CurrentFileBase();
-			viewer.SaveImage(fileName + ".png");
+			//viewer.SaveImage(fileName + ".png");
 			SaveFile(fileName + ".cbl");
 		}
 	};

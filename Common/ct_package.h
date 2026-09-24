@@ -18,6 +18,7 @@
 #define CT_PACKAGE_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
 #define CT_PKG_MAGIC          "CTPK"
 #define CT_PKG_VERSION        1
@@ -65,5 +66,46 @@ typedef struct {
 #pragma pack(pop)
 
 #define CT_PKG_MAX_SIZE (sizeof(CtPkgHeader) + CT_PKG_PIN_COUNT * sizeof(CtPkgPin) + CT_PKG_MAX_WIRES * sizeof(CtPkgWire))
+
+/* Pins and wires follow the header */
+#define CT_PKG_PINS(pkg)  ((const CtPkgPin*)((const uint8_t*)(pkg) + (pkg)->headerSize))
+#define CT_PKG_WIRES(pkg) ((const CtPkgWire*)((const uint8_t*)CT_PKG_PINS(pkg) + (pkg)->pinCount * sizeof(CtPkgPin)))
+
+static inline uint32_t CtPkg_Crc32(const void* data, uint32_t size)
+{
+	const uint8_t* p = (const uint8_t*)data;
+	uint32_t crc = 0xFFFFFFFFu;
+	for (uint32_t i = 0; i < size; ++i) {
+		crc ^= p[i];
+		for (int b = 0; b < 8; ++b) {
+			crc = (crc >> 1) ^ (0xEDB88320u & (uint32_t)(-(int32_t)(crc & 1)));
+		}
+	}
+	return ~crc;
+}
+
+/* Checks the header, the size and the CRC of the package in memory */
+static inline int CtPkg_IsValid(const void* data, uint32_t size)
+{
+	const CtPkgHeader* h = (const CtPkgHeader*)data;
+	if (size < sizeof(CtPkgHeader)) return 0;
+	if (h->magic[0] != 'C' || h->magic[1] != 'T' || h->magic[2] != 'P' || h->magic[3] != 'K') return 0;
+	if (h->version != CT_PKG_VERSION || h->headerSize < sizeof(CtPkgHeader)) return 0;
+	if (h->pinCount != CT_PKG_PIN_COUNT || h->totalSize > size || h->totalSize > CT_PKG_MAX_SIZE) return 0;
+	if (h->totalSize != h->headerSize + (uint32_t)h->pinCount * sizeof(CtPkgPin)
+	                                  + (uint32_t)h->wireCount * sizeof(CtPkgWire)) return 0;
+
+	uint32_t crc = 0xFFFFFFFFu;
+	const uint8_t* p = (const uint8_t*)data;
+	for (uint32_t i = 0; i < h->totalSize; ++i) {
+		/* the crc32 field itself is counted as zero */
+		uint8_t b = (i >= offsetof(CtPkgHeader, crc32) && i < offsetof(CtPkgHeader, crc32) + 4) ? 0 : p[i];
+		crc ^= b;
+		for (int n = 0; n < 8; ++n) {
+			crc = (crc >> 1) ^ (0xEDB88320u & (uint32_t)(-(int32_t)(crc & 1)));
+		}
+	}
+	return (~crc) == h->crc32;
+}
 
 #endif /* CT_PACKAGE_H_ */

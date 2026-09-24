@@ -2,6 +2,10 @@ uses
 	CtrlLib,
 	plugin/jpg;
 
+library
+	winusb,
+	setupapi;
+
 file
 	CableTesterDesktop.h,
 	main.cpp,
@@ -17,7 +21,14 @@ file
 	TesterPackage.hpp,
 	PropertiesCtrl.hpp,
 	SubCtrls.lay,
-	CableTesterDesktop.lay;
+	CableTesterDesktop.lay,
+	winusbcross readonly separator,
+	winusbcross/winusbcross.h,
+	winusbcross/mutex.h,
+	winusbcross/win/winusbcross.cpp,
+	winusbcross/win/mutex.cpp,
+	winusbcross/unix/winusbcross.cpp,
+	winusbcross/unix/mutex.cpp;
 
 mainconfig
 	"" = "GUI";

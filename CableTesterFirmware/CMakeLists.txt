@@ -49,12 +49,20 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     ${CMAKE_SOURCE_DIR}/RTT/SEGGER_RTT.c
+    ${CMAKE_SOURCE_DIR}/App/ct_pins.c
+    ${CMAKE_SOURCE_DIR}/App/ct_test.c
+    ${CMAKE_SOURCE_DIR}/App/ct_nextion.c
+    ${CMAKE_SOURCE_DIR}/App/ct_storage.c
+    ${CMAKE_SOURCE_DIR}/App/ct_usb.c
+    ${CMAKE_SOURCE_DIR}/App/ct_app.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     ${CMAKE_SOURCE_DIR}/RTT
+    ${CMAKE_SOURCE_DIR}/App
+    ${CMAKE_SOURCE_DIR}/../Common
 )
 
 # Add project symbols (macros)

@@ -21,7 +21,7 @@
 #include "usbd_winusb_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "ct_usb.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -173,13 +173,13 @@ USBD_WinUSB_EnpointsConfig_t winUsbDeviceConfig[WINUSB_DEVICE_EP_COUNT] = {
 /* Private functions ---------------------------------------------------------*/
 static uint8_t USBD_WinUSB_interruptEvent(uint8_t epAddr, uint8_t *buff, uint16_t buffSize) {
   /* USER CODE BEGIN 1 */
-  return USBD_OK;
+  return CtUsb_OnCmd(epAddr, buff, buffSize);
   /* USER CODE END 1 */
 }
 
 static uint8_t USBD_WinUSB_BulkEvent(uint8_t epAddr, uint8_t *buff, uint16_t buffSize) {
   /* USER CODE BEGIN 2 */
-  return USBD_OK;
+  return CtUsb_OnData(epAddr, buff, buffSize);
   /* USER CODE END 2 */
 }
 

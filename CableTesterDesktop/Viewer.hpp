@@ -77,10 +77,9 @@ public:
 		double sX = (double)dSize.cx / (double)sz.cx;
 		double sY = (double)dSize.cy / (double)sz.cy;
 		
-		int cowerWith = sz.cx / 5;
-		int pinWidth = sz.cx / 6;
 		if (createWire) {
-			createWire->Draw(w, {sX, sY}, createPoint, sz.cx - pinWidth - 10 - cowerWith);
+			/* the left edge of the cable blocks, from the image to the screen */
+			createWire->Draw(w, {sX, sY}, createPoint, (int)round(Wire::CoverLeft(dSize) / sX));
 		}
 		if (sX < 1.6 || sX > 2.4 || sY < 1.6 || sY > 2.4) {
 			DrawCable();

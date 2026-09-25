@@ -27,11 +27,8 @@ file
 	CableTesterDesktop.lay,
 	winusbcross readonly separator,
 	winusbcross/winusbcross.h,
-	winusbcross/mutex.h,
 	winusbcross/win/winusbcross.cpp,
-	winusbcross/win/mutex.cpp,
-	winusbcross/unix/winusbcross.cpp,
-	winusbcross/unix/mutex.cpp;
+	winusbcross/unix/winusbcross.cpp;
 
 mainconfig
 	"" = "GUI";

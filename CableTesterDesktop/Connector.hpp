@@ -153,6 +153,14 @@ public:
 		this->isLeft = isLeft;
 	}
 	
+	// The place of the pin from the top of the connector, pinCount when there is no such pin
+	int GetPinPlace(int pin) const {
+		for (int i = 0; i < pinCount; ++i) {
+			if (pins[i] == pin) return i;
+		}
+		return pinCount;
+	}
+	
 	Point GetPinPosition(int32_t pin) {
 		int pinPos = 0;
 		for (int i = 0; i < pinCount; ++i) {

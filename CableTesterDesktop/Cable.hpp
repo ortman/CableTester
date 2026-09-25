@@ -66,109 +66,6 @@ public:
 		return res;
 	}
 	
-	int sortCacheWiresNum;
-	
-	void ClearSortCache() {
-		for (Cable *cable : cables) {
-			cable->ClearSortCache();
-		}
-		sortCacheWiresNum = 0;
-	}
-	
-	void SortWiresRight(Connector* connector) {
-		for (Cable *cable : cables) {
-			cable->SortWiresRight(connector);
-		}
-		int min;
-		int minIdx;
-		int wiresCount = wires.GetCount();
-		Wire *w;
-		for (int i = sortCacheWiresNum; i < wiresCount; ++i) {
-			w = wires[i];
-			if (w->GetRightConnector() == connector) {
-				min = INT_MAX;
-				minIdx = -1;
-				for (int n = i; n < wiresCount; ++n) {
-					if (connector == wires[n]->GetRightConnector() && wires[n]->GetRightConnectorPin() < min) {
-						min = wires[n]->GetRightConnectorPin();
-						minIdx = n;
-					}
-				}
-				if (minIdx >= 0) {
-					w = wires[sortCacheWiresNum];
-					wires[sortCacheWiresNum] = wires[minIdx];
-					wires[minIdx] = w;
-				}
-				++sortCacheWiresNum;
-			}
-		}
-	}
-	
-	void SortPinsLeft(Connector* connector, int &pinStart) {
-		for (Cable *cable : cables) {
-			cable->SortPinsLeft(connector, pinStart);
-		}
-		for (Wire *wire : wires) {
-			if (wire->GetLeftConnector() == connector && pinStart < connector->GetPinCount()) {
-				int p=0;
-				for (; p<pinStart; ++p) {
-					if (connector->pins[p] == wire->GetLeftConnectorPin()) break;
-				}
-				if (p == pinStart) connector->pins.Set(pinStart++, wire->GetLeftConnectorPin());
-			}
-		}
-	}
-	
-	Rect& CalcCableRect(const Size &iSize) {
-		Rect rect;
-		int right = iSize.cx - iSize.cx / 6 - 30;
-		int left = right - iSize.cx / 5;
-		int top = 0;
-		cableRect.Clear();
-		for (Cable* c : cables) {
-			rect = c->CalcCableRect(iSize);
-			if (!rect.IsEmpty()) {
-				if (rect.bottom > top) top = rect.bottom + pinHeight / 6;
-				if (cableRect.IsEmpty()) {
-					cableRect = rect;
-				} else {
-					cableRect.Union(rect);
-				}
-			}
-		}
-		for (Cable* c : cables) {
-			Rect& r = c->GetCableRect();
-			if (r.IsEmpty()) {
-				r = {left, top, right, top + pinHeight};
-				top += pinHeight / 6 + pinHeight;
-				cableRect.Union(r);
-			}
-		}
-		if (!cableRect.IsEmpty()) {
-			cableRect.top -= max(20, pinHeight / 2);
-			cableRect.Inflate(5, 5);
-		}
-		if (wires.GetCount()) {
-			Point pos;
-			top = iSize.cy;
-			int top = iSize.cy, bottom = 0;
-			for (Wire* w : wires) {
-				if (w->GetRightConnector() != NULL) {
-					pos = w->GetRightConnector()->GetPinPosition(w->GetRightConnectorPin());
-					if (pos.y < top) top = pos.y;
-					if (pos.y > bottom) bottom = pos.y;
-				}
-			}
-			Rect wiresRect = {left, top - pinHeight / 6, right, bottom + pinHeight / 6};
-			if (cableRect.IsEmpty()) {
-				cableRect = wiresRect;
-			} else {
-				cableRect.Union(wiresRect);
-			}
-		}
-		return cableRect;
-	}
-	
 	Rect& GetCableRect() {
 		return cableRect;
 	}
@@ -181,9 +78,11 @@ public:
 			Point(cableRect.right, cableRect.bottom),
 			Point(cableRect.left, cableRect.bottom),
 		}, color, 1, DarkColor(color));
-		imgDraw.DrawText(cableRect.left + 4, cableRect.top +
-				(cables.GetCount() ? 0 : (int)round((pinHeight - textFont.GetHeight() * 0.95) / 2.)),
-				name, textFont, IsDark(color) ? White : Black);
+		// the name of a cable with sub-cables takes the row at the top of its block,
+		// the name of a cable of wires goes between its first and second wire
+		// (see MainCable::PlaceBlocks)
+		int textY = cables.GetCount() ? cableRect.top + 2 : cableRect.top + pinHeight * 55 / 100;
+		imgDraw.DrawText(cableRect.left + 4, textY, name, textFont, IsDark(color) ? White : Black);
 		for (Cable* c : cables) {
 			c->DrawCable(imgDraw, objImg, iSize);
 		}

@@ -105,7 +105,7 @@ public:
 					break;
 				}
 				if (!slot.used) break;              // the cables have no gaps
-				String name = String(slot.name, strnlen(slot.name, sizeof(slot.name)));
+				String name = String(slot.name, (int)strnlen(slot.name, sizeof(slot.name)));
 				names.Add(name);
 				slots.Add((i == info.currentSlot ? "► " : "  ") + IntStr(i), name,
 				          (int)slot.wireCount, (int)slot.netCount);

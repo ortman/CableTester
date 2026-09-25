@@ -14,6 +14,7 @@ class Wire : public CableNode {
 	Connector *rightConnector;
 	int rightConnectorPin;
 	Color coperColor = Color::FromRaw(0x666666);
+	int trackY = INT_MIN;
 	
 private:
 	int getPt( int n1 , int n2 , float perc ) {
@@ -178,7 +179,43 @@ public:
 		}
 	}
 	
+	// The x range of the cable blocks: 20 px before the right connectors, which
+	// start at cx - cx/6 - 10
+	static int CoverWidth(const Size& s) {return s.cx / 5;}
+	static int CoverRight(const Size& s) {return s.cx - s.cx / 6 - 30;}
+	static int CoverLeft(const Size& s) {return CoverRight(s) - CoverWidth(s);}
+	
+	// The wire goes through the cable blocks: from a left connector (or from
+	// inside the cable) to a right connector (or ends inside the cable)
+	bool GoesThroughCover() {
+		if (rightConnector && rightConnector->IsRight()) return !leftConnector || leftConnector->IsLeft();
+		return leftConnector && leftConnector->IsLeft() && !rightConnector;
+	}
+	
+	// The line of the wire inside the cable blocks, INT_MIN when it has none
+	void SetTrackY(int y) {trackY = y;}
+	int GetTrackY() const {return trackY;}
+	
 	void Draw(ImageDraw& imgDraw, const Size& imgSize, int pen, const Color& color) {
+		if (trackY != INT_MIN && GoesThroughCover()) {
+			/* from the left pin to the height of the wire in the blocks, then
+			   straight through the blocks to the right pin (trackY is its height) */
+			int start = CoverLeft(imgSize);
+			int end = CoverRight(imgSize);
+			if (leftConnector) {
+				Point left = leftConnector->GetPinPosition(leftConnectorPin);
+				DrawBezierLR(imgDraw, left.x, left.y, start, trackY, color, color, pen);
+			} else {
+				start += CoverWidth(imgSize) / 5;       // the wire begins inside the cable
+			}
+			if (rightConnector) {
+				end = rightConnector->GetPinPosition(rightConnectorPin).x;
+			} else {
+				end -= CoverWidth(imgSize) / 5;         // the wire ends inside the cable
+			}
+			DrawCoper(imgDraw, start, trackY, end, trackY, pen, color);
+			return;
+		}
 		int coverWidth = imgSize.cx / 5;
 		if (leftConnector && rightConnector) {
 			Point left = leftConnector->GetPinPosition(leftConnectorPin);

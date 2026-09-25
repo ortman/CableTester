@@ -20,11 +20,6 @@ public:
 	static constexpr int IMAGE_CX = 480;
 	static constexpr int IMAGE_CY = 760;
 
-	static void CollectWires(Cable* cable, Vector<Wire*>& wires) {
-		for (Wire* w : cable->GetWires()) wires.Add(w);
-		for (Cable* c : cable->GetCables()) CollectWires(c, wires);
-	}
-
 	static String ConnectorName(Connector* cn) {
 		String name = ToUtf8(cn->GetName());
 		name.Replace("\n", " ");
@@ -69,7 +64,7 @@ public:
 			is.node = node;
 		};
 		Vector<Wire*> wires;
-		CollectWires(&cable, wires);
+		MainCable::CollectWires(&cable, wires);
 
 		if (cable.GetConnectors().GetCount() == 0) {
 			Add(true, t_("The cable has no connectors"), NULL);
@@ -197,7 +192,7 @@ public:
 	// Builds the package. RenderImage() must be called before to place connectors.
 	static String Build(MainCable& cable, const String& name) {
 		Vector<Wire*> allWires;
-		CollectWires(&cable, allWires);
+		MainCable::CollectWires(&cable, allWires);
 
 		CtPkgPin pins[CT_PKG_PIN_COUNT];
 		memset(pins, 0, sizeof(pins));

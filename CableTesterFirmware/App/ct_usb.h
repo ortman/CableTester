@@ -35,7 +35,7 @@ void CtUsb_Poll(void);
 /* EP 0x01, from USBD_WinUSB_interruptEvent */
 uint8_t CtUsb_OnCmd(uint8_t epAddr, uint8_t* data, uint16_t size);
 
-/* EP 0x02, from USBD_WinUSB_BulkEvent. Returns 0xEE to stop the receiving */
+/* EP 0x02, from USBD_WinUSB_BulkEvent. Returns USBD_WINUSB_OUT_HOLD to stop the receiving */
 uint8_t CtUsb_OnData(uint8_t epAddr, uint8_t* data, uint16_t size);
 
 /* Sends an event to the PC (EP 0x81), CT_EV_xxx */

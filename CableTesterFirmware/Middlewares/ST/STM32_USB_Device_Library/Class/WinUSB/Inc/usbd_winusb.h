@@ -10,6 +10,15 @@
 
 #include  "usbd_ioreq.h"
 
+/* Endpoints of the interface, the size of the configuration descriptor depends on it */
+#ifndef USBD_WINUSB_MAX_EP
+#define USBD_WINUSB_MAX_EP    15U
+#endif
+
+/* outEvent returns it to leave the OUT endpoint not ready: the host waits on NAK
+   until the receiver calls USBD_LL_PrepareReceive() itself */
+#define USBD_WINUSB_OUT_HOLD  0xEEU
+
 typedef struct {
 	uint8_t epType;
 	uint8_t epAddr;

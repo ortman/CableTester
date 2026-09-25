@@ -18,7 +18,6 @@ extern USBD_HandleTypeDef hUsbDeviceFS;
 extern uint8_t buffBulk[];              /* receive buffer of EP 0x02, usbd_winusb_if.c */
 
 #define CT_USB_SEND_TIMEOUT_MS 50
-#define CT_USB_DONT_REARM      0xEE
 
 enum {
 	CT_XFER_NONE = 0,
@@ -83,17 +82,9 @@ void CtUsb_Init(void)
 	ctUsbXfer = CT_XFER_NONE;
 }
 
-/* The WinUSB class passes OUT_ep[].xfer_len as the size, but the HAL counts it
-   down to 0 when the transfer is done. The received size is xfer_count. */
-static uint16_t CtUsb_RxSize(uint8_t epAddr, uint16_t size)
-{
-	uint32_t received = USBD_LL_GetRxDataSize(&hUsbDeviceFS, epAddr);
-	return (uint16_t)(received ? received : size);
-}
-
 uint8_t CtUsb_OnData(uint8_t epAddr, uint8_t* data, uint16_t size)
 {
-	size = CtUsb_RxSize(epAddr, size);
+	(void)epAddr;
 	for (uint16_t i = 0; i < size; ++i) {
 		uint16_t next = (uint16_t)((ctUsbRingHead + 1) % CT_USB_RING_SIZE);
 		if (next == ctUsbRingTail) {
@@ -105,14 +96,14 @@ uint8_t CtUsb_OnData(uint8_t epAddr, uint8_t* data, uint16_t size)
 	}
 	if (CtUsb_RingFree() < WINUSB_EP_DATA_SIZE) {
 		ctUsbNeedRearm = 1;                 /* the host waits until the buffer is drained */
-		return CT_USB_DONT_REARM;
+		return USBD_WINUSB_OUT_HOLD;
 	}
 	return USBD_OK;
 }
 
 uint8_t CtUsb_OnCmd(uint8_t epAddr, uint8_t* data, uint16_t size)
 {
-	size = CtUsb_RxSize(epAddr, size);
+	(void)epAddr;
 	if (size < 3) return USBD_OK;
 	if (ctUsbCmdPending) {
 		CtRsp rsp;

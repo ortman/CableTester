@@ -130,6 +130,42 @@ CableTester::CableTester() {
 			Exclamation(t_("Can not write the export files."));
 		}
 	};
+
+	testerWindow.WhenBuild = [=](String& name, String& package, String& jpeg) {
+		if (currentCable == NULL || list.GetCursor() < 0) {
+			Exclamation(t_("Select a cable in the list first."));
+			return false;
+		}
+		if (!CheckPins(true)) return false;
+		name = GetFileTitle(CurrentFileBase());
+		viewer.BuildPackage(name, package, jpeg);
+		return true;
+	};
+	testerWindow.WhenLabels = [=](const String& name) {
+		return PinLabelsOf(name);
+	};
+	bTester.WhenPush = [=] {
+		testerWindow.Run();
+	};
+}
+
+// Slot pin labels of the cable file with this name (the tester keeps the name cut)
+Vector<String> CableTester::PinLabelsOf(const String& name) {
+	if (name.IsEmpty()) return Vector<String>();
+	for (int i = 0; i < list.GetCount(); ++i) {
+		String path = list.Get(i);
+		String title = GetFileTitle(path);
+		if (!title.StartsWith(name)) continue;
+		if (currentCable && i == list.GetCursor()) {
+			return TesterPackage::PinLabels(*currentCable);   // it may be not saved yet
+		}
+		try {
+			One<MainCable> cable = MainCable::FromData(::LoadFile(path));
+			return TesterPackage::PinLabels(*cable);
+		} catch (const CableNode::FileError&) {
+		}
+	}
+	return Vector<String>();
 }
 
 String CableTester::CurrentFileBase() {

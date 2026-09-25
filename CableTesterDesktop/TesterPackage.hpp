@@ -35,6 +35,23 @@ public:
 		return ConnectorName(cn) + ":" + IntStr(pin);
 	}
 
+	// "Connector:pin" for every slot pin (index 0 = slot pin 1), empty when not used
+	static Vector<String> PinLabels(MainCable& cable) {
+		Vector<String> labels;
+		labels.SetCount(CT_PKG_PIN_COUNT);
+		for (Connector* cn : cable.GetConnectors()) {
+			for (int pin = 1; pin <= cn->GetPinCount(); ++pin) {
+				int tp = cn->GetTesterPin(pin);
+				if (tp >= 1 && tp <= CT_PKG_PIN_COUNT) labels[tp - 1] = PinName(cn, pin);
+			}
+		}
+		return labels;
+	}
+
+	static String EncodeJpeg(const Image& img) {
+		return JPGEncoder(90).SaveString(img);
+	}
+
 	static bool IsPinOnWire(const Vector<Wire*>& wires, Connector* cn, int pin) {
 		for (Wire* w : wires) {
 			if (w->GetLeftConnector() == cn && w->GetLeftConnectorPin() == pin) return true;

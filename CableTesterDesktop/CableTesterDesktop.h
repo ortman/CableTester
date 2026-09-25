@@ -4,6 +4,7 @@
 #include <CtrlLib/CtrlLib.h>
 #include "Viewer.hpp"
 #include "PropertiesCtrl.hpp"
+#include "TesterWindow.hpp"
 
 using namespace Upp;
 
@@ -24,6 +25,8 @@ private:
 	CreateCableWindow addCableWindow;
 	CreateCableWindow addConnectorWindow;
 	IssuesWindow issuesWindow;
+	TesterWindow testerWindow;
+	Vector<String> PinLabelsOf(const String& name);
 	String CurrentFileBase();
 	bool CheckPins(bool forExport);
 public:

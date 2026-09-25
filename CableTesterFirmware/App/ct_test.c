@@ -20,8 +20,14 @@ static void CtTest_AddError(CtTestResult* result, uint8_t type, uint8_t pinA, ui
 
 void CtTest_Scan(CtTestResult* result)
 {
+	CtTest_ScanPins(result, CT_PIN_MASK_ALL);
+}
+
+void CtTest_ScanPins(CtTestResult* result, CtPinMask pins)
+{
 	memset(result->conn, 0, sizeof(result->conn));
 	for (uint8_t pin = 1; pin <= CT_PIN_COUNT; ++pin) {
+		if ((pins & CT_PIN_BIT(pin)) == 0) continue;
 		CtPins_Drive(pin);
 		CtPins_DelayUs(CT_TEST_SETTLE_US);
 		/* the driven pin always reads high, it is not a connection */
@@ -62,7 +68,11 @@ uint8_t CtTest_Compare(const CtPkgHeader* package, CtTestResult* result)
 	uint8_t reportedB[CT_TEST_MAX_ERRORS];
 	uint8_t reportedCount = 0;
 	for (uint8_t a = 1; a <= CT_PIN_COUNT; ++a) {
+		/* the pins that are not in the schema belong to the connectors of other
+		   cables on the same module, a connection to them is not an error */
+		if ((pins[a - 1].flags & CT_PKG_PIN_USED) == 0) continue;
 		for (uint8_t b = a + 1; b <= CT_PIN_COUNT; ++b) {
+			if ((pins[b - 1].flags & CT_PKG_PIN_USED) == 0) continue;
 			uint8_t netA = pins[a - 1].net;
 			uint8_t netB = pins[b - 1].net;
 			if (netA != CT_PKG_NET_NONE && netA == netB) continue;  /* the same net, it must be connected */
@@ -91,8 +101,20 @@ uint8_t CtTest_Compare(const CtPkgHeader* package, CtTestResult* result)
 	return result->errorCount;
 }
 
+CtPinMask CtTest_UsedPins(const CtPkgHeader* package)
+{
+	const CtPkgPin* pins = CT_PKG_PINS(package);
+	CtPinMask mask = 0;
+	for (uint8_t pin = 1; pin <= CT_PIN_COUNT; ++pin) {
+		if (pins[pin - 1].flags & CT_PKG_PIN_USED) mask |= CT_PIN_BIT(pin);
+	}
+	return mask;
+}
+
 uint8_t CtTest_Run(const CtPkgHeader* package, CtTestResult* result)
 {
-	CtTest_Scan(result);
+	/* only the pins of the schema are driven, the other connectors of the
+	   module are left alone */
+	CtTest_ScanPins(result, CtTest_UsedPins(package));
 	return CtTest_Compare(package, result);
 }

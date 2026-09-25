@@ -24,6 +24,9 @@ private:
 	}
 
 public:
+	// Called while a file goes to the tester, returns false to cancel
+	Function<bool(int done, int total)> WhenProgress;
+
 	~TesterDevice() {
 		Close();
 	}
@@ -131,6 +134,7 @@ private:
 			int32_t n = wuc_bulk_write(dev, CT_EP_DATA, (uint8_t*)~data + done, part, END_TIMEOUT_MS);
 			if (n <= 0) return Fail(t_("USB write error"));
 			done += n;
+			if (WhenProgress && !WhenProgress(done, data.GetCount())) return Fail(t_("Canceled"));
 		}
 		return true;
 	}

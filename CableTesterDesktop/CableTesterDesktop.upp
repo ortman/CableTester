@@ -4,7 +4,8 @@ uses
 
 library
 	winusb,
-	setupapi;
+	setupapi,
+	ole32;
 
 file
 	CableTesterDesktop.h,
@@ -19,6 +20,8 @@ file
 	CableNode.hpp,
 	Viewer.hpp,
 	TesterPackage.hpp,
+	TesterDevice.hpp,
+	TesterWindow.hpp,
 	PropertiesCtrl.hpp,
 	SubCtrls.lay,
 	CableTesterDesktop.lay,

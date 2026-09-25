@@ -123,15 +123,27 @@ int main(void)
 	Report("short of two nets", &r);
 	assert(r.errorCount == 1 && r.errors[0].type == CT_ERROR_SHORT);
 
-	/* 4. a short to a pin that is not in the schema */
+	/* 4. a connection to a pin that is not in the schema: a connector of
+	   another cable on the same module, it is not checked */
 	memset(fakeConn, 0, sizeof(fakeConn));
 	for (unsigned i = 0; i < 5; ++i) Connect(wires[i][0], wires[i][1]);
 	Connect(34, 35);
 	Connect(3, 40);
 	Closure();
 	CtTest_Run(pkg, &r);
-	Report("short to the free pin 40", &r);
-	assert(r.errorCount == 1); /* the whole net 3-33 is shorted to the free pin, reported once */
+	Report("connection to the pin 40 of another cable", &r);
+	assert(r.errorCount == 0);
+
+	/* 4b. a pin of a connector of the cable without a wire (in the schema,
+	   no net) shorted to the net 3-33: it is an error, reported once */
+	CtPkgPin* pins = (CtPkgPin*)(pkgBuf + pkg->headerSize);
+	pins[40 - 1].flags = CT_PKG_PIN_USED;
+	pkg->crc32 = 0;
+	pkg->crc32 = CtPkg_Crc32(pkgBuf, pkg->totalSize);
+	CtTest_Run(pkg, &r);
+	Report("short to the free pin 40 of the cable", &r);
+	assert(r.errorCount == 1 && r.errors[0].type == CT_ERROR_SHORT);
+	pins[40 - 1].flags = 0;
 
 	/* 5. one side only: the connection is seen from one pin, not from the other */
 	memset(fakeConn, 0, sizeof(fakeConn));

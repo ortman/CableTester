@@ -154,6 +154,14 @@ public:
 		return Upp::SaveFile(packageFile, pkg) && TesterPackage::SaveJpeg(imageFile, img);
 	}
 	
+	// The tester package and the screen picture in memory, for the upload to the tester
+	void BuildPackage(const String& name, String& package, String& jpeg) {
+		Image img = TesterPackage::RenderImage(*cable);
+		package = TesterPackage::Build(*cable, name);
+		DrawCable();
+		jpeg = TesterPackage::EncodeJpeg(img);
+	}
+
 	virtual void LeftDown(Point p, dword keyflags) {
 		if (cable == NULL) return;
 		SetFocus();

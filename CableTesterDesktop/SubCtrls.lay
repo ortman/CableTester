@@ -29,3 +29,15 @@ LAYOUT(IssuesLayout, 520, 300)
 	ITEM(Upp::Button, bOk, SetLabel(t_("OK")).RightPosZ(88, 76).BottomPosZ(5, 27))
 END_LAYOUT
 
+LAYOUT(TesterLayout, 600, 420)
+	ITEM(Upp::Label, lStatus, HSizePosZ(4, 136).TopPosZ(4, 19))
+	ITEM(Upp::ArrayCtrl, slots, HSizePosZ(4, 136).TopPosZ(26, 180))
+	ITEM(Upp::Label, lResult, SetLabel(t_("Test result")).HSizePosZ(4, 136).TopPosZ(212, 19))
+	ITEM(Upp::ArrayCtrl, errors, HSizePosZ(4, 136).VSizePosZ(234, 4))
+	ITEM(Upp::Button, bRefresh, SetLabel(t_("Refresh")).Tip(t_("Connect to the tester and read the cables")).RightPosZ(4, 124).TopPosZ(26, 24))
+	ITEM(Upp::Button, bUpload, SetLabel(t_("Upload cable")).Tip(t_("Upload the current cable with its picture to the tester")).RightPosZ(4, 124).TopPosZ(58, 24))
+	ITEM(Upp::Button, bSelect, SetLabel(t_("Select")).Tip(t_("Select the cable on the tester")).RightPosZ(4, 124).TopPosZ(86, 24))
+	ITEM(Upp::Button, bDelete, SetLabel(t_("Delete")).Tip(t_("Delete the cable from the tester")).RightPosZ(4, 124).TopPosZ(114, 24))
+	ITEM(Upp::Button, bTest, SetLabel(t_("Test")).Tip(t_("Test the cable selected on the tester")).RightPosZ(4, 124).TopPosZ(234, 24))
+	ITEM(Upp::Button, bClose, SetLabel(t_("Close")).RightPosZ(4, 124).BottomPosZ(4, 27))
+END_LAYOUT

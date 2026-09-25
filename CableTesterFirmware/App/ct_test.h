@@ -35,7 +35,15 @@ typedef struct {
 /* Measures the connection matrix, fills result->conn */
 void CtTest_Scan(CtTestResult* result);
 
-/* Measures and compares with the package. Returns the number of errors */
+/* Measures only the given pins, the rows of the other pins stay empty */
+void CtTest_ScanPins(CtTestResult* result, CtPinMask pins);
+
+/* The pins that belong to the connectors of the cable (CT_PKG_PIN_USED) */
+CtPinMask CtTest_UsedPins(const CtPkgHeader* package);
+
+/* Measures and compares with the package. Only the pins of the schema are
+   checked: a module may carry the connectors of other cables.
+   Returns the number of errors */
 uint8_t CtTest_Run(const CtPkgHeader* package, CtTestResult* result);
 
 /* Compares an already measured matrix with the package */
